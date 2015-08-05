@@ -1,0 +1,7 @@
+both mac and windows versions should run with any machine that has Java installed. please run, respectively, PolSys.app and PolSys.bat.
+
+***KNOWN ISSUES***
+
+- generated audio can bypass normalization settings. if clipping occurs, please turn down the volume.
+- population can die during stage 2. if that happens, the game must be restarted.
+- email implementation is known to have encountered some issues. the email at the end of the game might not be sent.

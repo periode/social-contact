@@ -1,0 +1,37 @@
+so when there is a conflict, the agent that is that the junction between two clusters is actually referenced in the arrayLists of both clusters,
+even though he only seems to point to one cluster
+
+still a bug with the length of the connection sometimes. it is too long and isn't removed past a certain length. when i click on an agent that is establishing the buggy lines,
+it says i haven't established a cluster.
+
+---------
+when two agents fight, the losing agent isn't removed from the winner's cluster, so he technically lives on and is seen on the postGame screen.
+i'm fixing it but that could be kind of cool to keep, as a ghost type of stuff.
+
+so i haven't fixed it, and it looks like killing an agent does not give back the connection it should... so it's like a ghost taking away your interactions with society...
+---------
+
+arraylist of connections inside the agents
+everytime an agent gets a connection, add it to that arraylist
+calculate clusters based on that
+
+go through all the connections an agent has, and make sure that all the agents at the other end of these connections have the same cluster
+
+
+pass an arraylist to the function
+
+once the agent is checked, add it to the arraylist. if the agent is not in the arraylist, check it.
+
+
+
+// matt wed night
+
+when you add an agent to a cluster, make sure it's not already in there
+
+every frame, make a new cluster
+
+remove all stuff where you modifying the cluster agent relationship and it's overriding something.
+
+error line 396 null pointer make sure every removal of agent is getting rid of
+
+

@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="lib" path="lib/base/core/core.jar">
+		<attributes>
+			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="PolSys/lib/base/core"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="lib/base/core/gluegen-rt-natives-linux-amd64.jar">
+		<attributes>
+			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="PolSys/lib/base/core"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="lib/base/core/gluegen-rt-natives-linux-armv6hf.jar">
+		<attributes>
+			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="PolSys/lib/base/core"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="lib/base/core/gluegen-rt-natives-linux-i586.jar">
+		<attributes>
+			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="PolSys/lib/base/core"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="lib/base/core/gluegen-rt-natives-macosx-universal.jar">
+		<attributes>
+			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="PolSys/lib/base/core"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="lib/base/core/gluegen-rt-natives-windows-amd64.jar">
+		<attributes>
+			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="PolSys/lib/base/core"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="lib/base/core/gluegen-rt-natives-windows-i586.jar">
+		<attributes>
+			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="PolSys/lib/base/core"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="lib/base/core/gluegen-rt.jar">
+		<attributes>
+			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="PolSys/lib/base/core"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="lib/base/core/jogl-all-natives-linux-amd64.jar">
+		<attributes>
+			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="PolSys/lib/base/core"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="lib/base/core/jogl-all-natives-linux-armv6hf.jar">
+		<attributes>
+			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="PolSys/lib/base/core"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="lib/base/core/jogl-all-natives-linux-i586.jar">
+		<attributes>
+			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="PolSys/lib/base/core"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="lib/base/core/jogl-all-natives-macosx-universal.jar">
+		<attributes>
+			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="PolSys/lib/base/core"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="lib/base/core/jogl-all-natives-windows-amd64.jar">
+		<attributes>
+			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="PolSys/lib/base/core"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="lib/base/core/jogl-all-natives-windows-i586.jar">
+		<attributes>
+			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="PolSys/lib/base/core"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="lib/base/core/jogl-all.jar">
+		<attributes>
+			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="PolSys/lib/base/core"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="lib/user/jsminim.jar"/>
+	<classpathentry kind="lib" path="lib/user/minim.jar"/>
+	<classpathentry kind="lib" path="lib/user/peasycam/library/peasycam.jar"/>
+	<classpathentry kind="lib" path="lib/user/ocd/library/ocd.jar"/>
+	<classpathentry kind="lib" path="lib/user/mesh/library/mesh.jar"/>
+	<classpathentry kind="lib" path="lib/user/mesh/library/quickhull3d.1.4.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER">
+		<attributes>
+			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="C:/Program Files (x86)/Java/jre1.8.0_45/bin"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="lib/base/core/dsn.jar"/>
+	<classpathentry kind="lib" path="lib/base/core/gimap.jar"/>
+	<classpathentry kind="lib" path="lib/user/gimap.jar"/>
+	<classpathentry kind="lib" path="lib/user/imap.jar"/>
+	<classpathentry kind="lib" path="lib/user/mail.jar"/>
+	<classpathentry kind="lib" path="lib/user/mailapi.jar"/>
+	<classpathentry kind="lib" path="lib/user/pop3.jar"/>
+	<classpathentry kind="lib" path="lib/user/smtp.jar"/>
+	<classpathentry kind="lib" path="/Users/pierre/Downloads/beads_processing/beads/library/beads.jar"/>
+	<classpathentry kind="lib" path="/Users/pierre/Downloads/beads_processing/beads/library/jarjar-1.0.jar"/>
+	<classpathentry kind="lib" path="/Users/pierre/Downloads/beads_processing/beads/library/jl1.0.1.jar"/>
+	<classpathentry kind="lib" path="/Users/pierre/Downloads/beads_processing/beads/library/jna.jar"/>
+	<classpathentry kind="lib" path="/Users/pierre/Downloads/beads_processing/beads/library/mp3spi1.9.4.jar"/>
+	<classpathentry kind="lib" path="/Users/pierre/Downloads/beads_processing/beads/library/org-jaudiolibs-audioservers-jack.jar"/>
+	<classpathentry kind="lib" path="/Users/pierre/Downloads/beads_processing/beads/library/org-jaudiolibs-audioservers-javasound.jar"/>
+	<classpathentry kind="lib" path="/Users/pierre/Downloads/beads_processing/beads/library/org-jaudiolibs-audioservers.jar"/>
+	<classpathentry kind="lib" path="/Users/pierre/Downloads/beads_processing/beads/library/org-jaudiolibs-jnajack.jar"/>
+	<classpathentry kind="lib" path="/Users/pierre/Downloads/beads_processing/beads/library/tools.jar"/>
+	<classpathentry kind="lib" path="/Users/pierre/Downloads/beads_processing/beads/library/tritonus_aos-0.3.6.jar"/>
+	<classpathentry kind="lib" path="/Users/pierre/Downloads/beads_processing/beads/library/tritonus_share.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>
