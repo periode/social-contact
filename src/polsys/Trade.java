@@ -48,7 +48,7 @@ public class Trade {
 		pos = new PVector((n1.pos.x+n2.pos.x)*0.5f, (n1.pos.y+n2.pos.y)*0.5f);
 		this.volume = PApplet.abs(n1.totalWealth - n2.totalWealth);
 		this.vesselsSize = (int) PApplet.map(volume, 0, 100, 1, 20);
-		vesselsNum = 5;
+		vesselsNum = (int)(p.random(2, 6));
 		vesselsPos = new PVector[vesselsNum];
 		vesselsLerp = new float[vesselsNum];
 		if(n1.totalWealth > n2.totalWealth){
@@ -73,14 +73,14 @@ public class Trade {
 		col = p.color(0, 100, 200); 
 		sw = 10;
 		
-		numHarmonics = 2;
+		numHarmonics = 1;
 	    wp = new WavePlayer[numHarmonics];
 	    e = new Envelope[numHarmonics];
 	    g = new Gain[numHarmonics];
 	    gTrade = new Gain(PolSys.ac, numHarmonics, 0.1f);
 	    
 	    for(int i = 0; i < numHarmonics; i++){
-	    	if(i % 2 == 0){
+	    	if(p.random(1) < 0.5f){
 	    		wp[i] = new WavePlayer(PolSys.ac,  783.991f, Buffer.SINE);
 	    	}else{
 	    		wp[i] = new WavePlayer(PolSys.ac, 659.255f, Buffer.SINE);

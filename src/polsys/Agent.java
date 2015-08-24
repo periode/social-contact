@@ -232,6 +232,8 @@ public class Agent extends ProcessingObject {
 		  float cultureVariationLove;
 		  float socialEnvironmentVariation;
 		  
+		//-------------------- Timer Variables
+		  
 		  ArrayList<ConnectionLove> currentConnectionsLove;
 		  ArrayList<Agent> agentsLove;
 		  ArrayList<ConnectionPower> currentConnectionsPower;
@@ -604,13 +606,10 @@ public class Agent extends ProcessingObject {
 			  
 			  if(isStopped){			    
 			    	velocity.mult(0);
-				  }
+			  }
 
-			  // ----------- BOUNCE STUFF
 			  boundaries();
 			    
-			    
-			  // ----------- MOVEMENT
 			  if (formingStableRelationships == 1.5f) {
 				  if (connec == (int)(connecMax*0.0f)){
 					  moveCoeff = 0.0f;
@@ -1310,6 +1309,8 @@ public class Agent extends ProcessingObject {
 						  
 						  //this is the result
 						  PApplet.println("someone is born @ "+p.frameCount);
+						  PApplet.println("parent 1: "+this);
+						  PApplet.println("parent 2: "+mate);
 						  Agent child = new Agent(x, y, r, c, -2, 2, d, r1, r2, v, reS, this.p);
 						  child.parent1 = this;
 						  child.parent2 = mate;
@@ -1318,6 +1319,8 @@ public class Agent extends ProcessingObject {
 						  if(!this.children.contains(child)) this.children.add(child);
 						  if(!mate.children.contains(child)) mate.children.add(child);
 						  if(!PolSys.community.contains(child)) PolSys.community.add(child);
+						  
+						  
 						  this.numberOfChildren--;
 						  this.childrenHad++;
 						  this.canReproduce = false;
@@ -1931,7 +1934,6 @@ public class Agent extends ProcessingObject {
 				        	this.hasBeenRejected += 1;
 				        }
 				        
-				        //TODO this is where i fix collisions
 				        PVector diff = PVector.sub(this.pos, PolSys.agents[i].pos);
 				        diff.normalize();
 				        diff.mult(maxSpeed);
@@ -1941,25 +1943,6 @@ public class Agent extends ProcessingObject {
 				        applyForce(steer);
 				      }
 				    }
-			  }
-			  
-			  if(PolSys.inGame2){
-				  
-				  //TODO this code is useless.
-				  for(int i = 0; i < PolSys.community.size(); i++){
-					  	Agent other = PolSys.community.get(i);
-					  	
-					  	if(PVector.dist(this.pos, other.pos) < this.rad*2.0f){
-							PVector diff = PVector.sub(this.pos, other.pos);
-							diff.normalize();
-							diff.mult(maxSpeed);
-							
-							PVector steer = PVector.sub(diff, velocity);
-							steer.limit(maxForce);
-							applyForce(steer);	
-					  	}
-
-				  }
 			  }
 		  }
 		  

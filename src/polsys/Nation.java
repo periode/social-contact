@@ -495,7 +495,6 @@ public class Nation {
 			  tHasNeighbors = true;
 		}
 		
-		//TODO there-s an error there, figure it out later :)
 		s = possibleStatements.get(PApplet.constrain(r, 0, possibleStatements.size()-1));
 		
 		return s;
@@ -855,44 +854,43 @@ public class Nation {
 	
 	void war(){
 		//if cultural difference is too bad, then war
-		  for(int i = 0; i < PolSys.others.size(); i++){
-			  Nation n = PolSys.others.get(i);
-			 
-			  if(PApplet.dist(this.pos.x, this.pos.y, n.pos.x, n.pos.y) < this.distanceWar && this != n && PApplet.abs(this.culturalHomogeneity-n.culturalHomogeneity)  > culturalRequirementWar && n.totalWealth > wealthStopWar*1.1f && !this.isRuined && !n.isRuined){
-				  boolean found = false;
-				  for(int j = 0; j < PolSys.wars.size(); j++){
-					  War w = PolSys.wars.get(j);
-					  if((w.n1 == this && w.n2 == n) || (w.n1 == n && w.n2 == this)){
-						  found = true;
-						  break;
-					  }
-				  }
-				  
-				  if(!found){
-					  War w = new War(this, n, p);
-					  PolSys.wars.add(w);
-					  wasAtWar = true;
-					  this.currentWars.add(w);
-					  if(!this.enemies.contains(n)) this.enemies.add(n);
-					  n.currentWars.add(w);
-					  if(!n.enemies.contains(this)) n.enemies.add(this);
-				  }
-			  }else if(PApplet.abs(this.culturalHomogeneity - n.culturalHomogeneity) > culturalRequirementWar || this.isRuined || n.isRuined){
-				  for(int j = 0; j < PolSys.wars.size(); j++){
-					  War w = PolSys.wars.get(j);
-					  
-					  if((w.n1 == this && w.n2 == n) || (w.n1 == n) && (w.n2 == this)){
-						  w.eWar.addSegment(0.0f, 500.0f, new KillTrigger(w.gWar));
-						  PolSys.wars.remove(w);
-						  
-						  this.currentWars.remove(w);
-						  this.enemies.remove(n);
-						  n.currentWars.remove(w);
-						  n.enemies.remove(this);
-				  }
-			  }
-		  }
-	  }
-	}
+		for(int i = 0; i < PolSys.others.size(); i++){
+			Nation n = PolSys.others.get(i);
 
+			if(PApplet.dist(this.pos.x, this.pos.y, n.pos.x, n.pos.y) < this.distanceWar && this != n && PApplet.abs(this.culturalHomogeneity-n.culturalHomogeneity)  > culturalRequirementWar && n.totalWealth > wealthStopWar*1.1f && !this.isRuined && !n.isRuined){
+				boolean found = false;
+				for(int j = 0; j < PolSys.wars.size(); j++){
+					War w = PolSys.wars.get(j);
+					if((w.n1 == this && w.n2 == n) || (w.n1 == n && w.n2 == this)){
+						found = true;
+						break;
+					}
+				}
+
+				if(!found){
+					War w = new War(this, n, p);
+					PolSys.wars.add(w);
+					wasAtWar = true;
+					this.currentWars.add(w);
+					if(!this.enemies.contains(n)) this.enemies.add(n);
+					n.currentWars.add(w);
+					if(!n.enemies.contains(this)) n.enemies.add(this);
+				}
+			}else if(PApplet.abs(this.culturalHomogeneity - n.culturalHomogeneity) > culturalRequirementWar || this.isRuined || n.isRuined){
+				for(int j = 0; j < PolSys.wars.size(); j++){
+					War w = PolSys.wars.get(j);
+
+					if((w.n1 == this && w.n2 == n) || (w.n1 == n) && (w.n2 == this)){
+						w.eWar.addSegment(0.0f, 500.0f, new KillTrigger(w.gWar));
+						PolSys.wars.remove(w);
+
+						this.currentWars.remove(w);
+						this.enemies.remove(n);
+						n.currentWars.remove(w);
+						n.enemies.remove(this);
+					}
+				}
+			}
+		}
+	}
 }

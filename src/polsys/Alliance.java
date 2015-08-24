@@ -65,7 +65,7 @@ public class Alliance {
 		    	g[i].addInput(wp[i]);
 		    	gAlliance.addInput(g[i]);
 		    	e[i].addSegment(p.random(0.05f, 0.1f), 200.0f);
-		    	e[i].addSegment(0.0f, 2000.0f, new KillTrigger(g[i]));
+		    	e[i].addSegment(0.0f, p.random(500.0f, 1000.0f), new KillTrigger(g[i]));
 		    }
 		    
 		    PolSys.ac.out.addInput(gAlliance);

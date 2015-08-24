@@ -57,6 +57,10 @@ public class PolSys extends PApplet {
 
 	
 	/* ---------------- Declaring the existence of any agents in the game ---------------- */
+	public static String language;
+	Button englishButton;
+	Button frenchButton;
+	
 	public static Seasons seasons;
 	
 	public static Agent[] agents;;
@@ -90,7 +94,7 @@ public class PolSys extends PApplet {
 	
 	boolean canRemoveConnec;
 	boolean initiate;
-	float beginAlpha;
+	static float beginAlpha;
 
 	int numberOfAgents;
 	int numberOfPredators;
@@ -100,6 +104,14 @@ public class PolSys extends PApplet {
 	float rectDeadAlpha;
 	
 	/* ---------------- User Interface variables ---------------- */
+	public static float optimalWidth;
+	public static float optimalHeight;
+	
+	static float translateBufferX;
+	static float translateBufferY;
+	static float scaleW;
+	static float scaleH;
+	
 	public static float rectBorderX;
 	public static float rectBorderY;
 	public static float rectBorderW;
@@ -205,6 +217,10 @@ public class PolSys extends PApplet {
 	String legendTextContent1;
 	String legendTextContent2;
 	String legendTextContent3;
+	
+	String legendTextContent1FR;
+	String legendTextContent2FR;
+	String legendTextContent3FR;
 	
 	String legendButtonText;
 	
@@ -338,10 +354,15 @@ public class PolSys extends PApplet {
 	/* ---------------- Variables for the artist statement ---------------- */
 	int statementPage;
 	String[] statementText;
+	String[] statementTextFR;
 	String[] currentStatement;
+	String[] currentStatementFR;
 	String[] statementText0;
 	String[] statementText1;
 	String[] statementText2;
+	String[] statementText0FR;
+	String[] statementText1FR;
+	String[] statementText2FR;
 	float statementAlpha;
 	boolean switchPages;
 	
@@ -855,6 +876,7 @@ public class PolSys extends PApplet {
 	boolean finalScreen;
 	Button sendButton;
 	String typedText;
+	String errorMessageMail;
 	boolean typedEmail;
 	int blinkingType;
 	
@@ -874,13 +896,30 @@ public class PolSys extends PApplet {
 		//size(1600, 900);
 		//size(displayWidth, displayHeight);
 		
-//		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-//		double SCREEN_WIDTH = screenSize.getWidth();
-//		double SCREEN_HEIGHT = screenSize.getHeight();
-//		size((int)SCREEN_WIDTH, (int)SCREEN_HEIGHT);
-		frame.setBackground(new java.awt.Color(255,  255, 255));
-		size(1600, 900);
+		optimalWidth = 1600;
+		optimalHeight = 900;
 		
+		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+		float SCREEN_WIDTH = (float)screenSize.getWidth();
+		float SCREEN_HEIGHT = (float)screenSize.getHeight();
+		
+		if(SCREEN_WIDTH < optimalWidth){
+			translateBufferX = (optimalWidth - SCREEN_WIDTH)*0.5f;
+			translateBufferY = (optimalHeight - SCREEN_HEIGHT)*0.5f;
+			scaleW = SCREEN_WIDTH/optimalWidth;
+			scaleH = SCREEN_HEIGHT/optimalHeight;
+			println("scaleW", scaleW);
+			println("scaleH", scaleH);
+		}else{
+//			scaleW = 1;
+//			scaleH = 1;
+			translateBufferX = (SCREEN_WIDTH - optimalWidth)*0.5f;
+			translateBufferY = (SCREEN_HEIGHT - optimalHeight)*0.5f;
+			scaleW = SCREEN_WIDTH/optimalWidth;
+			scaleH = SCREEN_HEIGHT/optimalHeight;
+		}
+
+		size(1600, 900);
 		frame.setResizable(true);
 		
 		System.setProperty("java.net.preferIPv4Stack" , "true");
@@ -892,6 +931,11 @@ public class PolSys extends PApplet {
 		frameRate(30);
 		
 		mouse = new PVector();
+		
+		language = "english";
+		
+		englishButton = new Button(width*0.95f, height*0.95f, width*0.05f, 7, this);
+		frenchButton = new Button(width*0.05f, height*0.95f, width*0.05f, 8, this);
 		
 		initiate = false;
 		beginAlpha = 200;
@@ -951,14 +995,20 @@ public class PolSys extends PApplet {
 		
 		/* ---------------- Variables for artist statement ---------------- */
 		statementPage = 0;
-		statementText = loadStrings("data/text/statement.txt");
+		statementText = loadStrings("data/text/en/statement.txt");
 		statementText0 = split(statementText[0], "$");
 		statementText1 = split(statementText[1], "$");
 		statementText2 = split(statementText[2], "$");
-		statementAlpha = 200; //TODO use a fucking sine wave to map the alpha to the lerpValue
+		
+		statementTextFR = loadStrings("data/text/fr/statement.txt");
+		statementText0FR = split(statementTextFR[0], "$");
+		statementText1FR = split(statementTextFR[1], "$");
+		statementText2FR = split(statementTextFR[2], "$");
+		statementAlpha = 200;
 		statementLerpVal = 1;
 		statementLerpInc = 0.05f;
 		currentStatement = statementText0;
+		currentStatementFR = statementText0FR;
 		
 		switchPages = false;
 		statementRectSize = width*0.015f;
@@ -1054,6 +1104,10 @@ public class PolSys extends PApplet {
 				+ "\n"
 				+ "the stroke of a nation-state represents its wealth.\n";
 		
+		legendTextContent1FR = "";
+		legendTextContent2FR = "";
+		legendTextContent3FR = "";
+		
 		legendButtonText = "";
 		
 		showLegendAlpha = 100;
@@ -1064,7 +1118,7 @@ public class PolSys extends PApplet {
 		canShowAssumptions = false;
 		
 		showAssumptionsButtonW = width*0.05f;
-		showAssumptionsButtonPos = new PVector(rectBorderX+showAssumptionsButtonW*2.0f, rectBorderY+showAssumptionsButtonW*0.5f+1);
+		showAssumptionsButtonPos = new PVector(rectBorderX+showAssumptionsButtonW*2.0f, rectBorderY+showAssumptionsButtonW*0.25f+1);
 		showAssumptions = new Button(showAssumptionsButtonPos.x, showAssumptionsButtonPos.y, showAssumptionsButtonW, 2, this);
 		
 		assumptions = new String[7];
@@ -1109,7 +1163,7 @@ public class PolSys extends PApplet {
 
 		connec = 3;
 		minConnec = 3;
-		maxConnec = 7;
+		maxConnec = 5;
 		violence = 0.5f;
 		violenceText = "";
 		
@@ -1259,33 +1313,6 @@ public class PolSys extends PApplet {
 			}
 		}
 		
-		tsOld = loadStrings("data/text/thought/inGame1/old.txt");
-		tsKiller = loadStrings("data/text/thought/inGame1/isKiller.txt");
-		tsTamer = loadStrings("data/text/thought/inGame1/isTamer.txt");
-		tsCoToKill = loadStrings("data/text/thought/inGame1/old.txt");
-		tsCoToDead = loadStrings("data/text/thought/inGame1/old.txt");
-		tsAlone = loadStrings("data/text/thought/inGame1/isAlone.txt");
-		tsNotAlone = loadStrings("data/text/thought/inGame1/notAlone.txt");
-		tsHasProtected = loadStrings("data/text/thought/inGame1/hasProtected.txt");
-		tsHasRejected = loadStrings("data/text/thought/inGame1/hasRejected.txt");
-		tsHasBeenRejected = loadStrings("data/text/thought/inGame1/hasBeenRejected.txt");
-		tsWealthy = loadStrings("data/text/thought/inGame1/wealthy.txt");
-		tsLoneKiller = loadStrings("data/text/thought/inGame1/loneKiller.txt");
-		tsBeast = loadStrings("data/text/thought/inGame1/beast.txt");
-		
-		tsExertPower = loadStrings("data/text/thought/inGame2/exertPower.txt");
-		tsFewFriends = loadStrings("data/text/thought/inGame2/fewFriends.txt");
-		tsFullFriends = loadStrings("data/text/thought/inGame2/fullFriends.txt");
-		tsHasChildren = loadStrings("data/text/thought/inGame2/hasChildren.txt");
-		tsInLove = loadStrings("data/text/thought/inGame2/inLove.txt");
-		tsIsOfAge = loadStrings("data/text/thought/inGame2/isOfAge.txt");
-		tsIsSettled = loadStrings("data/text/thought/inGame2/isSettled.txt");
-		tsIsSterile = loadStrings("data/text/thought/inGame2/isSterile.txt");
-		tsNoFriends = loadStrings("data/text/thought/inGame2/noFriends.txt");
-		tsNotSettled = loadStrings("data/text/thought/inGame2/notSettled.txt");
-		tsOppressed = loadStrings("data/text/thought/inGame2/oppressed.txt");
-		tsSpaceCulture = loadStrings("data/text/thought/inGame2/spaceCulture.txt");
-		
 		
 		// ------------------------------------------------------------------------------------ FISHTANK
 		buttonGoalLeft = width*0.38f;
@@ -1383,9 +1410,15 @@ public class PolSys extends PApplet {
 			fishVesselsPos[i] = new PVector(width*0.5f, height*0.5f);
 		}
 		
-		storyTitle1 = "my life";
-		storyTitle2 = "our lives";
-		storyTitle3 = "their lives";
+		if(language == "english"){
+			storyTitle1 = "my life";
+			storyTitle2 = "our lives";
+			storyTitle3 = "their lives";
+		}else{
+			storyTitle1 = "ma vie";
+			storyTitle2 = "nos vies";
+			storyTitle3 = "leurs vies";
+		}
 		
 		//  BUTTONS
 		
@@ -1431,62 +1464,7 @@ public class PolSys extends PApplet {
 		
 		textAlpha = 0;
 		
-		goal0 = loadStrings("data/text/endGame1/goal0.txt");
-		goal1 = loadStrings("data/text/endGame1/goal1.txt");
-		goal2 = loadStrings("data/text/endGame1/goal2.txt");
-		goal3 = loadStrings("data/text/endGame1/goal3.txt");
 		
-		meetingOthersEndString = loadStrings("data/text/endGame1/meetingOthers.txt");
-		resourcesString = loadStrings("data/text/endGame1/resources.txt");
-		formStabRel = loadStrings("data/text/endGame1/formStabRel.txt");
-		canPro = loadStrings("data/text/endGame1/canPro.txt");
-		canDist = loadStrings("data/text/endGame1/canDist.txt");
-		canRememberDead = loadStrings("data/text/endGame1/canRememberDead.txt");
-		
-		canFight = loadStrings("data/text/endGame1/canFight.txt");
-		canConnec = loadStrings("data/text/endGame1/canConnec.txt");
-		
-		totCo =  loadStrings("data/text/endGame1/totCo.txt");
-		connecMax  = loadStrings("data/text/endGame1/connecMax.txt");
-		isTamer  = loadStrings("data/text/endGame1/isTamer.txt");
-		coToDead = loadStrings("data/text/endGame1/coToDead.txt");
-		isKill = loadStrings("data/text/endGame1/isKill.txt");
-		coToKill = loadStrings("data/text/endGame1/coToKill.txt");
-		isHun = loadStrings("data/text/endGame1/isHun.txt");
-		timeAlone = loadStrings("data/text/endGame1/timeAlone.txt");
-		hasBeenRej = loadStrings("data/text/endGame1/hasBeenRej.txt");
-		hasRej = loadStrings("data/text/endGame1/hasRej.txt");
-		hasProt = loadStrings("data/text/endGame1/hasProt.txt");
-		isCoToHun = loadStrings("data/text/endGame1/isCoToHun.txt");
-		hasDist = loadStrings("data/text/endGame1/hasDist.txt");
-		hasFoughtOthers = loadStrings("data/text/endGame1/hasFoughtOthers.txt");
-		
-		//opposites
-		meetingOthersEndStringX = loadStrings("data/text/endGame1/meetingOthers.txt");
-		resourcesStringX = loadStrings("data/text/endGame1/resources.txt");
-		formStabRelX = loadStrings("data/text/endGame1/formStabRelX.txt");
-		
-		canProX = loadStrings("data/text/endGame1/canProX.txt");
-		canDistX = loadStrings("data/text/endGame1/canDistX.txt");
-		canRememberDeadX = loadStrings("data/text/endGame1/canRememberDeadX.txt");
-		
-		canFightX = loadStrings("data/text/endGame1/canFightX.txt");
-		canConnecX = loadStrings("data/text/endGame1/canConnecX.txt");
-		
-		totCoX =  loadStrings("data/text/endGame1/totCoX.txt");
-		connecMaxX  = loadStrings("data/text/endGame1/connecMaxX.txt");
-		isTamerX  = loadStrings("data/text/endGame1/isTamerX.txt");
-		coToDeadX = loadStrings("data/text/endGame1/coToDeadX.txt");
-		isKillX = loadStrings("data/text/endGame1/isKillX.txt");
-		coToKillX = loadStrings("data/text/endGame1/coToKillX.txt");
-		isHunX = loadStrings("data/text/endGame1/isHunX.txt");
-		timeAloneX = loadStrings("data/text/endGame1/timeAloneX.txt");
-		hasBeenRejX = loadStrings("data/text/endGame1/hasBeenRejX.txt");
-		hasRejX = loadStrings("data/text/endGame1/hasRejX.txt");
-		hasProtX = loadStrings("data/text/endGame1/hasProtX.txt");
-		isCoToHunX = loadStrings("data/text/endGame1/isCoToHunX.txt");
-		hasDistX = loadStrings("data/text/endGame1/hasDistX.txt");
-		hasFoughtOthersX = loadStrings("data/text/endGame1/hasFoughtOthersX.txt");
 		
 		randGen3 = true;		
 		
@@ -1579,20 +1557,6 @@ public class PolSys extends PApplet {
 		
 		 // --------------- END 2 TEXT
 		endGame2_text = "";
-		
-		spaceCultureText = loadStrings("data/text/endGame2/definedBySpace.txt");
-		socialCultureText = loadStrings("data/text/endGame2/definedByOthers.txt");
-		inLoveText = loadStrings("data/text/endGame2/timeInLove.txt");
-		friendships = loadStrings("data/text/endGame2/friends.txt");
-		hasForcedSimText = loadStrings("data/text/endGame2/hasForcedSim.txt");
-		hasForcedDiffText = loadStrings("data/text/endGame2/hasForcedDiff.txt");
-		hasRevoltedText = loadStrings("data/text/endGame2/hasRevolted.txt");
-		hasOppressedText = loadStrings("data/text/endGame2/hasOppressed.txt");
-		numberOfChildrenText = loadStrings("data/text/endGame2/numberOfChildren.txt");
-		oppressionInducedText = loadStrings("data/text/endGame2/oppressionInduced.txt");
-		oppressionReceivedText = loadStrings("data/text/endGame2/oppressionReceived.txt");
-		generationText = loadStrings("data/text/endGame2/generation.txt");
-		culturalHomogeneityText = loadStrings("data/text/endGame2/culturalHomogeneity.txt");
 		
 		randomGen2 = true;
 		
@@ -1698,38 +1662,11 @@ public class PolSys extends PApplet {
 		
 		endWealthThreshold = 10000.0f;
 		
-		st_nationGoalHonor = loadStrings("data/text/endGame3/nationGoalHonor.txt");
-		st_nationGoalSurvival = loadStrings("data/text/endGame3/nationGoalSurvival.txt");
-		st_nationGoalWealth = loadStrings("data/text/endGame3/nationGoalWealth.txt");
-		st_wealth = loadStrings("data/text/endGame3/wealth.txt");
-		st_war = loadStrings("data/text/endGame3/war.txt");
-		st_tradePartners = loadStrings("data/text/endGame3/tradePartners.txt");
-		st_promiscuity = loadStrings("data/text/endGame3/promiscuity.txt");
-		st_alliances = loadStrings("data/text/endGame3/alliances.txt");
-		st_similarCultureAlone = loadStrings("data/text/endGame3/similarCultureAlone.txt");
-		st_similarCultureAllies = loadStrings("data/text/endGame3/similarCultureAllies.txt");
-		st_movement = loadStrings("data/text/endGame3/movement.txt");
-		
-		tsAtPeace = loadStrings("data/text/thought/inGame3/atPeace.txt");
-		tsAtPeaceAgain = loadStrings("data/text/thought/inGame3/atPeaceAgain.txt");
-		tsAtWar = loadStrings("data/text/thought/inGame3/atWar.txt");
-		tsAverageCulture = loadStrings("data/text/thought/inGame3/averageCulture.txt");
-		tsNotAverageCulture = loadStrings("data/text/thought/inGame3/notAverageCulture.txt");
-		tsHasAllies = loadStrings("data/text/thought/inGame3/hasAllies.txt");
-		tsHasNeighbors = loadStrings("data/text/thought/inGame3/hasNeighbors.txt");
-		tsHasTradePartners = loadStrings("data/text/thought/inGame3/hasTrade.txt");
-		tsNoTradePartners = loadStrings("data/text/thought/inGame3/noTrade.txt");
-		tsNationDisappeared = loadStrings("data/text/thought/inGame3/nationDisappeared.txt");
-		tsNoAllies = loadStrings("data/text/thought/inGame3/noAllies.txt");
-		tsNoNeighbors = loadStrings("data/text/thought/inGame3/noNeighbors.txt");
-		tsPoor = loadStrings("data/text/thought/inGame3/poor.txt");
-		tsWealthyNation = loadStrings("data/text/thought/inGame3/wealthy.txt");
-		tsWasAtWar = loadStrings("data/text/thought/inGame3/wasAtWar.txt");
-		
 		// -------------------------------------------------------------------------------------------------------- EMAIL
 		emailScreen = false;
 		sendButton = new Button(width*0.5f, height*0.3f, 40, 2, this);
 		typedText = "";
+		errorMessageMail = "";
 		typedEmail = false;
 		blinkingType = 0;
 		// -------------------------------------------------------------------------------------------------------- FINAL
@@ -1751,7 +1688,7 @@ public class PolSys extends PApplet {
 	  rectFadeTopPos = new PVector(rectBorderX, rectBorderY);
 	  rectFadeRightPos = new PVector(width-rectBorderX, rectBorderY);
 	  rectFadeLeftPos = new PVector(rectBorderX, rectBorderY);
-	  rectFadeBottomPos = new PVector(rectBorderX, rectBorderH);
+	  rectFadeBottomPos = new PVector(rectBorderX, rectBorderH+5);
 	  
 	  rectFadeAlpha = 255;
 	  rectFadeAlphaInc = 0.45f;
@@ -1979,73 +1916,15 @@ public class PolSys extends PApplet {
 			cP.update();
 		}
 		
-		for(int i = 0; i < community.size(); i++){
-			Agent a = community.get(i);
-			float inc = 0.04f;
-			if(a.pos.y < strata1Anchor1.y){ //top
-				if(a.pos.x < strata1Control1.x){ //left
-					strata1Control1.y += inc;
-				}else if(a.pos.x < strata1Control2.x){ //middle
-					strata1Control1.y += inc/2;
-					strata1Control2.y += inc/2;
-				}else{ //right
-					strata1Control2.y += inc;
-				}
-				
-				//culture modification
-				for(int j = 0; j < a.culture.length; j++){
-					if(a.culture[j] < a.maxCulture) a.culture[j] += spatialCultureIncrement;
-					
-				}
-				
-				
-			}else if(a.pos.y < strata2Anchor1.y){//middle
-				if(a.pos.x < strata1Control1.x){ //left
-					strata1Control1.y -= inc;
-					strata2Control1.y += inc;
-				}else if(a.pos.x < strata1Control2.x){ //middle
-					strata1Control1.y -= inc/2;
-					strata1Control2.y -= inc/2;
-					
-					strata2Control1.y += inc/2;
-					strata2Control2.y += inc/2;
-				}else{ //right
-					strata1Control2.y -= inc;
-					strata2Control2.y += inc;
-				}
-				
-				//culture modification
-				for(int j = 0; j < a.culture.length; j++){
-					if(a.culture[j] > 5) a.culture[j] -= spatialCultureIncrement;
-					if(a.culture[j] < 5) a.culture[j] += spatialCultureIncrement;
-				}
-				
-			}else{ //bottom
-				if(a.pos.x < strata1Control1.x){ //left
-					strata2Control1.y -= inc;
-				}else if(a.pos.x < strata1Control2.x){ //middle
-					strata2Control1.y -= inc;
-					strata2Control2.y -= inc;
-				}else{ //right
-					strata2Control2.y -= inc;
-				}
-				
-				//culture modification
-				for(int j = 0; j < a.culture.length; j++){
-					if(a.culture[j] > 0) a.culture[j] -= spatialCultureIncrement;
-				}
-			}
-			
-			strata1Control1.y = constrain(strata1Control1.y, 3, height - height/20);
-			strata1Control2.y = constrain(strata1Control2.y, 3, height - height/20);
-			
-			strata2Control2.y = constrain(strata2Control1.y, 3, height - height/20);
-			strata2Control2.y = constrain(strata2Control2.y, 3, height - height/20);
-		}
+		//changing the position of the lines to reflect the spatial repartition of agents
+		if(frameCount % 50 == 0) strataModulation();
 	}
 
 	public void draw() {
 		mouse = new PVector(mouseX, mouseY);
+		//scale(scaleW, scaleH);
+		//translate(translateBufferX, translateBufferY);
+		//frame.setSize(1440, 900);
 		background(250);
 		rhythm();
 		selPulse = (cos(millis()*0.005f)+1)*50;
@@ -2087,8 +1966,8 @@ public class PolSys extends PApplet {
 					inGame3 = false;
 					endGame3 = true;
 					fading = false;
-					if(seasons != null) eMasterSeasons.addSegment(0.00f, 2000.0f); //lower the sound of seasons then kill it (we recreate it at each stage)
-					eMasterRhythm.addSegment(1.0f, 2000.0f);
+					if(seasons != null) eMasterSeasons.addSegment(0.00f, 2000.0f, new KillTrigger(gMasterSeasons)); //lower the sound of seasons then kill it (we recreate it at each stage)
+					eMasterRhythm.addSegment(0.75f, 2000.0f);
 				}else if(startGame1){
 					generateAgents(numberOfAgents);
 					generatePredators();
@@ -2222,11 +2101,15 @@ public class PolSys extends PApplet {
 		rect(0, 0, rectBorderX, height);
 		rect(width, 0, -rectBorderX, height);
 		
-		//debug();
+		debug();
 	}
 	
 	public void emailScreen(){
-		loadingText = "sending";
+		if(language == "english"){
+			loadingText = "archiving";
+		}else{
+			loadingText = "archivage";
+		}
 		
 		fill(0);
 		textAlign(CENTER);
@@ -2236,9 +2119,18 @@ public class PolSys extends PApplet {
 		
 		textSize(headerFontSize);
 		textFont(headerFont);
-		text("personal archival", width/2, height/7);
-
-		text("enter your email address to archive the story of your society.", width*0.5f, height*0.3f);
+		if(language == "english"){
+			text("personal archival", width*0.5f, height*0.15f);
+		}else{
+			text("archive personelle", width*0.5f, height*0.15f);
+		}
+		
+		if(language == "english"){
+			text("enter your email address to archive the story of your society.", width*0.5f, height*0.3f);
+		}else{
+			text("entrez votre addresse email pour archiver l'histoire de votre societe.", width*0.5f, height*0.3f);
+		}
+		
 		
 		rectMode(CENTER);
 		textAlign(CENTER);
@@ -2262,6 +2154,7 @@ public class PolSys extends PApplet {
 		
 		text(typedText, width*0.5f, height*0.51f);
 		
+		text(errorMessageMail, width*0.5f, height*0.6f);
 		
 		rectMode(CORNER);
 		textAlign(LEFT);
@@ -2272,7 +2165,11 @@ public class PolSys extends PApplet {
 		textFont(textFont);
 		textSize(textFontSize);
 		fill(0);
-		text("finish", proceedX*1.015f, proceedY*1.03f);
+		if(language == "english"){
+			text("conclude", proceedX*1.015f, proceedY*1.03f);
+		}else{
+			text("conclure", proceedX*1.015f, proceedY*1.03f);
+		}
 		
 		if(mouseX > proceedX && mouseX < proceedX + proceedW && mouseY > proceedY && mouseY < proceedY + proceedH){
 			proceedSW = 2;
@@ -2298,9 +2195,70 @@ public class PolSys extends PApplet {
 		
 		textFont(thoughtFont);
 		textSize(thoughtFontSize);
+		textAlign(CENTER);
 		fill(0, assumptionsTextAlpha);
 		for(int i = 0; i < assumptions.length; i++){
 			text(assumptions[i], assumptionsTextPos.x, height*(i+2f)*0.1f, assumptionsTextW, assumptionsTextH);
+		}
+	}
+	
+	public void strataModulation(){
+		float inc = 0.12f;
+		for(int i = 0; i < community.size(); i++){
+			Agent a = community.get(i);
+			if(a.pos.y < strata1Anchor1.y){ //----------------top
+				if(a.pos.x < strata1Control1.x){ //left
+					strata1Control1.y += inc;
+				}else if(a.pos.x < strata1Control2.x){ //middle
+					strata1Control1.y += inc/2;
+					strata1Control2.y += inc/2;
+				}else{ //right
+					strata1Control2.y += inc;
+				}
+				
+				//culture modification - all slots in culture are affected
+				for(int j = 0; j < a.culture.length; j++){
+					if(a.culture[j] < a.maxCulture) a.culture[j] += spatialCultureIncrement;	
+				}
+			}else if(a.pos.y < strata2Anchor1.y){//----------------middle
+				if(a.pos.x < strata1Control1.x){ //left
+					strata1Control1.y -= inc;
+					strata2Control1.y += inc;
+				}else if(a.pos.x < strata1Control2.x){ //middle
+					strata1Control1.y -= inc/2;
+					strata1Control2.y -= inc/2;
+					
+					strata2Control1.y += inc/2;
+					strata2Control2.y += inc/2;
+				}else{ //right
+					strata1Control2.y -= inc;
+					strata2Control2.y += inc;
+				}
+				
+				for(int j = 0; j < a.culture.length; j++){
+					if(a.culture[j] > 5) a.culture[j] -= spatialCultureIncrement;
+					if(a.culture[j] < 5) a.culture[j] += spatialCultureIncrement;
+				}	
+			}else{//------------------------------------------------bottom
+				if(a.pos.x < strata1Control1.x){ //left
+					strata2Control1.y -= inc;
+				}else if(a.pos.x < strata1Control2.x){ //middle
+					strata2Control1.y -= inc;
+					strata2Control2.y -= inc;
+				}else{ //right
+					strata2Control2.y -= inc;
+				}
+				
+				for(int j = 0; j < a.culture.length; j++){
+					if(a.culture[j] > 0) a.culture[j] -= spatialCultureIncrement;
+				}
+			}
+			
+			strata1Control1.y = constrain(strata1Control1.y, 3, height - height/20);
+			strata1Control2.y = constrain(strata1Control2.y, 3, height - height/20);
+			
+			strata2Control2.y = constrain(strata2Control1.y, 3, height - height/20);
+			strata2Control2.y = constrain(strata2Control2.y, 3, height - height/20);
 		}
 	}
 	
@@ -2309,7 +2267,7 @@ public class PolSys extends PApplet {
 		if(assumptionsRectAlpha > 0) assumptionsRectAlpha -= 2.0f;
 		if(rectDeadAlpha <= 250) rectDeadAlpha += 2.0f;
 		if(rectBorderHTemp < rectBorderHMenu && rectDeadAlpha > 100) rectBorderHTemp += 1.0f;
-		if(interactionAlpha > 0) interactionAlpha -= 4.0f;
+		if(interactionAlpha > 0) interactionAlpha -= 7.0f;
 		if(rectDeadAlpha >= 250){
 			if(stage == 1){
 				inGame1 = false;
@@ -2317,6 +2275,9 @@ public class PolSys extends PApplet {
 			}else if(stage == 2){
 				inGame2 = false;
 				community.clear();
+				connectionsFriendship.clear();
+				connectionsLove.clear();
+				connectionsPower.clear();
 				startGame2 = true;
 			}else{
 				inGame2 = false;
@@ -2376,10 +2337,6 @@ public class PolSys extends PApplet {
 	
 	public void finalScreen(){
 		background(255);
-		stroke(0);
-		strokeWeight(1);
-		noFill();
-		rect(width*0.00375f, height*0.00333f, width*0.9925f, height*0.99334f);
 		
 		fill(0);
 		textAlign(CENTER);
@@ -2412,6 +2369,147 @@ public class PolSys extends PApplet {
 			finalScreen = false;
 			statement = true;
 		}
+	}
+	
+	public void loadText(String language){
+		println("loading Strings with language: "+language);
+		String lg = "";
+		if(language == "english"){
+			lg = "en";
+		}else{
+			lg = "fr";
+		}
+		
+		tsOld = loadStrings("data/text/"+lg+"/thought/inGame1/old.txt");
+		tsKiller = loadStrings("data/text/"+lg+"/thought/inGame1/isKiller.txt");
+		tsTamer = loadStrings("data/text/"+lg+"/thought/inGame1/isTamer.txt");
+		tsCoToKill = loadStrings("data/text/"+lg+"/thought/inGame1/old.txt");
+		tsCoToDead = loadStrings("data/text/"+lg+"/thought/inGame1/old.txt");
+		tsAlone = loadStrings("data/text/"+lg+"/thought/inGame1/isAlone.txt");
+		tsNotAlone = loadStrings("data/text/"+lg+"/thought/inGame1/notAlone.txt");
+		tsHasProtected = loadStrings("data/text/"+lg+"/thought/inGame1/hasProtected.txt");
+		tsHasRejected = loadStrings("data/text/"+lg+"/thought/inGame1/hasRejected.txt");
+		tsHasBeenRejected = loadStrings("data/text/"+lg+"/thought/inGame1/hasBeenRejected.txt");
+		tsWealthy = loadStrings("data/text/"+lg+"/thought/inGame1/wealthy.txt");
+		tsLoneKiller = loadStrings("data/text/"+lg+"/thought/inGame1/loneKiller.txt");
+		tsBeast = loadStrings("data/text/"+lg+"/thought/inGame1/beast.txt");
+		
+		goal0 = loadStrings("data/text/"+lg+"/endGame1/goal0.txt");
+		goal1 = loadStrings("data/text/"+lg+"/endGame1/goal1.txt");
+		goal2 = loadStrings("data/text/"+lg+"/endGame1/goal2.txt");
+		goal3 = loadStrings("data/text/"+lg+"/endGame1/goal3.txt");
+		
+		meetingOthersEndString = loadStrings("data/text/"+lg+"/endGame1/meetingOthers.txt");
+		resourcesString = loadStrings("data/text/"+lg+"/endGame1/resources.txt");
+		formStabRel = loadStrings("data/text/"+lg+"/endGame1/formStabRel.txt");
+		canPro = loadStrings("data/text/"+lg+"/endGame1/canPro.txt");
+		canDist = loadStrings("data/text/"+lg+"/endGame1/canDist.txt");
+		canRememberDead = loadStrings("data/text/"+lg+"/endGame1/canRememberDead.txt");
+		
+		canFight = loadStrings("data/text/"+lg+"/endGame1/canFight.txt");
+		canConnec = loadStrings("data/text/"+lg+"/endGame1/canConnec.txt");
+		
+		totCo =  loadStrings("data/text/"+lg+"/endGame1/totCo.txt");
+		connecMax  = loadStrings("data/text/"+lg+"/endGame1/connecMax.txt");
+		isTamer  = loadStrings("data/text/"+lg+"/endGame1/isTamer.txt");
+		coToDead = loadStrings("data/text/"+lg+"/endGame1/coToDead.txt");
+		isKill = loadStrings("data/text/"+lg+"/endGame1/isKill.txt");
+		coToKill = loadStrings("data/text/"+lg+"/endGame1/coToKill.txt");
+		isHun = loadStrings("data/text/"+lg+"/endGame1/isHun.txt");
+		timeAlone = loadStrings("data/text/"+lg+"/endGame1/timeAlone.txt");
+		hasBeenRej = loadStrings("data/text/"+lg+"/endGame1/hasBeenRej.txt");
+		hasRej = loadStrings("data/text/"+lg+"/endGame1/hasRej.txt");
+		hasProt = loadStrings("data/text/"+lg+"/endGame1/hasProt.txt");
+		isCoToHun = loadStrings("data/text/"+lg+"/endGame1/isCoToHun.txt");
+		hasDist = loadStrings("data/text/"+lg+"/endGame1/hasDist.txt");
+		hasFoughtOthers = loadStrings("data/text/"+lg+"/endGame1/hasFoughtOthers.txt");
+		
+		//opposites
+		meetingOthersEndStringX = loadStrings("data/text/"+lg+"/endGame1/meetingOthers.txt");
+		resourcesStringX = loadStrings("data/text/"+lg+"/endGame1/resources.txt");
+		formStabRelX = loadStrings("data/text/"+lg+"/endGame1/formStabRelX.txt");
+		
+		canProX = loadStrings("data/text/"+lg+"/endGame1/canProX.txt");
+		canDistX = loadStrings("data/text/"+lg+"/endGame1/canDistX.txt");
+		canRememberDeadX = loadStrings("data/text/"+lg+"/endGame1/canRememberDeadX.txt");
+		
+		canFightX = loadStrings("data/text/"+lg+"/endGame1/canFightX.txt");
+		canConnecX = loadStrings("data/text/"+lg+"/endGame1/canConnecX.txt");
+		
+		totCoX =  loadStrings("data/text/"+lg+"/endGame1/totCoX.txt");
+		connecMaxX  = loadStrings("data/text/"+lg+"/endGame1/connecMaxX.txt");
+		isTamerX  = loadStrings("data/text/"+lg+"/endGame1/isTamerX.txt");
+		coToDeadX = loadStrings("data/text/"+lg+"/endGame1/coToDeadX.txt");
+		isKillX = loadStrings("data/text/"+lg+"/endGame1/isKillX.txt");
+		coToKillX = loadStrings("data/text/"+lg+"/endGame1/coToKillX.txt");
+		isHunX = loadStrings("data/text/"+lg+"/endGame1/isHunX.txt");
+		timeAloneX = loadStrings("data/text/"+lg+"/endGame1/timeAloneX.txt");
+		hasBeenRejX = loadStrings("data/text/"+lg+"/endGame1/hasBeenRejX.txt");
+		hasRejX = loadStrings("data/text/"+lg+"/endGame1/hasRejX.txt");
+		hasProtX = loadStrings("data/text/"+lg+"/endGame1/hasProtX.txt");
+		isCoToHunX = loadStrings("data/text/"+lg+"/endGame1/isCoToHunX.txt");
+		hasDistX = loadStrings("data/text/"+lg+"/endGame1/hasDistX.txt");
+		hasFoughtOthersX = loadStrings("data/text/"+lg+"/endGame1/hasFoughtOthersX.txt");
+		
+		//part 2
+		tsExertPower = loadStrings("data/text/"+lg+"/thought/inGame2/exertPower.txt");
+		tsFewFriends = loadStrings("data/text/"+lg+"/thought/inGame2/fewFriends.txt");
+		tsFullFriends = loadStrings("data/text/"+lg+"/thought/inGame2/fullFriends.txt");
+		tsHasChildren = loadStrings("data/text/"+lg+"/thought/inGame2/hasChildren.txt");
+		tsInLove = loadStrings("data/text/"+lg+"/thought/inGame2/inLove.txt");
+		tsIsOfAge = loadStrings("data/text/"+lg+"/thought/inGame2/isOfAge.txt");
+		tsIsSettled = loadStrings("data/text/"+lg+"/thought/inGame2/isSettled.txt");
+		tsIsSterile = loadStrings("data/text/"+lg+"/thought/inGame2/isSterile.txt");
+		tsNoFriends = loadStrings("data/text/"+lg+"/thought/inGame2/noFriends.txt");
+		tsNotSettled = loadStrings("data/text/"+lg+"/thought/inGame2/notSettled.txt");
+		tsOppressed = loadStrings("data/text/"+lg+"/thought/inGame2/oppressed.txt");
+		tsSpaceCulture = loadStrings("data/text/"+lg+"/thought/inGame2/spaceCulture.txt");
+		
+		spaceCultureText = loadStrings("data/text/"+lg+"/endGame2/definedBySpace.txt");
+		socialCultureText = loadStrings("data/text/"+lg+"/endGame2/definedByOthers.txt");
+		inLoveText = loadStrings("data/text/"+lg+"/endGame2/timeInLove.txt");
+		friendships = loadStrings("data/text/"+lg+"/endGame2/friends.txt");
+		hasForcedSimText = loadStrings("data/text/"+lg+"/endGame2/hasForcedSim.txt");
+		hasForcedDiffText = loadStrings("data/text/"+lg+"/endGame2/hasForcedDiff.txt");
+		hasRevoltedText = loadStrings("data/text/"+lg+"/endGame2/hasRevolted.txt");
+		hasOppressedText = loadStrings("data/text/"+lg+"/endGame2/hasOppressed.txt");
+		numberOfChildrenText = loadStrings("data/text/"+lg+"/endGame2/numberOfChildren.txt");
+		oppressionInducedText = loadStrings("data/text/"+lg+"/endGame2/oppressionInduced.txt");
+		oppressionReceivedText = loadStrings("data/text/"+lg+"/endGame2/oppressionReceived.txt");
+		generationText = loadStrings("data/text/"+lg+"/endGame2/generation.txt");
+		culturalHomogeneityText = loadStrings("data/text/"+lg+"/endGame2/culturalHomogeneity.txt");
+		
+		
+		//part 3
+		st_nationGoalHonor = loadStrings("data/text/"+lg+"/endGame3/nationGoalHonor.txt");
+		st_nationGoalSurvival = loadStrings("data/text/"+lg+"/endGame3/nationGoalSurvival.txt");
+		st_nationGoalWealth = loadStrings("data/text/"+lg+"/endGame3/nationGoalWealth.txt");
+		st_wealth = loadStrings("data/text/"+lg+"/endGame3/wealth.txt");
+		st_war = loadStrings("data/text/"+lg+"/endGame3/war.txt");
+		st_tradePartners = loadStrings("data/text/"+lg+"/endGame3/tradePartners.txt");
+		st_promiscuity = loadStrings("data/text/"+lg+"/endGame3/promiscuity.txt");
+		st_alliances = loadStrings("data/text/"+lg+"/endGame3/alliances.txt");
+		st_similarCultureAlone = loadStrings("data/text/"+lg+"/endGame3/similarCultureAlone.txt");
+		st_similarCultureAllies = loadStrings("data/text/"+lg+"/endGame3/similarCultureAllies.txt");
+		st_movement = loadStrings("data/text/"+lg+"/endGame3/movement.txt");
+		
+		tsAtPeace = loadStrings("data/text/"+lg+"/thought/inGame3/atPeace.txt");
+		tsAtPeaceAgain = loadStrings("data/text/"+lg+"/	thought/inGame3/atPeaceAgain.txt");
+		tsAtWar = loadStrings("data/text/"+lg+"/thought/inGame3/atWar.txt");
+		tsAverageCulture = loadStrings("data/text/"+lg+"/thought/inGame3/averageCulture.txt");
+		tsNotAverageCulture = loadStrings("data/text/"+lg+"/thought/inGame3/notAverageCulture.txt");
+		tsHasAllies = loadStrings("data/text/"+lg+"/thought/inGame3/hasAllies.txt");
+		tsHasNeighbors = loadStrings("data/text/"+lg+"/thought/inGame3/hasNeighbors.txt");
+		tsHasTradePartners = loadStrings("data/text/"+lg+"/thought/inGame3/hasTrade.txt");
+		tsNoTradePartners = loadStrings("data/text/"+lg+"/thought/inGame3/noTrade.txt");
+		tsNationDisappeared = loadStrings("data/text/"+lg+"/thought/inGame3/nationDisappeared.txt");
+		tsNoAllies = loadStrings("data/text/"+lg+"/thought/inGame3/noAllies.txt");
+		tsNoNeighbors = loadStrings("data/text/"+lg+"/thought/inGame3/noNeighbors.txt");
+		tsPoor = loadStrings("data/text/"+lg+"/thought/inGame3/poor.txt");
+		tsWealthyNation = loadStrings("data/text/"+lg+"/thought/inGame3/wealthy.txt");
+		tsWasAtWar = loadStrings("data/text/"+lg+"/thought/inGame3/wasAtWar.txt");
+		
+		
 	}
 	
 	
@@ -2647,12 +2745,22 @@ public class PolSys extends PApplet {
 		text("Social Contact", width*0.5f, height*0.1f);
 		textSize(textFontSize);
 		textFont(textFont);
-		fill(100, statementAlpha);
-		for(int i = 0; i < currentStatement.length; i++){
-			text(currentStatement[i], width*0.5f, height*0.3f+(i*height*0.05f), width*0.45f, height*0.3f);
+
+		if(language == "english"){
+			fill(100, statementAlpha);
+			for(int i = 0; i < currentStatement.length; i++){
+				text(currentStatement[i], width*0.5f, height*0.3f+(i*height*0.05f), width*0.45f, height*0.3f);
+			}
+			fill(100, beginAlpha);
+			text("press space to begin", width*0.5f, height*0.95f);
+		}else{
+			fill(100, statementAlpha);
+			for(int i = 0; i < currentStatementFR.length; i++){
+				text(currentStatementFR[i], width*0.5f, height*0.3f+(i*height*0.05f), width*0.45f, height*0.3f);
+			}
+			fill(100, beginAlpha);
+			text("espace pour commencer", width*0.5f, height*0.95f);
 		}
-		fill(100, beginAlpha);
-		text("press space to begin", width*0.5f, height*0.95f);
 		
 		if(!initiate){
 			statementAlpha = (sin(map(statementLerpVal, 0, 1, PI, TWO_PI))*255)+255;
@@ -2670,10 +2778,13 @@ public class PolSys extends PApplet {
 		if(statementAlpha < 10){
 			if(statementPage == 0){
 				currentStatement = statementText0;
+				currentStatementFR = statementText0FR;
 			}else if(statementPage == 1){
 				currentStatement = statementText1;
+				currentStatementFR = statementText1FR;
 			}else{
 				currentStatement = statementText2;
+				currentStatementFR = statementText2FR;
 			}
 		}
 		
@@ -2688,6 +2799,12 @@ public class PolSys extends PApplet {
 		statementPage0.onClick();
 		statementPage1.onClick();
 		statementPage2.onClick();
+		
+		englishButton.display();
+		frenchButton.display();
+		
+		englishButton.onClick();
+		frenchButton.onClick();
 		
 		stroke(70, beginAlpha);
 		rect(statementRectPos.x, statementRectPos.y, statementRectSize*1.25f, statementRectSize*1.25f);
@@ -3142,8 +3259,14 @@ public class PolSys extends PApplet {
 		
 		rectBorderHTemp = rectBorderHMenu;
 		
-		loadingText = "computing your world";
-		legendTextContent = legendTextContent1;
+		if(language == "english"){
+			loadingText = "computing your world";
+			legendTextContent = legendTextContent1;
+		}else{
+			loadingText = "calcul de votre monde";
+			legendTextContent = legendTextContent1FR;
+		}
+		
 		
 		fill(0);
 		textAlign(CENTER);
@@ -3153,12 +3276,22 @@ public class PolSys extends PApplet {
 
 		textSize(subtitleFontSize);
 		textFont(subtitleFont);
-		fill(10);
-		text("I - coming together", width/2, subtitleHeight);
-		fill(200);
-		text("II - growing together", width/2, subtitle2Height);
-		text("III - confronting others", width/2, subtitle3Height);
-		fill(0);
+		
+		if(language == "english"){
+			fill(10);
+			text("I - coming together", width/2, subtitleHeight);
+			fill(200);
+			text("II - growing together", width/2, subtitle2Height);
+			text("III - confronting others", width/2, subtitle3Height);
+			fill(0);
+		}else{
+			fill(10);
+			text("I - r\u00E9union", width/2, subtitleHeight);
+			fill(200);
+			text("II - communion", width/2, subtitle2Height);
+			text("III - confrontation", width/2, subtitle3Height);
+			fill(0);
+		}
 		
 		textSize(textFontSize);
 		textFont(textFont);
@@ -3172,101 +3305,203 @@ public class PolSys extends PApplet {
 		//textAlign(LEFT);
 		fill(0);
 		
-		if(formingStableRelationships == 0.5f){
-			formingStableRelationshipsString ="move freely";
-		}else if(formingStableRelationships == 1.0f){
-			formingStableRelationshipsString = "try to gather";
+		if(language == "english"){
+			if(formingStableRelationships == 0.5f){
+				formingStableRelationshipsString ="move freely";
+			}else if(formingStableRelationships == 1.0f){
+				formingStableRelationshipsString = "try to gather";
+			}else{
+				formingStableRelationshipsString = "stick with others";
+			}
+			text("they should " + formingStableRelationshipsString, leftColX, firstRowY);
+			assumptions[0] = "they should " + formingStableRelationshipsString;
 		}else{
-			formingStableRelationshipsString = "stick with others";
+			if(formingStableRelationships == 0.5f){
+				formingStableRelationshipsString ="se d\u00E9placer librement";
+			}else if(formingStableRelationships == 1.0f){
+				formingStableRelationshipsString = "tenter de se retrouver";
+			}else{
+				formingStableRelationshipsString = "rester group\u00E9s";
+			}
+			text("ils doivent " + formingStableRelationshipsString, leftColX, firstRowY);
+			assumptions[0] = "ils doivent " + formingStableRelationshipsString;
 		}
-		text("they should " + formingStableRelationshipsString, leftColX, firstRowY);
-		assumptions[0] = "they should " + formingStableRelationshipsString;
 		
-		if(meetingOthers == 0.5f){
-			meetingOthersString = "always be welcomed";
-		}else if(meetingOthers == 1.0f){
-			meetingOthersString = "be given the benefit of the doubt";
+		if(language == "english"){
+			if(meetingOthers == 0.5f){
+				meetingOthersString = "always be welcomed";
+			}else if(meetingOthers == 1.0f){
+				meetingOthersString = "be given the benefit of the doubt";
+			}else{
+				meetingOthersString = "never be trusted";
+			}
+			text("newcomers should\n" + meetingOthersString, leftColX, secondRowY);
+			assumptions[1] = "newcomers should " + meetingOthersString;
 		}else{
-			meetingOthersString = "never be trusted";
+			if(meetingOthers == 0.5f){
+				meetingOthersString = "sont toujours accueillis";
+			}else if(meetingOthers == 1.0f){
+				meetingOthersString = "sont pr\u00E9sum\u00E9s innocents";
+			}else{
+				meetingOthersString = "ne m\u00E9ritent pas notre confiance";
+			}
+			text("les nouveaux-venus\n" + meetingOthersString, leftColX, secondRowY);
+			assumptions[1] = "les nouveaux-venus " + meetingOthersString;
 		}
-		text("newcomers should\n" + meetingOthersString, leftColX, secondRowY);
-		assumptions[1] = "newcomers should " + meetingOthersString;
 		
-		if(rememberDead == 0.5f){
-			rememberDeadString = "forgotten";
-		}else if(rememberDead == 1.0f){
-			rememberDeadString = "remembered";
+		if(language == "english"){
+			if(rememberDead == 0.5f){
+				rememberDeadString = "forgotten";
+			}else if(rememberDead == 1.0f){
+				rememberDeadString = "remembered";
+			}else{
+				rememberDeadString = "cherished";
+			}
+			text("the dead should be\n" + rememberDeadString, leftColX, thirdRowY);
+			assumptions[2] = "the dead should be " + rememberDeadString;
 		}else{
-			rememberDeadString = "cherished";
+			if(rememberDead == 0.5f){
+				rememberDeadString = "etre oubli\u00E9s";
+			}else if(rememberDead == 1.0f){
+				rememberDeadString = "etre honor\u00E9s";
+			}else{
+				rememberDeadString = "etre ch\u00E9ris";
+			}
+			text("les morts doivent\n" + rememberDeadString, leftColX, thirdRowY);
+			assumptions[2] = "les morts doivent " + rememberDeadString;
 		}
-		text("the dead should be\n" + rememberDeadString, leftColX, thirdRowY);
-		assumptions[2] = "the dead should be " + rememberDeadString;
+
 		
 		textSize(textFontSize);
 		textFont(textFont);
 		//textAlign(RIGHT);
 		connectionsUpButton.display();
 		String connecString = "";
-		if(connec == 2){
-			connecString = "two";
-		}else if(connec == 3){
-			connecString = "three";
-		}else if(connec == 4){
-			connecString = "four";
-		}else if(connec == 5){
-			connecString = "five";
-		}else if(connec == 6){
-			connecString = "six";
+		
+		if(language == "english"){
+			if(connec == 2){
+				connecString = "two";
+			}else if(connec == 3){
+				connecString = "three";
+			}else if(connec == 4){
+				connecString = "four";
+			}else if(connec == 5){
+				connecString = "five";
+			}else if(connec == 6){
+				connecString = "six";
+			}else{
+				connecString = "seven";
+			}
+			text("they can connect to " + connecString + " others", rightColX, firstRowY);
+			assumptions[3] = "they can connect to " + connecString + " others";
 		}else{
-			connecString = "seven";
+			if(connec == 2){
+				connecString = "deux";
+			}else if(connec == 3){
+				connecString = "trois";
+			}else if(connec == 4){
+				connecString = "quatre";
+			}else if(connec == 5){
+				connecString = "cinq";
+			}else if(connec == 6){
+				connecString = "six";
+			}else{
+				connecString = "sept";
+			}
+			text("ils peuvent former " + connecString + " connexions", rightColX, firstRowY);
+			assumptions[3] = "ils peuvent former " + connecString + " connexions";
 		}
-		text("they can connect to " + connecString + " others", rightColX, firstRowY);
-		assumptions[3] = "they can connect to " + connecString + " others";
+
 		connectionsDownButton.display();
 
-		if (violence == 0.5f) {
-			violenceText = "a constant possibility";
-		} else if (violence == 1.0f) {
-			violenceText = "inevitable";
-		} else if (violence == 0.0f) {
-			violenceText = "never a solution";
+		if(language == "english"){
+			if (violence == 0.5f) {
+				violenceText = "a constant possibility";
+			} else if (violence == 1.0f) {
+				violenceText = "inevitable";
+			} else if (violence == 0.0f) {
+				violenceText = "never a solution";
+			}
+			text("violence is " + violenceText, rightColX, secondRowY);
+			assumptions[4] = "violence is " + violenceText;
+		}else{
+			if (violence == 0.5f) {
+				violenceText = "une constante possibilit\u00E9";
+			} else if (violence == 1.0f) {
+				violenceText = "in\u00E9vitable";
+			} else if (violence == 0.0f) {
+				violenceText = "une fausse solution";
+			}
+			text("le recours \u00E0 la violence est\n" + violenceText, rightColX, secondRowY);
+			assumptions[4] = "le recours \u00E0 la violence est " + violenceText;
 		}
 
 		violenceUpButton.display();
-		text("violence is " + violenceText, rightColX, secondRowY);
-		assumptions[4] = "violence is " + violenceText;
 		violenceDownButton.display();		
 		
-		if(resourceSeek == 0.5f){
-			resourceText = "there is no need for accumulation";
-		}else if(resourceSeek == 1.0f){
-			resourceText = "they should look for resources";
+		if(language == "english"){
+			if(resourceSeek == 0.5f){
+				resourceText = "there is no need for accumulation";
+			}else if(resourceSeek == 1.0f){
+				resourceText = "they should look for resources";
+			}else{
+				resourceText = "they should compete for resources";
+			}
 		}else{
-			resourceText = "they should compete for resources";
+			if(resourceSeek == 0.5f){
+				resourceText = "il y a nul besoin d'accumuler des ressources";
+			}else if(resourceSeek == 1.0f){
+				resourceText = "ils doivent consommer leurs ressources";
+			}else{
+				resourceText = "ils doivent conserver leurs ressources";
+			}
 		}
+
 
 		resourceUpButton.display();
 		text(resourceText, rightColX,thirdRowY);
 		assumptions[5] = resourceText;
 		resourceDownButton.display();
 
-		if (goalInt == 0) {
-			goalText = "life is\nfree of death";
-			storyTitle1 = "bliss";
-		} else if (goalInt == 1) {
-			goalText = "life is\n both pain and bliss";
-			storyTitle1 = "reality";
-		} else if (goalInt == 2) {
-			goalText = "life is\na voluntary struggle";
-			storyTitle1 = "struggle";
-		} else if (goalInt == 3) {
-			goalText = "life is\nriddled with death";
-			storyTitle1 = "hardship";
-		} else if (goalInt > 3) {
-			goalInt = 0;
-		}else if (goalInt < 0){
-			goalInt = 3;
+		
+		if(language == "english"){
+			if (goalInt == 0) {
+				goalText = "life is\nfree of death";
+				storyTitle1 = "bliss";
+			} else if (goalInt == 1) {
+				goalText = "life is\n both pain and bliss";
+				storyTitle1 = "reality";
+			} else if (goalInt == 2) {
+				goalText = "life is\na voluntary struggle";
+				storyTitle1 = "struggle";
+			} else if (goalInt == 3) {
+				goalText = "life is\nriddled with death";
+				storyTitle1 = "hardship";
+			} else if (goalInt > 3) {
+				goalInt = 0;
+			}else if (goalInt < 0){
+				goalInt = 3;
+			}
+		}else{
+			if (goalInt == 0) {
+				goalText = "la vie\nn'est pas la mort";
+				storyTitle1 = "le bonheurs";
+			} else if (goalInt == 1) {
+				goalText = "la vie\nest \u00E9gal plaisir et douleur";
+				storyTitle1 = "la r\u00E9alit\u00E9";
+			} else if (goalInt == 2) {
+				goalText = "la vie\nest une souffrance volontaire";
+				storyTitle1 = "les difficult\u00E9s";
+			} else if (goalInt == 3) {
+				goalText = "la vie\nd\u00E9pend de la mort";
+				storyTitle1 = "la perte";
+			} else if (goalInt > 3) {
+				goalInt = 0;
+			}else if (goalInt < 0){
+				goalInt = 3;
+			}
 		}
+
 		
 		pursuitLeftButton.display();
 		pursuitRightButton.display();
@@ -3292,7 +3527,7 @@ public class PolSys extends PApplet {
 			stroke(200);
 		}
 		line(width*0.425f, height*0.318f, width*0.425f, height*0.33f);
-		text("connections", width*0.395f, height*0.315f);
+		text("connexions", width*0.395f, height*0.315f);
 		
 		if(canShowResources){
 			fill(0, 100, 0, showAlpha+100);
@@ -3304,7 +3539,7 @@ public class PolSys extends PApplet {
 			stroke(200);
 		}
 		line(width*0.5f, height*0.318f, width*0.5f, height*0.33f);
-		text("resources", width*0.475f, height*0.315f);
+		text("ressources", width*0.475f, height*0.315f);
 		
 		if(canShowPredators){
 			fill(50, 50, 0, showAlpha+100);
@@ -3316,7 +3551,7 @@ public class PolSys extends PApplet {
 			stroke(200);
 		}
 		line(width*0.575f, height*0.318f, width*0.575f, height*0.33f);
-		text("predators", width*0.5515f, height*0.315f);
+		text("pr\u00E9dateurs", width*0.5515f, height*0.315f);
 
 		startButton.display();
 		startButton.onClick();
@@ -3378,9 +3613,14 @@ public class PolSys extends PApplet {
 		bgColBoxLerpSpeed = map((millis()-Seasons.startTime), 0, Seasons.timer, 0, 1);
 		
 		seasons.cycle();
-		seasons.populate(Seasons.numberOfSeasons);
+		//seasons.populate(Seasons.numberOfSeasons);
 		drawVoronoi(1);
-		loadingText = "fetching the story of their lives";
+		if(language == "english"){
+			loadingText = "fetching the story of their lives";
+		}else{
+			loadingText = "r\u00E9daction de sa vie";
+		}
+		
 		
 		if(arriveIndex < agents.length){
 			if(millis() - agentsArriveStartTimer > agentsArriveTimer){
@@ -3420,7 +3660,6 @@ public class PolSys extends PApplet {
 		textFont(textFont);
 		textAlign(CENTER);
 		
-		//this rect is acting as a background of the interactions menu
 		fill(255);
 		noStroke();
 		rectMode(CORNER);
@@ -3432,19 +3671,19 @@ public class PolSys extends PApplet {
 		if (selGenPred)	fill(0, 150+selPulse);
 		
 		textAlign(LEFT);
-		text("introduce predators", rectBorderX, choiceY);
+		text("introduire des pru\00E9dateurs", rectBorderX, choiceY);
 		fill(0, interactionAlpha);
 		
 		textAlign(CENTER);
 		
 		if (selRemoveConnec) fill(0, 150+selPulse);
 		
-		text("remove connections", width*0.3334f, choiceY);
+		text("supprimer des connexions", width*0.3334f, choiceY);
 		fill(0, interactionAlpha);
 		
 		if (selStopAgent) fill(0, 150+selPulse);
 		
-		text("immobilize agents", width*0.6667f, choiceY);
+		text("immobiliser un individu", width*0.6667f, choiceY);
 		fill(0, interactionAlpha);
 		
 		textAlign(RIGHT);
@@ -3452,10 +3691,12 @@ public class PolSys extends PApplet {
 		if(selFinalCluster)	fill(0, interactionAlpha+selPulse);
 
 		if(finalCluster == null){
-			text("advance", rectBorderX+rectBorderW, choiceY);
+			if(language == "english") text("advance", rectBorderX+rectBorderW, choiceY);
+			if(language == "francais") text("continuer", rectBorderX+rectBorderW, choiceY);
 			if(rectProceedAlpha > 0) rectProceedAlpha -= 10.0f;
 		}else if(finalCluster != null){
-			text("press space", rectBorderX+rectBorderW, choiceY);
+			if(language == "english") text("press space", rectBorderX+rectBorderW, choiceY);
+			if(language == "francais") text("appuyer sur espace", rectBorderX+rectBorderW, choiceY);
 			if(rectProceedAlpha < 200) rectProceedAlpha += 10.0f;
 		}
 		fill(0);
@@ -3490,7 +3731,11 @@ public class PolSys extends PApplet {
 			rect(rectBorderX+1, rectBorderY+(rectBorderH*0.97f), rectBorderW-2, rectBorderH*0.03f-1);
 			fill(0, 200);
 			textAlign(LEFT);
-			text("click anywhere on the screen to make a predator appear.", rectBorderX*2.0f, rectBorderY+(rectBorderH*0.99f));
+			if(language == "english"){
+				text("click anywhere on the screen to make a predator appear.", rectBorderX*2.0f, rectBorderY+(rectBorderH*0.99f));
+			}else{
+				text("cliquez pour faire appara\u00EEtre un pr\u00E9dateur.", rectBorderX*2.0f, rectBorderY+(rectBorderH*0.99f));
+			}
 		}
 		
 		textAlign(CENTER);
@@ -3500,7 +3745,12 @@ public class PolSys extends PApplet {
 			fill(255, 150);
 			rect(rectBorderX+1, rectBorderY+(rectBorderH*0.97f), rectBorderW-2, rectBorderH*0.03f-1);
 			fill(0, 200);
-			text("click on a connection to sever the bond between to individuals.", width*0.3334f, rectBorderY+(rectBorderH*0.99f));
+			if(language == "english"){
+				text("click on a connection to sever the bond between to individuals.", width*0.3334f, rectBorderY+(rectBorderH*0.99f));
+			}else{
+				text("cliquez sur une connexion entre individus pour la faire dispara\u00EEtre.", width*0.3334f, rectBorderY+(rectBorderH*0.99f));
+				
+			}
 		}
 		
 		if(showRemoveConnectionInfo){
@@ -3509,7 +3759,11 @@ public class PolSys extends PApplet {
 			fill(255, 150);
 			rect(rectBorderX+1, rectBorderY+(rectBorderH*0.97f), rectBorderW-2, rectBorderH*0.03f-1);
 			fill(0, 200);
-			text("click on an individuals to prevent him from moving, forever.", width*0.6667f, rectBorderY+(rectBorderH*0.99f));
+			if(language == "english"){
+				text("click on an individuals to prevent him from moving, forever.", width*0.6667f, rectBorderY+(rectBorderH*0.99f));
+			}else{
+				text("cliquez sur un individu pour l'immobiliser \u00E0 jamais.", width*0.6667f, rectBorderY+(rectBorderH*0.99f));
+			}
 		}
 		
 		if(showSelFinalClusterInfo){
@@ -3519,7 +3773,11 @@ public class PolSys extends PApplet {
 			rect(rectBorderX+1, rectBorderY+(rectBorderH*0.97f), rectBorderW-2, rectBorderH*0.03f-1);
 			fill(0, 200);
 			textAlign(RIGHT);
-			text("click on a group of individuals whose future you'd like to witness.", rectBorderW, rectBorderY+(rectBorderH*0.99f));
+			if(language == "english"){
+				text("click on a group of individuals whose future you'd like to witness.", rectBorderW, rectBorderY+(rectBorderH*0.99f));
+			}else{
+				text("cliquez sur un individus dont vous souhaitez entendre le r\u00E9cit.", rectBorderW, rectBorderY+(rectBorderH*0.99f));
+			}
 		}
 
 		showAssumptions();
@@ -3529,16 +3787,6 @@ public class PolSys extends PApplet {
 		resetButton.onClick();
 		showAssumptions.display();
 		showAssumptions.onClick();
-		
-		fill(255, rectProceedAlpha);
-		stroke(0, rectProceedAlpha);
-		rectMode(CENTER);
-		textAlign(CENTER);
-		rect(width*0.5f, height*0.5f, rectBorderW-2, height*0.1f);
-		fill(0, rectProceedAlpha);
-		textFont(headerFont);
-		textSize(headerFontSize);
-		text("press space to proceed", width*0.5f, height*0.5f);
 		
 		death(1);
 		
@@ -3599,7 +3847,11 @@ public class PolSys extends PApplet {
 		fill(0, rectProceedAlpha);
 		textFont(headerFont);
 		textSize(headerFontSize);
-		text("press space to proceed", width*0.5f, height*0.5f);
+		if(language == "english"){
+			text("press space to proceed", width*0.5f, height*0.5f);
+		}else{
+			text("appuyer sur espace pour continuer", width*0.5f, height*0.5f);
+		}
 	}
 	
 	void debug(){
@@ -3621,7 +3873,7 @@ public class PolSys extends PApplet {
 		String power_debug = "power: "+powerForce;
 		String friendship_debug = "friendship: "+friendshipForce;
 		String love_debug = "love: "+loveForce;
-		//text(rememberDead_debug, width*0.025f, height*0.025f);
+		//text("language: "+language, width*0.025f, height*0.025f);
 		//text(friendship_debug, width*0.025f, height*0.045f);
 		//text(power_debug, width*0.025f, height*0.065f);
 		//text(resourcesGrow_debug, width*0.025f, height*0.085f);
@@ -3720,13 +3972,23 @@ public class PolSys extends PApplet {
 		canStart = false;
 		interactions = 0;
 		
-		loadingText = "moving on to the second stage of their history";
+		if(language == "english"){
+			loadingText = "moving on to the second stage of their history";
+		}else{
+			loadingText = "avanc\u00E9e vers le second temps de leur histoire";
+		}
 		
 		fill(0);
 		textSize(mainFontSize);
 		textFont(mainFont);
 		textAlign(CENTER);
-		text("On "+storyTitle1, width/2, height/10);
+		
+		if(language == "english"){
+			text("On "+storyTitle1, width/2, height/10);
+		}else{
+			text("Sur "+storyTitle1, width/2, height/10);
+		}
+		
 		
 		textSize(textFontSize);
 		textFont(textFont);
@@ -3771,7 +4033,7 @@ public class PolSys extends PApplet {
 			hasFoughtRNDX = (int) random(hasFoughtOthersX.length);
 			
 			randGen3 = false;
-			if(selectedAgent != null) portraitRad = map(selectedAgent.rad, 20, 30, width*0.1f, width*0.15f);
+			if(selectedAgent != null) portraitRad = map(selectedAgent.rad, 25, 30, width*0.1f, width*0.15f);
 		}
 		
 		if(finalCluster != null){
@@ -3880,7 +4142,6 @@ public class PolSys extends PApplet {
 					
 					//drawing part
 					if(selectedAgent != null && (!selectedAgent.isAlive || selectedAgent.isKiller)){
-						println("is killer"+selectedAgent.isKiller);
 						stroke(255, 0, 0, textAlpha);
 					}else{
 						stroke(portraitCol);
@@ -3899,7 +4160,11 @@ public class PolSys extends PApplet {
 					portraitRad += cos(portraitPulse)*0.5f;
 					portraitPulse += portraitPulseInc*1.0f;
 			}else{
-				text("no cluster chosen", width/2, height/2);
+				if(language == "english"){
+					text("no community chosen", width*0.5f, height*0.5f);
+				}else{
+					text("aucune communaute choisie", width*0.5f, height*0.5f);
+				}
 				
 				stroke(portraitCol);
 				strokeWeight(3);
@@ -3925,7 +4190,11 @@ public class PolSys extends PApplet {
 		textFont(textFont);
 		textSize(textFontSize);
 		fill(0);
-		text("proceed", proceedX*1.015f, proceedY*1.03f);
+		if(language == "english"){
+			text("proceed", proceedX*1.015f, proceedY*1.03f);
+		}else{
+			text("continuer", proceedX*1.015f, proceedY*1.03f);
+		}
 		
 		if(mouseX > proceedX && mouseX < proceedX + proceedW && mouseY > proceedY && mouseY < proceedY + proceedH){
 			proceedSW = 2;
@@ -3934,115 +4203,6 @@ public class PolSys extends PApplet {
 		}
 	}
 	
-	/*
-	void generateCommunalHistory(){
-		//here we generate the common history
-		background(250);
-		stroke(0);
-		strokeWeight(1);
-		rect(3, 3, width-6, height-6);
-		rect(6, 6, width-12, height-12);
-		
-		textFont(mainFont);
-		textSize(mainFontSize);
-		textAlign(CENTER);
-		fill(0);
-		text("COMMUNAL HISTORY", width/2, height/8);
-		
-		String finalCommunityHistory = "";
-		
-		//first part is generate the strings related to rules and set-ups.
-		if(communalHistoryRndGenerator){
-			//numbers for the general rules
-			
-			goal0RND = (int) random(goal0.length);
-			goal1RND = (int) random(goal1.length);
-			goal2RND = (int) random(goal2.length);
-			goal3RND = (int) random(goal3.length);
-			
-			fsrRND = (int) random(formStabRel.length);
-			cDRND = (int) random(canDist.length);
-			cPRND = (int) random(canPro.length);
-			cfRND = (int) random(canFight.length);
-			crdRND = (int) random(canRememberDead.length);
-			ccRND = (int) random(canConnec.length);
-			
-			fsrRNDX = (int) random(formStabRelX.length);
-			cDRNDX = (int) random(canDistX.length);
-			cPRNDX = (int) random(canProX.length);
-			cfRNDX = (int) random(canFightX.length);
-			crdRND = (int) random(canRememberDeadX.length);
-			ccRNDX = (int) random(canConnecX.length);
-			
-			communalHistoryRndGenerator = false;
-		}
-			
-			if(goalInt == 0){
-				finalCommunityHistory = finalCommunityHistory+goal0[goal0RND]+"\n\n";
-			}else if(goalInt == 1){
-				finalCommunityHistory = finalCommunityHistory+goal1[goal1RND]+"\n\n";
-			}else if(goalInt == 2){
-				finalCommunityHistory = finalCommunityHistory+goal2[goal2RND]+"\n\n";
-			}else if(goalInt == 3){
-				finalCommunityHistory = finalCommunityHistory+goal3[goal3RND]+"\n\n";
-			}
-			 
-			
-			if(canFormStableRelationships){
-				finalCommunityHistory = finalCommunityHistory+formStabRel[fsrRND]+" ";
-			}else{
-				finalCommunityHistory = finalCommunityHistory+formStabRelX[fsrRNDX]+" ";
-			}
-			if(canDisturb){
-				finalCommunityHistory = finalCommunityHistory+canDist[cDRND]+" ";
-			}else{
-				finalCommunityHistory = finalCommunityHistory+canDistX[cDRNDX]+" ";
-			}
-			if(meetingOthers){
-				finalCommunityHistory = finalCommunityHistory+canPro[cPRND]+" ";
-			}else{
-				finalCommunityHistory = finalCommunityHistory+canProX[cPRNDX]+" ";
-			}
-			if(canRememberFallen){
-				finalCommunityHistory = finalCommunityHistory+canRememberDead[crdRND]+"\n\n";
-			}else{
-				finalCommunityHistory = finalCommunityHistory+canRememberDeadX[crdRNDX]+"\n\n";
-			}
-			
-			
-			if(violence > 0.6f){
-				finalCommunityHistory = finalCommunityHistory+canFight[cfRND]+" ";
-			}else if(violence == 0.5f){
-				finalCommunityHistory = finalCommunityHistory+canFightX[cfRNDX]+" ";
-			}else{
-				finalCommunityHistory = finalCommunityHistory+"It seemed everyone decided not to fight. We decided to focus our energy on connecting with others."+" ";
-			}
-			
-			if(connec > 4){
-				finalCommunityHistory = finalCommunityHistory+canConnec[ccRND]+" ";	
-			}else if(connec <= 4){
-				finalCommunityHistory = finalCommunityHistory+canConnecX[ccRNDX]+" ";
-			}
-			
-			fill(0, textAlpha);
-			textFont(headerFont);
-			textSize(headerFontSize);
-			textAlign(LEFT);
-			text(finalCommunityHistory, width/6, height/5, 4*(width/6), 4*(height/5));
-			
-			if(textAlpha < 254) textAlpha += 2f;
-			
-			strokeWeight(2);
-			stroke(10, 210);
-			noFill();
-			rect(proceedX, proceedY, proceedW, proceedH);
-			textFont(subtitleFont);
-			textSize(subtitleFontSize);
-			fill(0);
-			text("Proceed", proceedX*1.01f, proceedY*1.0475f);
-		}
-	 */		
-
 	void removeSuperfluousAgents(Cluster cl){ //this function compares every agent in the cluster with each other and removes any duplicates DEPRECATED
 		for(int i = 0; i < cl.agentsInside.size(); i++){
 			Agent a1 = cl.agentsInside.get(i);
@@ -4082,7 +4242,11 @@ public class PolSys extends PApplet {
 				fill(255, rectDeadAlpha);
 				textFont(headerFont);
 				textSize(headerFontSize);
-				text("their story ended", width*0.5f, height*0.5f);
+				if(language == "english"){
+					text("their story ended", width*0.5f, height*0.5f);
+				}else{
+					text("leur histoire a pris fin", width*0.5f, height*0.5f);
+				}
 				
 				if(rectDeadAlpha <= 200) rectDeadAlpha += 0.5f;
 				if(rectBorderHTemp < rectBorderHMenu) rectBorderHTemp += 1.0f;
@@ -4114,7 +4278,11 @@ public class PolSys extends PApplet {
 				fill(255, rectDeadAlpha);
 				textFont(headerFont);
 				textSize(headerFontSize);
-				text("their history ended", width*0.5f, height*0.5f);
+				if(language == "english"){
+					text("their story ended", width*0.5f, height*0.5f);
+				}else{
+					text("leur histoire a pris fin", width*0.5f, height*0.5f);
+				}
 				
 				if(rectDeadAlpha < 200) rectDeadAlpha += 0.5f;
 				if(rectBorderHTemp < rectBorderHMenu) rectBorderHTemp += 1.0f;
@@ -4149,7 +4317,11 @@ public class PolSys extends PApplet {
 				fill(255, rectDeadAlpha);
 				textFont(headerFont);
 				textSize(headerFontSize);
-				text("history ended", width*0.5f, height*0.5f);
+				if(language == "english"){
+					text("history ended", width*0.5f, height*0.5f);
+				}else{
+					text("l'histoire a pris fin", width*0.5f, height*0.5f);
+				}
 				
 				if(rectDeadAlpha < 200) rectDeadAlpha += 0.5f;
 				if(rectBorderHTemp < rectBorderHMenu) rectBorderHTemp += 1.0f;
@@ -4216,37 +4388,72 @@ public class PolSys extends PApplet {
 				
 				if(hoverTextAlphaPredator < 1) hoverRandPredator = random(1);
 				
-				if(hoveredPredator.isDomesticated){
-					if(hoverRandPredator < 0.25f){
-						predatorThought = "the beast has been tamed";
-					}else if(hoverRandPredator < 0.5f){
-						predatorThought = "the beast is no longer a danger";
-					}else if(hoverRandPredator < 0.75f){
-						predatorThought = "the beast has found a master";
+				if(language == "english"){
+					if(hoveredPredator.isDomesticated ){
+						if(hoverRandPredator < 0.25f){
+							predatorThought = "the beast has been tamed";
+						}else if(hoverRandPredator < 0.5f){
+							predatorThought = "the beast is no longer a danger";
+						}else if(hoverRandPredator < 0.75f){
+							predatorThought = "the beast has found a master";
+						}else{
+							predatorThought = "...";
+						}
+					}else if(hoveredPredator.hungerDuration > 0){ //has eaten
+						if(hoverRandPredator < 0.25f){
+							predatorThought = "the beast is no longer hungry";
+						}else if(hoverRandPredator < 0.5f){
+							predatorThought = "the beast has killed";
+						}else if(hoverRandPredator < 0.75f){
+							predatorThought = "the beast has fed upon others";
+						}else{
+							predatorThought = "...";
+						}
 					}else{
-						predatorThought = "...";
-					}
-				}else if(hoveredPredator.hungerDuration > 0){ //has eaten
-					if(hoverRandPredator < 0.25f){
-						predatorThought = "the beast is no longer hungry";
-					}else if(hoverRandPredator < 0.5f){
-						predatorThought = "the beast has killed";
-					}else if(hoverRandPredator < 0.75f){
-						predatorThought = "the beast has fed upon others";
-					}else{
-						predatorThought = "...";
+						if(hoverRandPredator < 0.25f){
+							predatorThought = "the beast is looking for preys";
+						}else if(hoverRandPredator < 0.5f){
+							predatorThought = "the beast is hungry";
+						}else if(hoverRandPredator < 0.75f){
+							predatorThought = "the beast starves";
+						}else{
+							predatorThought = "...";
+						}
 					}
 				}else{
-					if(hoverRandPredator < 0.25f){
-						predatorThought = "the beast is looking for preys";
-					}else if(hoverRandPredator < 0.5f){
-						predatorThought = "the beast is hungry";
-					}else if(hoverRandPredator < 0.75f){
-						predatorThought = "the beast starves";
+					if(hoveredPredator.isDomesticated){
+						if(hoverRandPredator < 0.25f){
+							predatorThought = "la b\u00EAte est apprivois\u00E9e";
+						}else if(hoverRandPredator < 0.5f){
+							predatorThought = "la b\u00EAte n'est plus un danger";
+						}else if(hoverRandPredator < 0.75f){
+							predatorThought = "la b\u00EAte a trouv\u00E9 son ma\u00EEtre";
+						}else{
+							predatorThought = "...";
+						}
+					}else if(hoveredPredator.hungerDuration > 0){ //has eaten
+						if(hoverRandPredator < 0.25f){
+							predatorThought = "la b\u00EAte n'est plus affam\u00E9e";
+						}else if(hoverRandPredator < 0.5f){
+							predatorThought = "la b\u00EAte a tu\u00E9";
+						}else if(hoverRandPredator < 0.75f){
+							predatorThought = "la b\u00EAte s'est nourrie d'un autre";
+						}else{
+							predatorThought = "...";
+						}
 					}else{
-						predatorThought = "...";
-					}
+						if(hoverRandPredator < 0.25f){
+							predatorThought = "la b\u00EAte cherche des proies";
+						}else if(hoverRandPredator < 0.5f){
+							predatorThought = "la b\u00EAte a faim";
+						}else if(hoverRandPredator < 0.75f){
+							predatorThought = "la b\u00EAte est affamm\u00E9e";
+						}else{
+							predatorThought = "...";
+						}
+					}	
 				}
+				
 			}else{
 				if(hoverTextAlphaPredator > 0) hoverTextAlphaPredator -= hoverTextAlphaPredatorRate;
 			}
@@ -4325,7 +4532,7 @@ public class PolSys extends PApplet {
 					n.hullWeight = 4;
 					textFont(thoughtFont);
 					textSize(thoughtFontSize);
-					if(!n.hovered) randomStatement  = (int)random(n.possibleStatements.size()-1);
+					if(!n.hovered) randomStatement  = (int)random(n.possibleStatements.size()*0.5f, n.possibleStatements.size());
 					fill(0);
 					n.hovered = true;
 					statementStr = n.statement(randomStatement);
@@ -4371,7 +4578,7 @@ public class PolSys extends PApplet {
 	void generateAgents(int numberOfAgents) {
 		allAgentsDead = false;
 		arriveIndex = 0;
-		rad = 20 + (int) (random(0, 5));
+		rad = 25 + (int) (random(0, 5));
 		
 		if(seasons == null) seasons = new Seasons(this);
 		
@@ -4428,7 +4635,11 @@ public class PolSys extends PApplet {
 				a.powerModifier = powerForce;
 				a.friendshipModifier = friendshipForce;
 				a.loveModifier = loveForce;
-				a.ageMajority = millis() + agents[i].lifeSpan*ageModifier;
+				if(agents[i] != null){
+					a.ageMajority = millis() + agents[i].lifeSpan*ageModifier;
+				}else{
+					a.ageMajority = random(108, 155)*1000.0f*ageModifier;
+				}
 				a.numberOfChildren = numberOfChildren;
 				a.independenceOfChildren = independenceOfChildren;
 				a.moveCoeff = 1.0f;
@@ -4508,13 +4719,24 @@ public class PolSys extends PApplet {
 		startTimeWar = millis();
 		if(seasons == null) seasons = new Seasons(this);
 		
-		if(nationGoal == 0){//preserve
-			statementHeader = "we state:\n\n";
-		}else if(nationGoal == 1){//honor
-			statementHeader = "we declare:\n\n";
-		}else{//wealth
-			statementHeader = "we announce:\n\n";
+		if(language == "english"){
+			if(nationGoal == 0){//preserve
+				statementHeader = "we state:\n\n";
+			}else if(nationGoal == 1){//honor
+				statementHeader = "we declare:\n\n";
+			}else{//wealth
+				statementHeader = "we announce:\n\n";
+			}
+		}else{
+			if(nationGoal == 0){//preserve
+				statementHeader = "nous affirmons:\n\n";
+			}else if(nationGoal == 1){//honor
+				statementHeader = "nous declarons:\n\n";
+			}else{//wealth
+				statementHeader = "nous annon\u00E7ons:\n\n";
+			}
 		}
+
 		
 		if(community.size() == 0){
 			println("generating out of nowhere");
@@ -4667,8 +4889,14 @@ public class PolSys extends PApplet {
 		
 		if(interactions > interactionsThreshold) canStart = true;
 		
-		loadingText = "computing your world";
-		legendTextContent = legendTextContent2;
+		if(language == "english"){
+			loadingText = "computing your world";
+			legendTextContent = legendTextContent2;
+		}else{
+			loadingText = "calcul de votre monde";
+			legendTextContent = legendTextContent2FR;
+		}
+		
 		
 		fill(15);
 		textSize(mainFontSize);
@@ -4679,13 +4907,24 @@ public class PolSys extends PApplet {
 		textSize(subtitleFontSize);
 		textAlign(CENTER);
 		textFont(subtitleFont);
-		fill(200);
-		text("I - coming together", width/2, subtitleHeight);
-		fill(10);
-		text("II - growing together", width/2, subtitle2Height);
-		fill(200);
-		text("III - confronting others", width/2, subtitle3Height);
-		fill(0);
+		if(language == "english"){
+			fill(200);
+			text("I - coming together", width/2, subtitleHeight);
+			fill(10);
+			text("II - growing together", width/2, subtitle2Height);
+			fill(200);
+			text("III - confronting others", width/2, subtitle3Height);
+			fill(0);
+		}else{
+			fill(200);
+			text("I - r\u00E9union", width/2, subtitleHeight);
+			fill(10);
+			text("II - communion", width/2, subtitle2Height);
+			fill(200);
+			text("III - confrontation", width/2, subtitle3Height);
+			fill(0);
+		}
+
 		
 		rectMode(CENTER);
 		fishTank();
@@ -4703,20 +4942,39 @@ public class PolSys extends PApplet {
 		powerForceDownButton.onClick();
 		
 		String powerForceText = "";
-		if(powerForce == 1.0f){
-			powerForceText = "barely noticeable";
-		}else if(powerForce == 3.0f){
-			powerForceText = "somewhat important";
-		}else if(powerForce == 5.0f){
-			powerForceText = "a normal part of their interaction";
-		}else if(powerForce == 7.0f){
-			powerForceText = "a major component of their lives";
-		}else{
-			powerForceText = "the only real relationship one can sustain";
-		}
 		
-		text("power struggles between beings are\n"+powerForceText, leftColX, firstRowY);
-		assumptions[0] = "power struggles between beings are\n"+powerForceText;
+		if(language == "english"){
+			if(powerForce == 1.0f){
+				powerForceText = "barely noticeable";
+			}else if(powerForce == 3.0f){
+				powerForceText = "somewhat important";
+			}else if(powerForce == 5.0f){
+				powerForceText = "a normal part of their interaction";
+			}else if(powerForce == 7.0f){
+				powerForceText = "a major component of their lives";
+			}else{
+				powerForceText = "the only real relationship one can sustain";
+			}
+			
+			text("power struggles between beings are\n"+powerForceText, leftColX, firstRowY);
+			assumptions[0] = "power struggles between beings are\n"+powerForceText;
+		}else{
+			if(powerForce == 1.0f){
+				powerForceText = "indiscernables";
+			}else if(powerForce == 3.0f){
+				powerForceText = "pr\u00E9sentes";
+			}else if(powerForce == 5.0f){
+				powerForceText = "une des bases de toute interaction";
+			}else if(powerForce == 7.0f){
+				powerForceText = "une composante principale de leurs vies";
+			}else{
+				powerForceText = "la seule vraie relation sociale";
+			}
+			
+			text("les relations de pouvoir entre chacun sont\n"+powerForceText, leftColX, firstRowY);
+			assumptions[0] = "les relations de pouvoir entre chacun sont\n"+powerForceText;
+		}
+
 		powerForceUpButton.display();
 		powerForceUpButton.onClick();
 		
@@ -4724,18 +4982,34 @@ public class PolSys extends PApplet {
 		friendshipForceDownButton.onClick();
 		
 		String friendshipForceText = "";
-		if(friendshipForce == 1.0f){
-			friendshipForceText = "hardly notice each other";
-		}else if(friendshipForce == 3.0f){
-			friendshipForceText = "pay little attention to one another";
-		}else if(friendshipForce == 5.0f){
-			friendshipForceText = "stay within reach of each other";
-		}else if(friendshipForce == 7.0f){
-			friendshipForceText = "remain as close as possible";
+		if(language == "english"){
+			if(friendshipForce == 1.0f){
+				friendshipForceText = "hardly notice each other";
+			}else if(friendshipForce == 3.0f){
+				friendshipForceText = "pay little attention to one another";
+			}else if(friendshipForce == 5.0f){
+				friendshipForceText = "stay within reach of each other";
+			}else if(friendshipForce == 7.0f){
+				friendshipForceText = "remain as close as possible";
+			}
+			
+			text("two culturally similar beings tend to\n"+friendshipForceText, leftColX, secondRowY);
+			assumptions[1] = "two culturally similar beings tend to\n"+friendshipForceText;
+		}else{
+			if(friendshipForce == 1.0f){
+				friendshipForceText = "\u00E0 peine se remarquer";
+			}else if(friendshipForce == 3.0f){
+				friendshipForceText = "r\u00E9aliser leur existence r\u00E9ciproque";
+			}else if(friendshipForce == 5.0f){
+				friendshipForceText = "demeurer proches l'un de l'autre";
+			}else if(friendshipForce == 7.0f){
+				friendshipForceText = "ne plus vouloir se quitter";
+			}
+			
+			text("deux \u00EAtres similaires vont\n"+friendshipForceText, leftColX, secondRowY);
+			assumptions[1] = "deux \u00EAtres similaires vont\n"+friendshipForceText;
 		}
-		
-		text("two culturally similar beings tend to\n"+friendshipForceText, leftColX, secondRowY);
-		assumptions[1] = "two culturally similar beings tend to\n"+friendshipForceText;
+
 		friendshipForceUpButton.display();
 		friendshipForceUpButton.onClick();
 		
@@ -4743,20 +5017,39 @@ public class PolSys extends PApplet {
 		loveForceDownButton.onClick();
 		
 		String loveForceText = "";
-		if(loveForce == 40.0f){
-			loveForceText = "almost non-existant";
-		}else if(loveForce == 45.0f){
-			loveForceText = "superficial";
-		}else if(loveForce == 50.0f){
-			loveForceText = "an essential component of life";
-		}else if(loveForce == 55.0f){
-			loveForceText = "something that can't be ignored";
-		}else{
-			loveForceText = "the strongest bond";
-		}
 		
-		text("love is\n"+loveForceText, leftColX, thirdRowY);
-		assumptions[2] = "love is\n"+loveForceText;
+		if(language == "english"){
+			if(loveForce == 40.0f){
+				loveForceText = "almost non-existant";
+			}else if(loveForce == 45.0f){
+				loveForceText = "superficial";
+			}else if(loveForce == 50.0f){
+				loveForceText = "an essential component of life";
+			}else if(loveForce == 55.0f){
+				loveForceText = "something that can't be ignored";
+			}else{
+				loveForceText = "the strongest bond";
+			}
+			
+			text("love is\n"+loveForceText, leftColX, thirdRowY);
+			assumptions[2] = "love is\n"+loveForceText;
+		}else{
+			if(loveForce == 40.0f){
+				loveForceText = "presque non-existant";
+			}else if(loveForce == 45.0f){
+				loveForceText = "superficiel";
+			}else if(loveForce == 50.0f){
+				loveForceText = "une composante essentielle de la vie";
+			}else if(loveForce == 55.0f){
+				loveForceText = "difficile \u00E0 ignorer";
+			}else{
+				loveForceText = "le plus fort des liens";
+			}
+			
+			text("l'amour est\n"+loveForceText, leftColX, thirdRowY);
+			assumptions[2] = "l'amour est\n"+loveForceText;
+		}
+
 		loveForceUpButton.display();
 		loveForceUpButton.onClick();		
 		
@@ -4768,16 +5061,30 @@ public class PolSys extends PApplet {
 		ageMajorityDownButton.onClick();
 		
 		String ageModifierText = "";
-		if(ageModifier == 0.20f){
-			ageModifierText = "they can reproduce as soon as they can";
-		}else if(ageModifier == 0.25f){
-			ageModifierText = "they can reproduce when they see fit";
+		if(language == "english"){
+			if(ageModifier == 0.20f){
+				ageModifierText = "they should reproduce as soon as they can";
+			}else if(ageModifier == 0.25f){
+				ageModifierText = "they should reproduce when they see fit";
+			}else{
+				ageModifierText = "reproduction comes last";
+			}
+			
+			text(ageModifierText, rightColX, firstRowY);
+			assumptions[3] = ageModifierText;
 		}else{
-			ageModifierText = "reproduction comes last";
+			if(ageModifier == 0.20f){
+				ageModifierText = "ils doivent se reproduire d\u00E8s que possible";
+			}else if(ageModifier == 0.25f){
+				ageModifierText = "ils doivent se reproduire quand ils le d\u00E9sirent";
+			}else{
+				ageModifierText = "la reproduction ne doit pas \u00EAtre leur priorit\u00E9";
+			}
+			
+			text(ageModifierText, rightColX, firstRowY);
+			assumptions[3] = ageModifierText;
 		}
-		
-		text(ageModifierText, rightColX, firstRowY);
-		assumptions[3] = ageModifierText;
+
 		ageMajorityUpButton.display();
 		ageMajorityUpButton.onClick();
 		
@@ -4785,22 +5092,43 @@ public class PolSys extends PApplet {
 		numberOfChildrenDownButton.onClick();
 		
 		String numberOfChildrenText = "";
-		if(numberOfChildren == 0.0f){
-			numberOfChildrenText = "they will not bear any child";
-		}else if(numberOfChildren == 1.0f){
-			numberOfChildrenText = "they can only bear a single child";
-		}else if(numberOfChildren == 2.0f){
-			numberOfChildrenText = "they can bear a couple of children";
-		}else if(numberOfChildren == 3.0f){
-			numberOfChildrenText = "they can bear up to three children";
-		}else if(numberOfChildren == 4.0f){
-			numberOfChildrenText = "they can bear up to four children";
-		}else{
-			numberOfChildrenText = "they can bear as many as they can";
-		}
 		
-		text(numberOfChildrenText, rightColX, secondRowY);
-		assumptions[4] = numberOfChildrenText;
+		if(language == "english"){
+			if(numberOfChildren == 0.0f){
+				numberOfChildrenText = "they will not bear any child";
+			}else if(numberOfChildren == 1.0f){
+				numberOfChildrenText = "they can only bear a single child";
+			}else if(numberOfChildren == 2.0f){
+				numberOfChildrenText = "they can bear a couple of children";
+			}else if(numberOfChildren == 3.0f){
+				numberOfChildrenText = "they can bear up to three children";
+			}else if(numberOfChildren == 4.0f){
+				numberOfChildrenText = "they can bear up to four children";
+			}else{
+				numberOfChildrenText = "they can bear as many as they can";
+			}
+			
+			text(numberOfChildrenText, rightColX, secondRowY);
+			assumptions[4] = numberOfChildrenText;
+		}else{
+			if(numberOfChildren == 0.0f){
+				numberOfChildrenText = "ils n'auront pas d'enfants";
+			}else if(numberOfChildren == 1.0f){
+				numberOfChildrenText = "ils n'auront qu'un enfant";
+			}else if(numberOfChildren == 2.0f){
+				numberOfChildrenText = "ils n'auront pas plus de deux enfants";
+			}else if(numberOfChildren == 3.0f){
+				numberOfChildrenText = "ils n'auront pas plus de trois enfants";
+			}else if(numberOfChildren == 4.0f){
+				numberOfChildrenText = "ils n'auront pas plus de quatre enfants";
+			}else{
+				numberOfChildrenText = "ils auront autant d'enfants qu'ils le d\u00E9sirent";
+			}
+			
+			text(numberOfChildrenText, rightColX, secondRowY);
+			assumptions[4] = numberOfChildrenText;
+		}
+
 		numberOfChildrenUpButton.display();
 		numberOfChildrenUpButton.onClick();
 		
@@ -4808,16 +5136,31 @@ public class PolSys extends PApplet {
 		independenceOfChildrenDownButton.onClick();
 		
 		String independenceOfChildrenText = "";
-		if(independenceOfChildren == 1.0f){
-			independenceOfChildrenText = "close to their birth parents";
-		}else if(independenceOfChildren == 2.0f){
-			independenceOfChildrenText = "within the group they were born in";
-		}else{
-			independenceOfChildrenText = "wherever they desire";
-		}
 		
-		text("children will settle\n"+independenceOfChildrenText, rightColX, thirdRowY);
-		assumptions[5] = "children will settle\n"+independenceOfChildrenText;
+		if(language == "english"){
+			if(independenceOfChildren == 1.0f){
+				independenceOfChildrenText = "close to their birth parents";
+			}else if(independenceOfChildren == 2.0f){
+				independenceOfChildrenText = "within the group they were born in";
+			}else{
+				independenceOfChildrenText = "wherever they desire";
+			}
+			
+			text("children will settle\n"+independenceOfChildrenText, rightColX, thirdRowY);
+			assumptions[5] = "children will settle\n"+independenceOfChildrenText;
+		}else{
+			if(independenceOfChildren == 1.0f){
+				independenceOfChildrenText = "proches de leurs parents";
+			}else if(independenceOfChildren == 2.0f){
+				independenceOfChildrenText = "au sein de leur groupe de naissance";
+			}else{
+				independenceOfChildrenText = "o\u00F9 ils le souhaitent";
+			}
+			
+			text("les enfants demeureront\n"+independenceOfChildrenText, rightColX, thirdRowY);
+			assumptions[5] = "les enfants demeureront\n"+independenceOfChildrenText;
+		}
+
 		independenceOfChildrenUpButton.display();
 		independenceOfChildrenUpButton.onClick();
 		
@@ -4827,18 +5170,34 @@ public class PolSys extends PApplet {
 		String cultureText = "";
 		
 		//these are the two big assumptions - they don't really do anything but they allow people to think about it.
-		if(cultureOrigin == 1){
-			cultureText = "culture is\nthe result of where someone lives";
-			storyTitle2 = "territory";
-		}else if(cultureOrigin == 2){
-			cultureText = "culture is\nthe result of with whom someone lives";
-			storyTitle2 = "others";
+		if(language == "english"){
+			if(cultureOrigin == 1){
+				cultureText = "culture is\nthe result of where someone lives";
+				storyTitle2 = "territory";
+			}else if(cultureOrigin == 2){
+				cultureText = "culture is\nthe result of with whom someone lives";
+				storyTitle2 = "others";
+			}else{
+				cultureText = "culture is\never elusive";
+				storyTitle2 = "uncertainty";
+			}
+			text(cultureText, width*0.5f, buttonGoalHeight-bufferGoalHeight);
+			assumptions[6] = cultureText;
 		}else{
-			cultureText = "culture is\never elusive";
-			storyTitle2 = "uncertainty";
+			if(cultureOrigin == 1){
+				cultureText = "la culture\nest d\u00E9pendante du sol";
+				storyTitle2 = "le territoire";
+			}else if(cultureOrigin == 2){
+				cultureText = "la culture\nest d\u00E9pendante des autres";
+				storyTitle2 = "les autres";
+			}else{
+				cultureText = "la culture\ndemeure un myst\u00E8re";
+				storyTitle2 = "l'incertitude";
+			}
+			text(cultureText, width*0.5f, buttonGoalHeight-bufferGoalHeight);
+			assumptions[6] = cultureText;
 		}
-		text(cultureText, width*0.5f, buttonGoalHeight-bufferGoalHeight);
-		assumptions[6] = cultureText;
+
 		cultureButtonRight.display();
 		cultureButtonRight.onClick();
 		cultureButtonLeft.display();
@@ -4857,7 +5216,11 @@ public class PolSys extends PApplet {
 			stroke(200);
 		}
 		line(width*0.425f, height*0.318f, width*0.425f, height*0.33f);
-		text("power", width*0.4f, height*0.315f);
+		if(language == "english"){
+			text("power", width*0.4f, height*0.315f);
+		}else{
+			text("pouvoir", width*0.4f, height*0.315f);	
+		}
 		
 		if(canShowFriendship){
 			fill(colorFriendship, showAlpha+100);
@@ -4869,7 +5232,11 @@ public class PolSys extends PApplet {
 			stroke(200);
 		}
 		line(width*0.5f, height*0.318f, width*0.5f, height*0.33f);
-		text("friendships", width*0.475f, height*0.315f);
+		if(language == "english"){
+			text("friendship", width*0.475f, height*0.315f);
+		}else{
+			text("amiti\u00E9", width*0.475f, height*0.315f);
+		}
 		
 		if(canShowLove){
 			fill(colorLove, showAlpha+100);
@@ -4881,7 +5248,11 @@ public class PolSys extends PApplet {
 			stroke(200);
 		}
 		line(width*0.575f, height*0.318f, width*0.575f, height*0.33f);
-		text("love", width*0.57f, height*0.315f);
+		if(language == "english"){
+			text("love", width*0.57f, height*0.315f);
+		}else{
+			text("amour", width*0.57f, height*0.315f);
+		}
 		
 		if(millis()-rotateStartTime > rotateTimer){
 			if(rotatePos < 2){
@@ -4929,7 +5300,11 @@ public class PolSys extends PApplet {
 		strokeWeight(1);
 		stroke(strataCol, strataAlpha*0.25f);
 		
-		loadingText = "fetching the story of their lives";
+		if(language == "english"){
+			loadingText = "fetching the story of their lives";
+		}else{
+			loadingText = "r\u00E9daction de sa vie";
+		}
 		
 		//bezier curves top
 		for(int i = 0; i < 20; i++){
@@ -4948,7 +5323,6 @@ public class PolSys extends PApplet {
 			fill(255, 40-i);
 			bezier(strata1Anchor1.x, strata1Anchor1.y*(1+(i*0.05f)), strata1Control1.x, strata1Control1.y*(1+(i*0.05f)), strata1Anchor2.x, strata1Anchor2.y*(1+(i*0.05f)), strata1Control2.x, strata1Control2.y*(1+(i*0.05f)));
 		}
-		
 		
 		//bezier bottom curves
 		stroke(strataCol, strataAlpha*0.25f);
@@ -4969,7 +5343,7 @@ public class PolSys extends PApplet {
 		bezier(strata2Anchor1.x, strata2Anchor1.y, strata2Control1.x, strata2Control1.y, strata2Anchor2.x, strata2Anchor2.y, strata2Control2.x, strata2Control2.y);
 
 		seasons.cycle();
-		seasons.populate(Seasons.numberOfSeasons);
+		//seasons.populate(Seasons.numberOfSeasons);
 		for(int i = 0; i < resources2.size(); i++){
 			Resource r = resources2.get(i);
 			r.display();
@@ -4988,7 +5362,7 @@ public class PolSys extends PApplet {
 				line(a.pos.x-4, a.pos.y-4, a.pos.x+4, a.pos.y+4);
 				line(a.pos.x-4, a.pos.y+4, a.pos.x+4, a.pos.y-4);
 			}
-				a.debug();
+				//a.debug();
 		}
 		
 		onHover(2);
@@ -5018,28 +5392,44 @@ public class PolSys extends PApplet {
 		textSize(textFontSize);
 		textFont(textFont);
 		textAlign(LEFT);
-		fill(0);
+		fill(0, interactionAlpha);
 		stroke(0);
 		strokeWeight(1);
 		fill(150);
 		if (selRevolt) fill(0, 150+selPulse);
-		text("induce revolts", rectBorderX, choiceY);
+		if(language == "english"){
+			text("induce revolts", rectBorderX, choiceY);
+		}else{
+			text("inciter \u00E0 la r\u00E9volte", rectBorderX, choiceY);
+		}
 		fill(150);
 		
 		
 		textAlign(CENTER);
 		if (selOppression) fill(0, 150+selPulse);
 		
-		text("induce oppressions", width*0.25f, choiceY);
+		if(language == "english"){
+			text("induce oppressions", width*0.25f, choiceY);
+		}else{
+			text("inciter \u00E0 l'oppression", width*0.25f, choiceY);
+		}
 		fill(150);
 		
 		if (forceCulturalSim) fill(0, 150+selPulse);
 		
-		text("force cultural similarities", width*0.5f, choiceY);
+		if(language == "english"){
+			text("force cultural similarities", width*0.5f, choiceY);
+		}else{
+			text("forcer une similarit\u00E9 culturelle", width*0.5f, choiceY);
+		}
 		fill(150);
 		
 		if (forceCulturalDiff) fill(0, 150+selPulse);
-		text("force cultural differences", width*0.75f, choiceY);
+		if(language == "english"){
+			text("force cultural differences", width*0.75f, choiceY);
+		}else{
+			text("forcer une diff\u00E9rence culturelle", width*0.75f, choiceY);
+		}
 		fill(150);
 		
 		textAlign(RIGHT);
@@ -5053,25 +5443,41 @@ public class PolSys extends PApplet {
 			fill(0, 200);
 			textFont(thoughtFont);
 			textSize(thoughtFontSize);
-			text("select the one you want to hear from", rectBorderW, rectBorderY+(rectBorderH*0.99f));
+			if(language == "english"){
+				text("select the one you want to hear from", rectBorderW, rectBorderY+(rectBorderH*0.99f));
+			}else{
+				text("s\u00E9lectionnez celui dont vous voulez entendre le r\u00E9cit", rectBorderW, rectBorderY+(rectBorderH*0.99f));
+			}
 			if(selectedAgent2 == null){
 				fill(0, 150+selPulse);
 				textFont(textFont);
 				textSize(textFontSize);
-				text("advance further", rectBorderX+rectBorderW, choiceY);
+				if(language == "english"){
+					text("advance further", rectBorderX+rectBorderW, choiceY);
+				}else{
+					text("avancer", rectBorderX+rectBorderW, choiceY);
+				}
 				if(rectProceedAlpha > 0) rectProceedAlpha -= 10.0f;
 			}else if(selectedAgent2 != null){
 				fill(0, 150+selPulse);
 				textFont(textFont);
 				textSize(textFontSize);
-				text("press space", rectBorderX+rectBorderW, choiceY);
+				if(language == "english"){
+					text("press space", rectBorderX+rectBorderW, choiceY);
+				}else{
+					text("appuyez sur espace", rectBorderX+rectBorderW, choiceY);
+				}
 				if(rectProceedAlpha < 200) rectProceedAlpha += 10.0f;
 			}
 		}else{
 			fill(150);
 			textFont(textFont);
 			textSize(textFontSize);
-			text("advance further", rectBorderX+rectBorderW, choiceY);
+			if(language == "english"){
+				text("advance further", rectBorderX+rectBorderW, choiceY);
+			}else{
+				text("avancer", rectBorderX+rectBorderW, choiceY);
+			}
 		}
 		
 		fill(0);
@@ -5088,7 +5494,11 @@ public class PolSys extends PApplet {
 			rect(rectBorderX+1, rectBorderY+(rectBorderH*0.97f), rectBorderW-2, rectBorderH*0.03f-1);
 			fill(0, 200);
 			textAlign(LEFT);
-			text("click on an indivdual subjected to unjust amounts of power.", rectBorderX*2.0f, rectBorderY+(rectBorderH*0.99f));
+			if(language == "english"){
+				text("click on an individual subjected to unjust amounts of power.", rectBorderX*2.0f, rectBorderY+(rectBorderH*0.99f));
+			}else{
+				text("cliquez sur un individu soumis injustement.", rectBorderX*2.0f, rectBorderY+(rectBorderH*0.99f));
+			}
 		}
 		textAlign(CENTER);
 		if(showInduceOppressionInfo){
@@ -5097,7 +5507,11 @@ public class PolSys extends PApplet {
 			fill(255, 150);
 			rect(rectBorderX+1, rectBorderY+(rectBorderH*0.97f), rectBorderW-2, rectBorderH*0.03f-1);
 			fill(0, 200);
-			text("click on an individual to subject his surroundings to just amounts of power.", width*0.25f, rectBorderY+(rectBorderH*0.99f));
+			if(language == "english"){
+				text("click on an individual to subject his surroundings to just amounts of power.", width*0.25f, rectBorderY+(rectBorderH*0.99f));
+			}else{
+				text("cliquez sur un individu pour justement soumettre son entourage.", width*0.25f, rectBorderY+(rectBorderH*0.99f));
+			}
 		}
 
 		if(showForceCultDiffInfo){
@@ -5106,7 +5520,11 @@ public class PolSys extends PApplet {
 			fill(255, 150);
 			rect(rectBorderX+1, rectBorderY+(rectBorderH*0.97f), rectBorderW-2, rectBorderH*0.03f-1);
 			fill(0, 200);
-			text("click on an individual to make him more like the others.", width*0.5f, rectBorderY+(rectBorderH*0.99f));
+			if(language == "english"){
+				text("click on an individual to make him more like the others.", width*0.5f, rectBorderY+(rectBorderH*0.99f));
+			}else{
+				text("cliquez sur un individu pour le rendre similaire \u00E0 son entourage.", width*0.5f, rectBorderY+(rectBorderH*0.99f));
+			}
 		}
 		
 		if(showForceCultSimInfo){
@@ -5115,19 +5533,12 @@ public class PolSys extends PApplet {
 			fill(255, 150);
 			rect(rectBorderX+1, rectBorderY+(rectBorderH*0.97f), rectBorderW-2, rectBorderH*0.03f-1);
 			fill(0, 200);
-			text("click on an individual to make him different from others.", width*0.75f, rectBorderY+(rectBorderH*0.99f));
+			if(language == "english"){
+				text("click on an individual to make him different from others.", width*0.75f, rectBorderY+(rectBorderH*0.99f));
+			}else{
+				text("cliquez sur un individu pour le diff\u00E9rencier de son entourage.", width*0.75f, rectBorderY+(rectBorderH*0.99f));
+			}
 		}
-		
-		fill(255, rectProceedAlpha);
-		stroke(0, rectProceedAlpha);
-		rectMode(CENTER);
-		rect(width*0.5f, height*0.5f, rectBorderW-2, height*0.1f);
-		fill(0, rectProceedAlpha);
-		textFont(headerFont);
-		textSize(headerFontSize);
-		text("press space to proceed", width*0.5f, height*0.5f);
-		textFont(textFont);
-		textSize(textFontSize);
 		
 		death(2);
 		
@@ -5189,17 +5600,22 @@ public class PolSys extends PApplet {
 			if(fading) rectFadeAlpha += 10.0f;
 		}
 		
-		fill(255, rectProceedAlpha);
-		stroke(0, rectProceedAlpha);
-		rectMode(CENTER);
-		rect(width*0.5f, height*0.5f, rectBorderW-2, height*0.1f);
-		fill(0, rectProceedAlpha);
-		textFont(headerFont);
-		textSize(headerFontSize);
-		text("press space to proceed", width*0.5f, height*0.5f);
-		textFont(textFont);
-		textSize(textFontSize);
-		
+		if(rectProceedAlpha > 2){
+			fill(255, rectProceedAlpha);
+			stroke(0, rectProceedAlpha);
+			rectMode(CENTER);
+			rect(width*0.5f, height*0.5f, rectBorderW-2, height*0.1f);
+			fill(0, rectProceedAlpha);
+			textFont(headerFont);
+			textSize(headerFontSize);
+			if(language == "english"){
+				text("press space to proceed", width*0.5f, height*0.5f);
+			}else{
+				text("appuyez sur espace pour continuer", width*0.5f, height*0.5f);
+			}
+			textFont(textFont);
+			textSize(textFontSize);
+		}
 	}
 	
 	void endGame2() {
@@ -5214,13 +5630,24 @@ public class PolSys extends PApplet {
 		canStart = false;
 		interactions = 0;
 		
-		loadingText = "moving on to the last stage of their history";
+		if(language == "english"){
+			loadingText = "moving on to the last stage of their history";
+		}else{
+			loadingText = "avanc\u00E9e vers le dernier temps de leur histoire";
+		}
+		
 		
 		fill(0);
 		textSize(mainFontSize);
 		textFont(mainFont);
 		textAlign(CENTER);
-		text("On "+storyTitle2, width/2, height/10);
+		
+		if(language == "english"){
+			text("On "+storyTitle2, width/2, height/10);
+		}else{
+			text("Sur "+storyTitle2, width/2, height/10);
+		}
+		
 		
 		textSize(textFontSize);
 		textFont(textFont);
@@ -5429,7 +5856,11 @@ public class PolSys extends PApplet {
 		textFont(textFont);
 		textSize(textFontSize);
 		fill(0);
-		text("proceed", proceedX*1.015f, proceedY*1.03f);
+		if(language == "english"){
+			text("proceed", proceedX*1.015f, proceedY*1.03f);
+		}else{
+			text("continuer", proceedX*1.015f, proceedY*1.03f);
+		}
 		
 		if(mouseX > proceedX && mouseX < proceedX + proceedW && mouseY > proceedY && mouseY < proceedY + proceedH){
 			proceedSW = 2;
@@ -5453,8 +5884,14 @@ public class PolSys extends PApplet {
 		
 		if(interactions > interactionsThreshold) canStart = true;
 		
-		loadingText = "computing your world";
-		legendTextContent = legendTextContent3;
+		if(language == "english"){
+			loadingText = "computing your world";
+			legendTextContent = legendTextContent3;
+		}else{
+			loadingText = "calcul de votre monde";
+			legendTextContent = legendTextContent3FR;
+		}
+		
 
 		fill(15);
 		textSize(headerFontSize);
@@ -5464,12 +5901,21 @@ public class PolSys extends PApplet {
 		
 		textSize(subtitleFontSize);
 		textFont(subtitleFont);
-		fill(200);
-		text("I - coming together", width/2, subtitleHeight);
-		text("II - growing together", width/2, subtitle2Height);
-		fill(10);
-		text("III - confronting others", width/2, subtitle3Height);
-		fill(0);
+		if(language == "english"){
+			fill(200);
+			text("I - coming together", width/2, subtitleHeight);
+			text("II - growing together", width/2, subtitle2Height);
+			fill(10);
+			text("III - confronting others", width/2, subtitle3Height);
+			fill(0);
+		}else{
+			fill(200);
+			text("I - r\u00E9union", width/2, subtitleHeight);
+			text("II - communion", width/2, subtitle2Height);
+			fill(10);
+			text("III - confrontation", width/2, subtitle3Height);
+			fill(0);
+		}
 		
 		rectMode(CENTER);
 		fishTank();
@@ -5503,7 +5949,11 @@ public class PolSys extends PApplet {
 			stroke(200);
 		}
 		line(width*0.505f, height*0.318f, width*0.505f, height*0.33f);
-		text("war", width*0.51f, height*0.315f);
+		if(language == "english"){
+			text("war", width*0.51f, height*0.315f);
+		}else{
+			text("guerre", width*0.51f, height*0.315f);
+		}
 		
 		if(canShowTrade){
 			fill(0, 0, 150, showAlpha+100);
@@ -5513,91 +5963,179 @@ public class PolSys extends PApplet {
 			stroke(200);
 		}
 		line(width*0.585f, height*0.318f, width*0.585f, height*0.33f);
-		text("trade", width*0.58f, height*0.315f);
+		if(language == "english"){
+			text("trade", width*0.58f, height*0.315f);
+		}else{
+			text("commerce", width*0.58f, height*0.315f);
+		}
 
 		
 		textAlign(CENTER);
 		fill(0);
 		String allianceModString = "";
-		if(allianceModifier == 0.5f){
-			allianceModString = "alliances are easy to make";
-		}else if(allianceModifier == 1.0f){
-			allianceModString = "alliances are carefully thought out";
+		
+		if(language == "english"){
+			if(allianceModifier == 0.5f){
+				allianceModString = "alliances are easy to make";
+			}else if(allianceModifier == 1.0f){
+				allianceModString = "alliances are carefully thought out";
+			}else{
+				allianceModString = "alliances are long and arduous processes";
+			}
+			
+			text(allianceModString, leftColX, firstRowY);
+			assumptions[0] = allianceModString;
+			
+			String tradeModString = "";
+			if(tradeModifier == 0.5f){
+				tradeModString = "trade is a natural tendency";
+			}else if(tradeModifier == 1.0f){
+				tradeModString = "trade requires trust and time";
+			}else{
+				tradeModString = "trade isn't a given of human interactions";
+			}
+			text(tradeModString, leftColX, secondRowY);
+			assumptions[1] = tradeModString;
+			
+			String warModString = "";
+			if(warModifier == 0.5f){
+				warModString = "war should never happen";//you need to have a certain amount of resources to fight and win
+			}else if(warModifier == 1.0f){
+				warModString = "war has to be considered";
+			}else{
+				warModString = "war is always an option";
+			}
+			text(warModString, rightColX, secondRowY);
+			assumptions[2] = warModString;
+			
+			String nationGoalString = "";
+			if(nationGoal == 0.0f){
+				nationGoalString = "nations strive to\nself-preserve";
+				storyTitle3 = "survival";
+			}else if(nationGoal == 1.0f){
+				nationGoalString = "nations strive to\nmaintain their honor";
+				storyTitle3 = "honor";
+			}else{
+				nationGoalString = "nations strive to\naccumulate wealth";
+				storyTitle3 = "wealth";
+			}
+			text(nationGoalString, width*0.5f, buttonGoalHeight-bufferGoalHeight);
+			assumptions[6] = nationGoalString;
+			
+			String victoryBehaviourString = "";
+			if(victoryBehaviour == 1.5f){
+				victoryBehaviourString = "victory leads to peace";
+			}else if(victoryBehaviour == 1.0f){
+				victoryBehaviourString = "victory leads to compromises";
+			}else{
+				victoryBehaviourString = "victory leads to violence";
+			}
+			text("victory leads to violence", rightColX, firstRowY);
+			assumptions[3] = victoryBehaviourString;
+			
+			String tradeLimitString= "";
+			if(tradeLimit == 0.5f){
+				tradeLimitString = "trade is limited to the minimum";
+			}else if(tradeLimit == 1.0f){
+				tradeLimitString = "trade can grow profit";
+			}else{
+				tradeLimitString = "trade is not bound";
+			}
+			text(tradeLimitString, leftColX, thirdRowY);
+			assumptions[4] = tradeLimitString;
+			
+			String allianceTrustString = "";
+			if(allianceTrust == 0.5f){
+				allianceTrustString = "alliances are fleeting agreements";
+			}else if(allianceTrust == 1.0f){
+				allianceTrustString = "alliances are to be respected";
+			}else{
+				allianceTrustString = "alliances are promises";
+			}
+			text(allianceTrustString, rightColX, thirdRowY);
+			assumptions[5] = allianceTrustString;
 		}else{
-			allianceModString = "alliances are long and arduous processes";
+			if(allianceModifier == 0.5f){
+				allianceModString = "les alliances sont faciles";
+			}else if(allianceModifier == 1.0f){
+				allianceModString = "les alliances sont d\u00E9lib\u00E9r\u00E9es";
+			}else{
+				allianceModString = "les alliances sont le fruit de longues tractations";
+			}
+			
+			text(allianceModString, leftColX, firstRowY);
+			assumptions[0] = allianceModString;
+			
+			String tradeModString = "";
+			if(tradeModifier == 0.5f){
+				tradeModString = "le commerce est naturel";
+			}else if(tradeModifier == 1.0f){
+				tradeModString = "le commerce demande de la confiance";
+			}else{
+				tradeModString = "le commerce se tient \u00E0 l'oppos\u00E9 du naturel";
+			}
+			text(tradeModString, leftColX, secondRowY);
+			assumptions[1] = tradeModString;
+			
+			String warModString = "";
+			if(warModifier == 0.5f){
+				warModString = "la guerre ne devrait pas \u00EAtre";//you need to have a certain amount of resources to fight and win
+			}else if(warModifier == 1.0f){
+				warModString = "la guerre est une possibilit\u00E9";
+			}else{
+				warModString = "la guerre est toujours une option";
+			}
+			text(warModString, rightColX, secondRowY);
+			assumptions[2] = warModString;
+			
+			String nationGoalString = "";
+			if(nationGoal == 0.0f){
+				nationGoalString = "les nations d\u00E9sirent\nvivre et survivre";
+				storyTitle3 = "la survie";
+			}else if(nationGoal == 1.0f){
+				nationGoalString = "les nations d\u00E9sirent\nvivre et honorer";
+				storyTitle3 = "l'honneur";
+			}else{
+				nationGoalString = "les nations d\u00E9sirent\nvivre et prosp\u00E9rer";
+				storyTitle3 = "la richesse";
+			}
+			text(nationGoalString, width*0.5f, buttonGoalHeight-bufferGoalHeight);
+			assumptions[6] = nationGoalString;
+			
+			String victoryBehaviourString = "";
+			if(victoryBehaviour == 1.5f){
+				victoryBehaviourString = "toute victoire m\u00E8ne \u00E0 la paix";
+			}else if(victoryBehaviour == 1.0f){
+				victoryBehaviourString = "toute victoire m\u00E8ne \u00E0 des compromis";
+			}else{
+				victoryBehaviourString = "toute victoire am\u00E8ne une vengeance";
+			}
+			text(victoryBehaviourString, rightColX, firstRowY);
+			assumptions[3] = victoryBehaviourString;
+			
+			String tradeLimitString= "";
+			if(tradeLimit == 0.5f){
+				tradeLimitString = "tout commerce sera limit\u00E9";
+			}else if(tradeLimit == 1.0f){
+				tradeLimitString = "tout commerce sera durable";
+			}else{
+				tradeLimitString = "tout commerce sera profitable";
+			}
+			text(tradeLimitString, leftColX, thirdRowY);
+			assumptions[4] = tradeLimitString;
+			
+			String allianceTrustString = "";
+			if(allianceTrust == 0.5f){
+				allianceTrustString = "toute alliance sera \u00E9ph\u00E9m\u00E8re";
+			}else if(allianceTrust == 1.0f){
+				allianceTrustString = "toute alliance sera consid\u00E9r\u00E9e";
+			}else{
+				allianceTrustString = "toute alliance sera respect\u00E9e";
+			}
+			text(allianceTrustString, rightColX, thirdRowY);
+			assumptions[5] = allianceTrustString;
 		}
 		
-		text(allianceModString, leftColX, firstRowY);
-		assumptions[0] = allianceModString;
-		
-		String tradeModString = "";
-		if(tradeModifier == 0.5f){
-			tradeModString = "trade is a natural tendency";
-		}else if(tradeModifier == 1.0f){
-			tradeModString = "trade requires trust and time";
-		}else{
-			tradeModString = "trade isn't a given of human interactions";
-		}
-		text(tradeModString, leftColX, secondRowY);
-		assumptions[1] = tradeModString;
-		
-		String warModString = "";
-		if(warModifier == 0.5f){
-			warModString = "war should never happen";//you need to have a certain amount of resources to fight and win
-		}else if(warModifier == 1.0f){
-			warModString = "war has to be considered";
-		}else{
-			warModString = "war is always an option";
-		}
-		text(warModString, rightColX, secondRowY);
-		assumptions[2] = warModString;
-		
-		String nationGoalString = "";
-		if(nationGoal == 0.0f){
-			nationGoalString = "nations strive to\nself-preserve";
-			storyTitle3 = "survival";
-		}else if(nationGoal == 1.0f){
-			nationGoalString = "nations strive to\nmaintain their honor";
-			storyTitle3 = "honor";
-		}else{
-			nationGoalString = "nations strive to\naccumulate wealth";
-			storyTitle3 = "wealth";
-		}
-		text(nationGoalString, width*0.5f, buttonGoalHeight-bufferGoalHeight);
-		assumptions[6] = nationGoalString;
-		
-		String victoryBehaviourString = "";
-		if(victoryBehaviour == 1.5f){
-			victoryBehaviourString = "victory leads to peace";
-		}else if(victoryBehaviour == 1.0f){
-			victoryBehaviourString = "victory leads to compromises";
-		}else{
-			victoryBehaviourString = "victory leads to violence";
-		}
-		text("victory leads to violence", rightColX, firstRowY);
-		assumptions[3] = victoryBehaviourString;
-		
-		String tradeLimitString= "";
-		if(tradeLimit == 0.5f){
-			tradeLimitString = "trade is limited to the minimum";
-		}else if(tradeLimit == 1.0f){
-			tradeLimitString = "trade can grow profit";
-		}else{
-			tradeLimitString = "trade is not bound";
-		}
-		text(tradeLimitString, leftColX, thirdRowY);
-		assumptions[4] = tradeLimitString;
-		
-		String allianceTrustString = "";
-		if(allianceTrust == 0.5f){
-			allianceTrustString = "alliances are fleeting agreements";
-		}else if(allianceTrust == 1.0f){
-			allianceTrustString = "alliances are to be respected";
-		}else{
-			allianceTrustString = "alliances are promises";
-		}
-		text(allianceTrustString, rightColX, thirdRowY);
-		assumptions[5] = allianceTrustString;
 		
 		//text("how much their connections affects their culture ", rightColX, fourthRowY);
 		
@@ -5677,10 +6215,13 @@ public class PolSys extends PApplet {
 		strokeWeight(1);
 		drawVoronoi(3);
 		seasons.cycle();
-		seasons.populate(Seasons.numberOfSeasons);
+		//seasons.populate(Seasons.numberOfSeasons);
 
-		
-		loadingText = "fetching the story of their lives";
+		if(language == "english"){
+			loadingText = "fetching the story of their lives";	
+		}else{
+			loadingText = "r\u00E9daction de leurs vies";
+		}
 		
 		for(int i = 0; i < resources3.size(); i++){
 			Resource r = resources3.get(i);
@@ -5724,39 +6265,63 @@ public class PolSys extends PApplet {
 		textSize(textFontSize);
 		textFont(textFont);
 		textAlign(LEFT);
-		fill(150);
+		fill(0, interactionAlpha);
 		stroke(0);
 		strokeWeight(2);
 		
 		if (selWealthInc) fill(0, 150+selPulse);
-		text("increase wealth", rectBorderX, choiceY);
-		fill(150);
+		if(language == "english"){
+			text("increase wealth", rectBorderX, choiceY);
+		}else{
+			text("augmenter la richesse", rectBorderX, choiceY);
+		}
+		fill(0, interactionAlpha);
 		
 		textAlign(CENTER);
 		
 		if (selWealthDec) fill(0, 150+selPulse);
 		
-		text("can decrease wealth", width*0.25f, choiceY);
-		fill(150);
+		if(language == "english"){
+			text("decrease wealth", width*0.25f, choiceY);
+		}else{
+			text("diminuer la richesse", width*0.25f, choiceY);
+		}
+		fill(0, interactionAlpha);
 		
 		if (selWarInduce) fill(0, 150+selPulse);
-		text("induce aggressivity", width*0.5f, choiceY);
-		fill(150);
+		if(language == "english"){
+			text("induce aggressivity", width*0.5f, choiceY);
+		}else{
+			text("inciter \u00E0 la violence", width*0.5f, choiceY);
+		}
+		fill(0, interactionAlpha);
 		
 		if (selAllianceBreak) fill(0, 150+selPulse);
-		text("break alliances", width*0.75f, choiceY);
-		fill(150);
+		if(language == "english"){
+			text("break alliances", width*0.75f, choiceY);
+		}else{
+			text("rompre une alliance", width*0.75f, choiceY);
+		}
+		fill(0, interactionAlpha);
 		
 		textAlign(RIGHT);
 		
 		if (selFinalProceed && selectedNation != null){
 			if(rectProceedAlpha < 200) rectProceedAlpha += 10.0f;
 			fill(0, 150+selPulse);
-			text("press space", rectBorderW+rectBorderX, choiceY);
+			if(language == "english"){
+				text("press space", rectBorderW+rectBorderX, choiceY);
+			}else{
+				text("appuyew sur espace", rectBorderW+rectBorderX, choiceY);
+			}
 		}else{
 			if(rectProceedAlpha > 0) rectProceedAlpha -= 10.0f;
-			fill(150);
-			text("advance further", rectBorderW+rectBorderX, choiceY);
+			fill(0, interactionAlpha);
+			if(language == "english"){
+				text("advance further", rectBorderW+rectBorderX, choiceY);
+			}else{
+				text("avancer", rectBorderW+rectBorderX, choiceY);
+			}
 		}
 		
 		rectMode(CORNER);
@@ -5767,10 +6332,14 @@ public class PolSys extends PApplet {
 			strokeWeight(1);
 			stroke(0);
 			fill(255, 150);
-			rect(rectBorderX, rectBorderY+(rectBorderH*0.97f), rectBorderW, rectBorderH*0.03f);
+			rect(rectBorderX+1, rectBorderY+(rectBorderH*0.97f), rectBorderW, rectBorderH*0.03f);
 			fill(0, 200);
 			textAlign(LEFT);
-			text("click on a nation to increase their wealth.", rectBorderX*2.0f, rectBorderY+(rectBorderH*0.99f));
+			if(language == "english"){
+				text("click on a nation to increase their wealth.", rectBorderX*2.0f, rectBorderY+(rectBorderH*0.99f));
+			}else{
+				text("cliquez sur une nation pour l'enrichir.", rectBorderX*2.0f, rectBorderY+(rectBorderH*0.99f));
+			}
 		}
 		
 		
@@ -5778,40 +6347,56 @@ public class PolSys extends PApplet {
 			strokeWeight(1);
 			stroke(0);
 			fill(255, 150);
-			rect(rectBorderX, rectBorderY+(rectBorderH*0.97f), rectBorderW, rectBorderH*0.03f);
+			rect(rectBorderX+1, rectBorderY+(rectBorderH*0.97f), rectBorderW, rectBorderH*0.03f);
 			fill(0, 200);
 			textAlign(CENTER);
-			text("click on a nation to decrease their wealth.", width*0.25f, rectBorderY+(rectBorderH*0.99f));
+			if(language == "english"){
+				text("click on a nation to decrease their wealth.", width*0.25f, rectBorderY+(rectBorderH*0.99f));
+			}else{
+				text("cliquez sur une nation pour l'appauvrir.", width*0.25f, rectBorderY+(rectBorderH*0.99f));
+			}
 		}
 		
 		if(showWarInduceInfo){
 			strokeWeight(1);
 			stroke(0);
 			fill(255, 150);
-			rect(rectBorderX, rectBorderY+(rectBorderH*0.97f), rectBorderW, rectBorderH*0.03f);
+			rect(rectBorderX+1, rectBorderY+(rectBorderH*0.97f), rectBorderW, rectBorderH*0.03f);
 			fill(0, 200);
 			textAlign(CENTER);
-			text("click on a nation to make it more prone to enter war.", width*0.5f, rectBorderY+(rectBorderH*0.99f));
+			if(language == "english"){
+				text("click on a nation to make it more prone to enter war.", width*0.5f, rectBorderY+(rectBorderH*0.99f));
+			}else{
+				text("cliquez sur une nation pour l'inciter \u00E0 la haine.", width*0.5f, rectBorderY+(rectBorderH*0.99f));
+			}
 		}
 		
 		if(showAllianceBreakInfo){
 			strokeWeight(1);
 			stroke(0);
 			fill(255, 150);
-			rect(rectBorderX, rectBorderY+(rectBorderH*0.97f), rectBorderW, rectBorderH*0.03f);
+			rect(rectBorderX+1, rectBorderY+(rectBorderH*0.97f), rectBorderW, rectBorderH*0.03f);
 			fill(0, 200);
 			textAlign(CENTER);
-			text("click on a nation to break its alliances.", width*0.75f, rectBorderY+(rectBorderH*0.99f));
+			if(language == "english"){
+				text("click on a nation to break its alliances.", width*0.75f, rectBorderY+(rectBorderH*0.99f));
+			}else{
+				text("cliquez sur une nation pour rompre ses alliances.", width*0.75f, rectBorderY+(rectBorderH*0.99f));
+			}
 		}
 		
 		if(showFinalProceedInfo){
 			strokeWeight(1);
 			stroke(0);
 			fill(255, 150);
-			rect(rectBorderX, rectBorderY+(rectBorderH*0.97f), rectBorderW, rectBorderH*0.03f);
+			rect(rectBorderX+1, rectBorderY+(rectBorderH*0.97f), rectBorderW, rectBorderH*0.03f);
 			fill(0, 200);
 			textAlign(RIGHT);
-			text("choose a nation for their history", rectBorderW, rectBorderY+(rectBorderH*0.99f));
+			if(language == "english"){
+				text("choose a nation for their history", rectBorderW, rectBorderY+(rectBorderH*0.99f));
+			}else{
+				text("choisissez une nation pour son histoire", rectBorderW, rectBorderY+(rectBorderH*0.99f));
+			}
 		}
 		
 		textFont(textFont);
@@ -5883,7 +6468,11 @@ public class PolSys extends PApplet {
 		textFont(headerFont);
 		textSize(headerFontSize);
 		textAlign(CENTER);
-		text("press space to proceed", width*0.5f, height*0.5f);
+		if(language == "english"){
+			text("press space to proceed", width*0.5f, height*0.5f);
+		}else{
+			text("appuyez sur espace pour continuer", width*0.5f, height*0.5f);
+		}
 	}
 	
 	void update3() {
@@ -5934,13 +6523,21 @@ public class PolSys extends PApplet {
 		canStart = false;
 		interactions = 0;
 		
-		loadingText = "compiling their past";
+		if(language == "english"){
+			loadingText = "compiling their past";
+		}else{
+			loadingText = "compilation de leur pass\u00E9";
+		}
 		
 		fill(0);
 		textSize(mainFontSize);
 		textFont(mainFont);
 		textAlign(CENTER);
-		text("On "+storyTitle3, width/2, height/10);
+		if(language == "english"){
+			text("On "+storyTitle3, width*0.5f, height*0.1f);
+		}else{
+			text("Sur "+storyTitle3, width*0.5f, height*0.1f);
+		}
 		
 		textSize(textFontSize);
 		textFont(textFont);
@@ -6048,7 +6645,11 @@ public class PolSys extends PApplet {
 		textFont(textFont);
 		textSize(textFontSize);
 		fill(0);
-		text("proceed", proceedX*1.015f, proceedY*1.03f);
+		if(language == "english"){
+			text("archive", proceedX*1.015f, proceedY*1.03f);
+		}else{
+			text("archiver", proceedX*1.015f, proceedY*1.03f);
+		}
 		
 		if(selectedNation != null){
 			selectedNation.pos.y = height*0.75f;
@@ -6227,6 +6828,8 @@ public class PolSys extends PApplet {
 	}
 		
 	public void mousePressed() {
+		//scale(scaleW, scaleH);
+		translate(translateBufferX, translateBufferY);
 		if(statement){
 			if(statementPage0.onClick()){
 				clickSound(1);
@@ -6244,9 +6847,12 @@ public class PolSys extends PApplet {
 				statementLerpVal = 0;
 				statementTargetPos = statementPage2.pos;
 			}
+			
+			if(englishButton.onClick()) language = "english";
+			if(frenchButton.onClick()) language = "francais";
 		}
 		
-		if(resetButton.onClick()){
+		if(resetButton.onClick() && canShowAssumptions){
 			canReset = true;
 			
 			//fade sound
@@ -6290,16 +6896,19 @@ public class PolSys extends PApplet {
 			    emailAddress.replaceAll("\uFFFD", "");
 			    emailAddress.replaceAll("\uFFFF", "");
 			    int arobase = emailAddress.indexOf('@');
-			    String local = emailAddress.substring(0, arobase);
-			    println("local: "+local);
-			    String host = emailAddress.substring(arobase+1, emailAddress.length());
-			    println("host: "+host);
-			    emailAddress = local + "@" + host;
-			    emailStory = "i have been through a lot."+"\n\n\n\n"+"\n\n"+storyTitle1+"\n\n"+endGame1_text+"\n\n"+storyTitle2+"\n\n"+endGame2_text+"\n\n"+storyTitle3+"\n\n"+endGame3_text + "\n\n\n\n thank you.";
-			    thread("sendEmail");
-//				emailScreen = false;
-//				finalScreen = true;
-			    fading = true;
+			    if(arobase > 0 && arobase < emailAddress.length()){
+			    	errorMessageMail = "";
+				    String local = emailAddress.substring(0, arobase);
+				    println("local: "+local);
+				    String host = emailAddress.substring(arobase+1, emailAddress.length());
+				    println("host: "+host);
+				    emailAddress = local + "@" + host;
+				    emailStory = "i have been through a lot."+"\n\n\n\n"+"\n\n"+storyTitle1+"\n\n"+endGame1_text+"\n\n"+storyTitle2+"\n\n"+endGame2_text+"\n\n"+storyTitle3+"\n\n"+endGame3_text + "\n\n\n\nthank you.\n\n\n\nlearn more at www.socialcontact.cc";
+				    thread("sendEmail");
+				    fading = true;
+			    }else{
+			    	errorMessageMail = "please enter a valid email address";
+			    }
 			}
 		}
 		if (startGame1) {
@@ -7242,6 +7851,7 @@ public class PolSys extends PApplet {
 		if(statement){
 			if(key == ' '){
 				initiate = true;
+				loadText(language);
 				clickSound(2);
 			}
 		}
@@ -7249,6 +7859,10 @@ public class PolSys extends PApplet {
 		if(!emailScreen){
 			if(key == 'p'){
 				saveFrame();
+			}else if(key =='e'){
+				language = "english";
+			}else if(key =='f'){
+				language = "francais";
 			}
 			
 			if(key == '1'){
