@@ -183,8 +183,10 @@ public class Nation {
 		citizenNoiseX = new float[(int) population];
 		citizenNoiseY = new float[(int)population];
 		
-		randomPosX = (rateOfFriendship/rateOfLove)*30+70; // wide society if super friendly ----------------------------- and love makes everyone closer!
+		randomPosX = (rateOfFriendship/rateOfLove)*30+500; // wide society if super friendly ----------------------------- and love makes everyone closer!
+		randomPosX = PApplet.min(randomPosX, 80);
 		randomPosY = (rateOfPower/rateOfLove)*30+70; // tall society if super powerful
+		randomPosY = PApplet.min(randomPosY, 80);
 		rad = p.width*0.1f; //make it as big the position?
 		
 		for(int i = 0; i < (int) population; i++){

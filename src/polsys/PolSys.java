@@ -891,6 +891,8 @@ public class PolSys extends PApplet {
 	
 	float rectCol;
 	
+	static boolean isPaused;
+	
 	public void setup() {
 		randomSeed(5);// FOR DEBUG
 		//size(1600, 900);
@@ -1013,8 +1015,8 @@ public class PolSys extends PApplet {
 		switchPages = false;
 		statementRectSize = width*0.015f;
 		statementPage0 = new Button(width*0.425f, height*0.85f, statementRectSize, 5, this);
-		statementPage1 = new Button(width*0.5f, height*0.85f, statementRectSize, 5, this);
-		statementPage2 = new Button(width*0.575f, height*0.85f, statementRectSize, 5, this);
+		statementPage1 = new Button(width*0.5f, height*0.85f, statementRectSize, 9, this);
+		statementPage2 = new Button(width*0.575f, height*0.85f, statementRectSize, 10, this);
 		
 		statementRectPos = new PVector(statementPage0.pos.x, statementPage0.pos.y);
 		statementTargetPos = statementRectPos;
@@ -1885,7 +1887,7 @@ public class PolSys extends PApplet {
 				if(a.isSettled){
 					a.connectPower();
 					a.exertPower();
-					a.reproduce();
+					//a.reproduce(); --this happens now on ConnectionLove
 				}
 			}
 		}
@@ -1899,6 +1901,12 @@ public class PolSys extends PApplet {
 		
 		for(int i = 0; i < connectionsLove.size(); i++){
 			ConnectionLove cL = connectionsLove.get(i);
+			
+			if(cL.a1.canReproduce){
+				//println(cL.a1+" can reproduce "+cL.a1.canReproduce+" @"+frameCount);
+				cL.a1.reproduce(cL.a2, cL);
+			}
+			
 			if(!cL.a1.isAlive || !cL.a2.isAlive){
 				connectionsLove.remove(cL);
 			}
@@ -2128,7 +2136,7 @@ public class PolSys extends PApplet {
 		if(language == "english"){
 			text("enter your email address to archive the story of your society.", width*0.5f, height*0.3f);
 		}else{
-			text("entrez votre addresse email pour archiver l'histoire de votre societe.", width*0.5f, height*0.3f);
+			text("entrez votre addresse email afin archiver l'histoire de votre soci\u00E9t\u00E9.", width*0.5f, height*0.3f);
 		}
 		
 		
@@ -2373,7 +2381,7 @@ public class PolSys extends PApplet {
 	
 	public void loadText(String language){
 		println("loading Strings with language: "+language);
-		String lg = "";
+		String lg = "en";
 		if(language == "english"){
 			lg = "en";
 		}else{
@@ -2386,6 +2394,7 @@ public class PolSys extends PApplet {
 		tsCoToKill = loadStrings("data/text/"+lg+"/thought/inGame1/old.txt");
 		tsCoToDead = loadStrings("data/text/"+lg+"/thought/inGame1/old.txt");
 		tsAlone = loadStrings("data/text/"+lg+"/thought/inGame1/isAlone.txt");
+		println(tsAlone);
 		tsNotAlone = loadStrings("data/text/"+lg+"/thought/inGame1/notAlone.txt");
 		tsHasProtected = loadStrings("data/text/"+lg+"/thought/inGame1/hasProtected.txt");
 		tsHasRejected = loadStrings("data/text/"+lg+"/thought/inGame1/hasRejected.txt");
@@ -2494,7 +2503,7 @@ public class PolSys extends PApplet {
 		st_movement = loadStrings("data/text/"+lg+"/endGame3/movement.txt");
 		
 		tsAtPeace = loadStrings("data/text/"+lg+"/thought/inGame3/atPeace.txt");
-		tsAtPeaceAgain = loadStrings("data/text/"+lg+"/	thought/inGame3/atPeaceAgain.txt");
+		tsAtPeaceAgain = loadStrings("data/text/"+lg+"/thought/inGame3/atPeaceAgain.txt");
 		tsAtWar = loadStrings("data/text/"+lg+"/thought/inGame3/atWar.txt");
 		tsAverageCulture = loadStrings("data/text/"+lg+"/thought/inGame3/averageCulture.txt");
 		tsNotAverageCulture = loadStrings("data/text/"+lg+"/thought/inGame3/notAverageCulture.txt");
@@ -2508,7 +2517,6 @@ public class PolSys extends PApplet {
 		tsPoor = loadStrings("data/text/"+lg+"/thought/inGame3/poor.txt");
 		tsWealthyNation = loadStrings("data/text/"+lg+"/thought/inGame3/wealthy.txt");
 		tsWasAtWar = loadStrings("data/text/"+lg+"/thought/inGame3/wasAtWar.txt");
-		
 		
 	}
 	
@@ -2534,6 +2542,7 @@ public class PolSys extends PApplet {
 		   
 		      Message message = new MimeMessage(session);
 		      message.setFrom(new InternetAddress("representative@socialcontact.cc", "social contact"));
+		      message.setHeader("Content-Type", "text/plain; charset=UTF-8");
 		      message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(emailAddress));
 		      message.setSubject("on "+storyTitle1+", "+storyTitle2+" and "+storyTitle3);
 		      message.setText(emailStory);
@@ -2749,14 +2758,14 @@ public class PolSys extends PApplet {
 		if(language == "english"){
 			fill(100, statementAlpha);
 			for(int i = 0; i < currentStatement.length; i++){
-				text(currentStatement[i], width*0.5f, height*0.3f+(i*height*0.05f), width*0.45f, height*0.3f);
+				text(currentStatement[i], width*0.5f, height*0.4f+(i*height*0.05f), width*0.45f, height*0.3f);
 			}
 			fill(100, beginAlpha);
 			text("press space to begin", width*0.5f, height*0.95f);
 		}else{
 			fill(100, statementAlpha);
 			for(int i = 0; i < currentStatementFR.length; i++){
-				text(currentStatementFR[i], width*0.5f, height*0.3f+(i*height*0.05f), width*0.45f, height*0.3f);
+				text(currentStatementFR[i], width*0.5f, height*0.4f+(i*height*0.05f), width*0.45f, height*0.3f);
 			}
 			fill(100, beginAlpha);
 			text("espace pour commencer", width*0.5f, height*0.95f);
@@ -3603,7 +3612,7 @@ public class PolSys extends PApplet {
 	}
 	
 	void inGame(){
-		if(!fading && !allAgentsDead) update();
+		if(!fading && !allAgentsDead && !isPaused) update();
 		textSize(textFontSize);
 		textFont(textFont);
 		textAlign(LEFT);
@@ -3671,19 +3680,31 @@ public class PolSys extends PApplet {
 		if (selGenPred)	fill(0, 150+selPulse);
 		
 		textAlign(LEFT);
-		text("introduire des pru\00E9dateurs", rectBorderX, choiceY);
+		if(language == "english"){
+			text("introduce predators", rectBorderX, choiceY);
+		}else{
+			text("introduire des pr\u00E9dateurs", rectBorderX, choiceY);	
+		}
 		fill(0, interactionAlpha);
 		
 		textAlign(CENTER);
 		
 		if (selRemoveConnec) fill(0, 150+selPulse);
 		
-		text("supprimer des connexions", width*0.3334f, choiceY);
+		if(language == "english"){
+			text("remove connections", width*0.3334f, choiceY);
+		}else{
+			text("supprimer des connexions", width*0.3334f, choiceY);	
+		}
 		fill(0, interactionAlpha);
 		
 		if (selStopAgent) fill(0, 150+selPulse);
 		
-		text("immobiliser un individu", width*0.6667f, choiceY);
+		if(language == "english"){
+			text("immobilize an agent", width*0.6667f, choiceY);
+		}else{
+			text("immobiliser un individu", width*0.6667f, choiceY);	
+		}
 		fill(0, interactionAlpha);
 		
 		textAlign(RIGHT);
@@ -3876,7 +3897,7 @@ public class PolSys extends PApplet {
 		//text("language: "+language, width*0.025f, height*0.025f);
 		//text(friendship_debug, width*0.025f, height*0.045f);
 		//text(power_debug, width*0.025f, height*0.065f);
-		//text(resourcesGrow_debug, width*0.025f, height*0.085f);
+		text("love: "+connectionsLove.size(), width*0.025f, height*0.085f);
 	}
 	
 	void drawVoronoi(int stage){
@@ -5289,7 +5310,7 @@ public class PolSys extends PApplet {
 	
 	void inGame2() {
 		background(255);
-		if(!fading) update2();
+		if(!fading && !isPaused) update2();
 		fill(bgColBox, 50);
 		bgColBox = lerpColor(bgColBox, newBgColBox, bgColBoxLerpSpeed);
 		bgColBoxLerpSpeed = map((millis()-Seasons.startTime), 0, 6000.0f, 0, 1);
@@ -5362,7 +5383,7 @@ public class PolSys extends PApplet {
 				line(a.pos.x-4, a.pos.y-4, a.pos.x+4, a.pos.y+4);
 				line(a.pos.x-4, a.pos.y+4, a.pos.x+4, a.pos.y-4);
 			}
-				//a.debug();
+				a.debug();
 		}
 		
 		onHover(2);
@@ -6206,7 +6227,7 @@ public class PolSys extends PApplet {
 	
 	void inGame3() {
 		background(255);
-		if(!fading) update3();
+		if(!fading && !isPaused) update3();
 		fill(bgColBox, 50);
 		bgColBox = lerpColor(bgColBox, newBgColBox, bgColBoxLerpSpeed);
 		bgColBoxLerpSpeed += bgColBoxLerpInc;
@@ -6763,7 +6784,7 @@ public class PolSys extends PApplet {
 			g.addInput(wp2);
 			masterGain.addInput(g);
 			e.addSegment(1.0f, 20.0f);//a
-			e.addSegment(0.1f, 40.0f);//s
+			e.addSegment(0.1f, 40.0f);//r
 			e.addSegment(0.0f, 700.0f, new KillTrigger(g));
 			
 			if(startGame1 || startGame2 || startGame3){
@@ -6848,8 +6869,14 @@ public class PolSys extends PApplet {
 				statementTargetPos = statementPage2.pos;
 			}
 			
-			if(englishButton.onClick()) language = "english";
-			if(frenchButton.onClick()) language = "francais";
+			if(englishButton.onClick()){
+				clickSound(1);
+				language = "english";
+			}
+			if(frenchButton.onClick()){
+				clickSound(1);
+				language = "francais";
+			}
 		}
 		
 		if(resetButton.onClick() && canShowAssumptions){
@@ -7848,16 +7875,25 @@ public class PolSys extends PApplet {
 	}
 
 	public void keyPressed() {
+		
+		if(key == 'p'){
+			isPaused = !isPaused;
+		}
+		
 		if(statement){
 			if(key == ' '){
 				initiate = true;
 				loadText(language);
 				clickSound(2);
 			}
+			
+			if(key == 'l'){
+				loadText(language);
+			}
 		}
 		
 		if(!emailScreen){
-			if(key == 'p'){
+			if(key == 'f'){
 				saveFrame();
 			}else if(key =='e'){
 				language = "english";

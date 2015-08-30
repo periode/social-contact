@@ -93,6 +93,8 @@ public class ConnectionLove extends ProcessingObject {
 	    p.ellipse(pos.x, pos.y, rad, rad);
 	    p.fill(c, alpha);
 	    p.ellipse(pos.x, pos.y, rad*0.5f, rad*0.5f);
+	    p.stroke(0);
+	    p.rect(a1.pos.x, a1.pos.y, 10, 10);
 	  }
 	  
 	  void update(){

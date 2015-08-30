@@ -465,7 +465,7 @@ public class Agent extends ProcessingObject {
 			sides = (int)culture[0];
 			
 			children = new ArrayList<Agent>();
-			canReproduce = true;
+			canReproduce = false;
 			reproductionTimer = p.millis() + p.random(7500, 14000);
 			numberOfChildren = 3;
 			parent1 = new Agent();
@@ -577,7 +577,6 @@ public class Agent extends ProcessingObject {
 				  //timer for the reproduction of agents
 				  if(p.millis() > reproductionTimer && !canReproduce && isOfAge){
 					  canReproduce = true;
-					  reproductionTimer = p.millis() + reproduceSpanFriendship;
 				  }
 				  
 				  for(int i = 0; i < culture.length; i++){
@@ -718,7 +717,7 @@ public class Agent extends ProcessingObject {
 			  //p.text("power: "+power, pos.x-rad, pos.y+rad);
 			  //p.text("agents power: "+agentsPower.size(), pos.x+rad, pos.y-rad);
 			  //if(agentsLove.size() > 0) p.text("in love", pos.x+rad, pos.y+(rad*2));
-			  //if(canReproduce) p.text("can reprod", pos.x+rad, pos.y+rad);
+			  if(canReproduce) p.text(""+canReproduce, pos.x+rad, pos.y+rad);
 			  //if(isOfAge) p.text("is of age", pos.x+rad, pos.y-rad);
 			  //p.text("culture: "+(int)culture[0]+" / "+(int)culture[1]+" / "+(int)culture[2]+" / "+(int)culture[3], pos.x, pos.y+rad);
 			  //p.text("friends: "+agentsFriendship.size(), pos.x, pos.y+rad*1.5f);
@@ -740,6 +739,7 @@ public class Agent extends ProcessingObject {
 			  //p.text("protected: "+hasProtected, pos.x+rad, pos.y+rad);
 			  //p.text("time in Love: "+this.timeInLove, pos.x+rad, pos.y+rad);
 			  //p.text("children"+childrenHad, pos.x, pos.y+rad);
+			  //p.text("generation "+generation, pos.x, pos.y+rad);
 		  }
 
 		  void display() {
@@ -1261,41 +1261,9 @@ public class Agent extends ProcessingObject {
 			  }
 		  }
 		  
-		  void reproduce(){
-			  if(isOfAge && canReproduce && agentsLove.size() > 0 && !isSterile){
-				  float maxSimilarity = 100;
-				  Agent mate = new Agent();
-				  ConnectionFriendship bond = new ConnectionFriendship();
-				  	for(int i = 0; i < agentsFriendship.size(); i++){
-				  		Agent a = agentsFriendship.get(i);
-			  		
-				  		float culturalSimilarity = 0;
-				  		
-				  		for(int c = 0; c < culture.length; c++){
-						  culturalSimilarity += PApplet.abs(this.culture[c]-a.culture[c]);
-				  		}
-				  		
-				  		if(a != this && culturalSimilarity < maxSimilarity && a.isOfAge && a.canReproduce && a.isAlive && this.agentsLove.contains(a) && !this.siblings.contains(a)){
-						  mate = a; //if you are closest in cultural similarity, you become the mate
-						  maxSimilarity = culturalSimilarity;
-				  		}else{
-						  mate = null;
-				  		}
-				  		//once we've seen which ones are the most similar, we COULD see if they've been together for a long enough time
-				  }
-				  	
-				  	//now look through all connections to find the one with this.agent and mate
-				  	for(int i = 0; i < PolSys.connectionsFriendship.size(); i++){
-				  		ConnectionFriendship c = PolSys.connectionsFriendship.get(i);
-				  		
-				  		if((c.a1 == this && c.a2 == mate) || (c.a1 == mate && c.a2 == this)){ //if this is the good connection, assign it as the bond
-				  			bond = c;
-				  		}
-				  	}
-				  	
-				  	//now see how long it has been since they've been together
-				  	
-				  	if(mate != null && mate.canReproduce && !mate.isSterile && p.millis() - bond.creationTime > this.reproduceSpanFriendship && p.millis() - bond.creationTime > mate.reproduceSpanFriendship && mate != parent1 && mate != parent2 && this.numberOfChildren > 0 && mate.numberOfChildren > 0){
+		  void reproduce(Agent mate, ConnectionLove bond){
+			  if(canReproduce && !isSterile){	
+				  	if(mate.canReproduce && !mate.isSterile && p.millis() - bond.creationTime > this.reproduceSpanLove && p.millis() - bond.creationTime > mate.reproduceSpanLove && mate != parent1 && mate != parent2 && this.numberOfChildren > 0 && mate.numberOfChildren > 0){
 				  		 float x = (this.pos.x+rad);
 						  float y = (this.pos.y+rad);
 						  float r = this.rad*0.5f;
@@ -1307,10 +1275,10 @@ public class Agent extends ProcessingObject {
 						  float v = (this.violence+mate.violence)/2;
 						  float reS = this.resourceSeek;
 						  
-						  //this is the result
-						  PApplet.println("someone is born @ "+p.frameCount);
-						  PApplet.println("parent 1: "+this);
-						  PApplet.println("parent 2: "+mate);
+//						  //this is the result
+//						  PApplet.println("someone is born @ "+p.frameCount);
+//						  PApplet.println("parent 1: "+this);
+//						  PApplet.println("parent 2: "+mate);
 						  Agent child = new Agent(x, y, r, c, -2, 2, d, r1, r2, v, reS, this.p);
 						  child.parent1 = this;
 						  child.parent2 = mate;
@@ -1324,10 +1292,12 @@ public class Agent extends ProcessingObject {
 						  this.numberOfChildren--;
 						  this.childrenHad++;
 						  this.canReproduce = false;
+						  this.reproductionTimer = p.millis() + reproduceSpanLove;
 						  
 						  mate.numberOfChildren--;
 						  mate.childrenHad++;
 						  mate.canReproduce = false;
+						  mate.reproductionTimer = p.millis() + reproduceSpanLove;
 				  	}
 			  }	 
 		  }

@@ -87,16 +87,16 @@ public class ConnectionPower extends ProcessingObject {
 	    
 	    for(int i = 0; i < numHarmonics; i++){
 	    	if(i % 2 == 0){
-	    		wp[i] = new WavePlayer(PolSys.ac, 220.0f, Buffer.SQUARE);
+	    		wp[i] = new WavePlayer(PolSys.ac, 110.0f, Buffer.SQUARE);
 	    	}else{
-	    		wp[i] = new WavePlayer(PolSys.ac, 220.0f + p.random(10), Buffer.SAW);
+	    		wp[i] = new WavePlayer(PolSys.ac, 110.0f + p.random(10), Buffer.SAW);
 	    	}
 	    	e[i] = new Envelope(PolSys.ac, 0.0f);
 	    	g[i] = new Gain(PolSys.ac, 1, e[i]);
 	    	g[i].addInput(wp[i]);
 	    	gConnecPower.addInput(g[i]);
-	    	e[i].addSegment(p.random(0.1f, 0.2f), 100.0f);
-	    	e[i].addSegment(0.0f, 500.0f, new KillTrigger(g[i]));
+	    	e[i].addSegment(p.random(0.025f, 0.075f), 100.0f);
+	    	e[i].addSegment(0.0f, 1000.0f, new KillTrigger(g[i]));
 	    }
 	    
 	    PolSys.ac.out.addInput(gConnecPower);

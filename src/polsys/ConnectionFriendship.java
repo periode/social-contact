@@ -31,6 +31,14 @@ public class ConnectionFriendship extends ProcessingObject {
 	  float alphaMax;
 	  float alphaInc;
 	  
+	  float dsharp4;
+	  float f4;
+	  float c5;
+	  float e5;
+	  float f5;
+	  float c6;
+	  float e6;
+	  
 	  int numHarmonics;
 	  WavePlayer[] wp;
 	  Gain[] g;
@@ -56,24 +64,59 @@ public class ConnectionFriendship extends ProcessingObject {
 	    maxWeight = 3;
 	    creationTime = p.millis();
 	    
+	    dsharp4 = 311.127f;
+	    f4 = 349.228f;
+	    c5 = 523.251f;
+	    e5 = 659.255f;
+	    f5 = 698.456f;
+	    c6 = 1046.50f;
+	    e6 = 1318.51f;
+	    
 	    numHarmonics = 2;
 	    wp = new WavePlayer[numHarmonics];
 	    e = new Envelope[numHarmonics];
 	    g = new Gain[numHarmonics];
 	    gConnecFriendship = new Gain(PolSys.ac, numHarmonics, 0.1f);
 	    
+	    float r = p.random(1);
 	    for(int i = 0; i < numHarmonics; i++){
-	    	if(i % 2 == 0){
-	    		wp[i] = new WavePlayer(PolSys.ac,  523.251f, Buffer.SINE);
-	    	}else{
-	    		wp[i] = new WavePlayer(PolSys.ac, 329.628f, Buffer.SINE);
+	    	switch(Seasons.numberOfSeasons){
+	    	case 0: //fall = Am
+	    		if(r < 0.5f){
+		    		wp[i] = new WavePlayer(PolSys.ac,  c5, Buffer.SINE);
+		    	}else{
+		    		wp[i] = new WavePlayer(PolSys.ac, f4, Buffer.SINE);
+		    	}
+	    		break;
+	    	case 1: //winter = Dm7
+	    		if(r < 0.5f){
+		    		wp[i] = new WavePlayer(PolSys.ac,  dsharp4, Buffer.SINE);
+		    	}else{
+		    		wp[i] = new WavePlayer(PolSys.ac, f5, Buffer.SINE);
+		    	}
+	    		break;
+	    	case 2: //spring = Cmaj7
+	    		if(r < 0.5f){
+		    		wp[i] = new WavePlayer(PolSys.ac,  c5, Buffer.SINE);
+		    	}else{
+		    		wp[i] = new WavePlayer(PolSys.ac, e5, Buffer.SINE);
+		    	}
+	    		break;
+	    	case 3: //summer = Fmaj7
+	    		if(r < 0.5f){
+		    		wp[i] = new WavePlayer(PolSys.ac,  c6, Buffer.SINE);
+		    	}else{
+		    		wp[i] = new WavePlayer(PolSys.ac, e6, Buffer.SINE);
+		    	}
+	    		break;
 	    	}
+
 	    	e[i] = new Envelope(PolSys.ac, 0.0f);
 	    	g[i] = new Gain(PolSys.ac, 1, e[i]);
 	    	g[i].addInput(wp[i]);
 	    	gConnecFriendship.addInput(g[i]);
 	    	e[i].addSegment(p.random(0.1f, 0.2f), 10.0f);
-	    	e[i].addSegment(0.0f, 1000.0f, new KillTrigger(g[i]));
+	    	e[i].addSegment(0.0f, 2000.0f, new KillTrigger(g[i]));
 	    }
 	    
 	    PolSys.ac.out.addInput(gConnecFriendship);

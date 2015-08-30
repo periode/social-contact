@@ -130,9 +130,14 @@ public class Button extends ProcessingObject {
 		    p.line(0-inc, 0-(size*0.3f), 0+(size*0.25f)-inc, 0);
 	    	p.fill(0);
 	    }else if(type == 5){
+	    	p.textFont(PolSys.thoughtFont);
+	    	p.textSize(PolSys.thoughtFontSize);
 	    	p.fill(c, 50);
 	    	p.strokeWeight(1);
 	    	p.rect(0, 0, size, size);
+	    	p.fill(150);
+	    	p.text("I", 0, size*0.25f);
+	    	p.noFill();
 	    }else if(type == 6){
 	    	p.stroke(70, PolSys.assumptionsRectAlpha);
 			p.noFill();
@@ -146,6 +151,8 @@ public class Button extends ProcessingObject {
 	    	}
 	    }else if(type == 7){
 	    	p.stroke(0, PolSys.beginAlpha);
+	    	p.textFont(PolSys.textFont);
+	    	p.textSize(PolSys.textFontSize);
 	    	p.noFill();
 	    	p.rect(0, 0, size*1.5f, size*0.5f);
 	    	p.fill(100, PolSys.beginAlpha);
@@ -153,10 +160,30 @@ public class Button extends ProcessingObject {
 	    	p.noFill();
 	    }else if(type == 8){
 	    	p.stroke(0, PolSys.beginAlpha);
+	    	p.textFont(PolSys.textFont);
+	    	p.textSize(PolSys.textFontSize);
 	    	p.noFill();
 	    	p.rect(0, 0, size*1.5f, size*0.5f);
 	    	p.fill(100, PolSys.beginAlpha);
 	    	p.text("fran\u00E7ais", 0, PolSys.textFontSize*0.25f);
+	    	p.noFill();
+	    }else if(type == 9){
+	    	p.textFont(PolSys.thoughtFont);
+	    	p.textSize(PolSys.thoughtFontSize);
+	    	p.fill(c, 50);
+	    	p.strokeWeight(1);
+	    	p.rect(0, 0, size, size);
+	    	p.fill(150);
+	    	p.text("II", 0, size*0.25f);
+	    	p.noFill();
+	    }else if(type == 10){
+	    	p.textFont(PolSys.thoughtFont);
+	    	p.textSize(PolSys.thoughtFontSize);
+	    	p.fill(c, 50);
+	    	p.strokeWeight(1);
+	    	p.rect(0, 0, size, size);
+	    	p.fill(150);
+	    	p.text("III", 0, size*0.25f);
 	    	p.noFill();
 	    }
 	    

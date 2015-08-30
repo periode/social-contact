@@ -238,7 +238,7 @@ public class Seasons extends ProcessingObject {
   }
   
   void cycle(){
-	  eSeason.addSegment(0.025f, 750.0f);
+	  eSeason.addSegment(0.05f, 750.0f);
     if(numberOfSeasons == 0){
       currentSeason = fall[r];
       currentColor = fallCol;
