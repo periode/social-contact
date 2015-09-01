@@ -44,7 +44,7 @@ public class Alliance {
 		alpha = 0;
 		alphaMax = 150;
 		alphaInc = 0.5f;
-		col = p.color(80, 150, 80);
+		col = PolSys.colorAlliances;
 		sw = 100;
 		swMin = 2;
 		

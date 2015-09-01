@@ -64,7 +64,7 @@ public class Predator extends ProcessingObject {
 	    this.startTimeMovement = p.millis();
 	    //this.timerMovement = p.random(8, 14)*1000;
 	    this.timerMovement = 1000;
-	    this.colPred = p.color(0, 50, 0);
+	    this.colPred = PolSys.colorPredator;
 	    
 	    theta = 0;
 	    wandertheta = 0;

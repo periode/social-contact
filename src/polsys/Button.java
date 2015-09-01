@@ -15,7 +15,9 @@ public class Button extends ProcessingObject {
 	int c;
 	int c1;
 	int c2;
+	int colorButtonFish;
 	int sw;
+	int swa;
 	  
 	float sinVal;
 	float sinInc;
@@ -41,7 +43,9 @@ public class Button extends ProcessingObject {
 	    c1 = p.color(255);
 	    c2 = p.color(100);
 	    c = c1;
+	    colorButtonFish = p.color(250);
 	    sw = 1;
+	    swa = 1;
 	    
 	    sinVal = 1;
 	    sinInc = 0.1f;
@@ -61,21 +65,33 @@ public class Button extends ProcessingObject {
 		p.pushMatrix();
 		p.translate(pos.x, pos.y);
 		sinVal += sinInc;
-		float inc = (PApplet.sin(sinVal)+1)*3.0f;
+		float inc = (PApplet.sin(sinVal)+1)*2f;
 		
 	    if (type == 1) {//increase
-	    	p.strokeWeight(sw);
+	    	p.pushMatrix();
+	    	p.scale(1.5f);
+	    	p.strokeWeight(swa);
+	    	p.stroke(50);
+	    	
 	    	p.line(0-(size*0.35f), 0+(size*0.2f)+inc, 0, 0-(size*0.3f)+inc);
 	    	p.line(0, 0-(size*0.3f)+inc, 0+(size*0.35f), 0+(size*0.2f)+inc);
-	    	p.stroke(110, alpha);
+	    	
+	    	p.strokeWeight(sw);
 	    	p.line(1-(size*0.2f), 0+(size*0.15f)+inc, -1+(size*0.2f), 0+(size*0.15f)+inc);
 	    	p.line(0, 0-(size*0f)+inc, 0, 0+(size*0.3f)+inc);
+	    	p.popMatrix();
 	    } else if (type == 0) {//decrease
-	    	p.strokeWeight(sw);
+	    	p.pushMatrix();
+	    	p.scale(1.5f);
+	    	p.strokeWeight(swa);
+	    	p.stroke(50);
+	    	
 	    	p.line(0-(size*0.35f), 0-(size*0.2f)-inc, 0, 0+(size*0.3f)-inc);
 		    p.line(0, 0+(size*0.3f)-inc, 0+(size*0.35f), 0-(size*0.2f)-inc);
-		    p.stroke(110, alpha);
+		    
+		    p.strokeWeight(sw);
 		    p.line(1-(size*0.2f), 0-(size*0.15f)-inc, -1+(size*0.2f), 0-(size*0.15f)-inc);
+		    p.popMatrix();
 	    } else if (type == 2) {//start
 			p.textAlign(PConstants.CENTER);
 			if(PolSys.startGame1 || PolSys.startGame2 || PolSys.startGame3){
@@ -85,8 +101,9 @@ public class Button extends ProcessingObject {
 					p.rect(0, 0, startRectSize*3f, startRectSize);
 			    	p.strokeWeight(sw);
 			    	p.stroke(70, alpha);
+			    	p.fill(30);
 		    		p.rect(0, 0, size*3f, size*1f);
-		    		p.fill(0);
+		    		p.fill(255);
 			    	if(language == "english"){
 			    		p.text("begin\nsocial contact", 0, -5);
 			    	}else{
@@ -95,11 +112,11 @@ public class Button extends ProcessingObject {
 			    	startRectAlpha -= startRectAlphaInc;
 			    	startRectSize += startRectSizeInc;
 		    	}else{
-		    		p.noFill();
+		    		p.fill(150);
 			    	p.strokeWeight(1);
 			    	p.stroke(200, alpha);
 		    		p.rect(0, 0, size*3f, size*1f);
-		    		p.fill(200);
+		    		p.fill(255);
 			    	if(language == "english"){
 			    		p.text("choose\nyour assumptions", 0, -5);
 			    	}else{
@@ -185,15 +202,110 @@ public class Button extends ProcessingObject {
 	    	p.fill(150);
 	    	p.text("III", 0, size*0.25f);
 	    	p.noFill();
+	    }else if(type == 11){//fish tank buttons
+	    	p.textFont(PolSys.textFont);
+	    	p.textSize(PolSys.textFontSize);
+	    	p.noStroke();
+	    	if(PolSys.startGame1){
+	    		p.fill(PolSys.colorPredator, alpha+80);
+		    	p.rect(0, 0-size*0.25f, size*4, size);
+		    	p.fill(colorButtonFish);
+	    		if(PolSys.language == "english"){
+	    			p.text("predators", 0, 0);
+	    		}else{
+	    			p.text("predators", 0, 0);
+	    		}
+	    	}
+	    	if(PolSys.startGame2){
+	    		p.fill(PolSys.colorFriendship, alpha);
+	    		p.rect(0, 0-size*0.25f, size*4, size);
+		    	p.fill(colorButtonFish);
+	    		if(language == "english"){
+	    			p.text("friendship", 0, 0);
+	    		}else{
+	    			p.text("amiti\u00E9", 0, 0);
+	    		}
+	    	}
+	    	if(PolSys.startGame3){
+	    		p.fill(PolSys.colorAlliances, alpha);
+	    		p.rect(0, 0-size*0.25f, size*4, size);
+		    	p.fill(colorButtonFish);
+	    		p.text("alliances", 0, 0);
+	    	}
+	    	p.noFill();
+	    }else if(type == 12){
+	    	p.textFont(PolSys.textFont);
+	    	p.textSize(PolSys.textFontSize);
+	    	p.noStroke();
+	    	if(PolSys.startGame1){
+	    		p.fill(PolSys.colorResources, alpha);
+	    		p.rect(0, 0-size*0.25f, size*4, size);
+		    	p.fill(colorButtonFish);
+	    		if(language == "english"){
+	    			p.text("resources", 0, 0);
+	    		}else{
+	    			p.text("ressources", 0, 0);
+	    		}
+	    	}
+	    	if(PolSys.startGame2){
+	    		p.fill(PolSys.colorLove, alpha);
+	    		p.rect(0, 0-size*0.25f, size*4, size);
+		    	p.fill(colorButtonFish);
+	    		if(language == "english"){
+	    			p.text("love", 0, 0);
+	    		}else{
+	    			p.text("amour", 0, 0);
+	    		}
+	    	}
+	    	if(PolSys.startGame3){
+	    		p.fill(PolSys.colorWar, alpha);
+	    		p.rect(0, 0-size*0.25f, size*4, size);
+		    	p.fill(colorButtonFish);
+	    		if(language == "english"){
+	    			p.text("war", 0, 0);
+	    		}else{
+	    			p.text("guerre", 0, 0);
+	    		}
+	    	}
+	    	p.noFill();
+	    }else if(type == 13){
+	    	p.textFont(PolSys.textFont);
+	    	p.textSize(PolSys.textFontSize);
+	    	p.noStroke();
+	    	if(PolSys.startGame1){
+	    		p.fill(50, alpha);
+	    		p.rect(0, 0-size*0.25f, size*4, size);
+		    	p.fill(255);
+	    		if(language == "english"){
+	    			p.text("connections", 0, 0);
+	    		}else{
+	    			p.text("connexions", 0, 0);
+	    		}
+	    	}
+	    	if(PolSys.startGame2){
+	    		p.fill(PolSys.colorPower, alpha);
+	    		p.rect(0, 0-size*0.25f, size*4, size);
+		    	p.fill(colorButtonFish);
+	    		p.text("oppression", 0, 0);
+	    	}
+	    	if(PolSys.startGame3){
+	    		p.fill(PolSys.colorTrade, alpha);
+	    		p.rect(0, 0-size*0.25f, size*4, size);
+		    	p.fill(colorButtonFish);
+	    		p.text("commerce", 0, 0);
+	    	}
+	    	p.noFill();
 	    }
 	    
 	    p.popMatrix();
 	    
 	    
-	    if(PApplet.dist(p.mouseX, p.mouseY, pos.x, pos.y) < size){
+	    if(PApplet.dist(p.mouseX, p.mouseY, pos.x, pos.y) < size*1.5f){
 	    	alpha = 200;
+	    	swa = 2;
 	    }else{
 	    	alpha = 100;
+	    	swa = 1;
 	    }
 	}
 

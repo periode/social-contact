@@ -40,6 +40,7 @@ import beads.Envelope;
 import processing.core.PApplet;
 import processing.core.PFont;
 import processing.core.PVector;
+import sun.security.tools.keytool.Resources_pt_BR;
 
 public class PolSys extends PApplet {
 
@@ -282,6 +283,7 @@ public class PolSys extends PApplet {
 	
 	float resourceSeek;
 	String resourceText;
+	static int colorResources;
 
 	int goalInt;
 	String goalText;
@@ -304,6 +306,7 @@ public class PolSys extends PApplet {
 	float hoverTextAlpha;
 	float hoverTextAlphaRate;
 	boolean hovering;
+	static int colorPredator;
 	Predator hoveredPredator;
 	float hoverTextAlphaPredator;
 	float hoverRandPredator;
@@ -330,10 +333,11 @@ public class PolSys extends PApplet {
 	float agentsArriveStartTimer;
 	int arriveIndex;
 	
-	/* ---------------- Vornoi diagram for InGame3 ---------------- */
+	/* ---------------- Voronoi diagram for InGame3 ---------------- */
 	Voronoi voronoi;
 
 	/* ---------------- Boolean (true/false) variables for which screen to display ---------------- */
+	static boolean splash;
 	static boolean statement;
 	static boolean intro;
 	public static boolean startGame1;
@@ -350,6 +354,14 @@ public class PolSys extends PApplet {
 	boolean endGame3;
 	boolean canDrawEndScreen;
 	
+	/* ---------------- Variables for the splash screen ---------------- */
+	static Fish[] splashFish;
+	PVector[] splashPos;
+	float[] splashLerpVal;
+	float [] splashLerpInc;
+	PVector[] splashStartPos;
+	PVector[] splashTempPos;
+	PVector[] splashEndPos;
 	
 	/* ---------------- Variables for the artist statement ---------------- */
 	int statementPage;
@@ -427,15 +439,16 @@ public class PolSys extends PApplet {
 	boolean hasClicked;
 	
 	public static ArrayList<Fish> fishes;
+	static PVector fishTankPos;
 	float fishTankSize;
 	float fishTankAlpha;
 	float fishTankExpand;
 	static int fishNumber;
 	PVector deadFishPos;
 	PVector deadFishPos2;
-	int colorPower;
+	static int colorPower;
 	static int colorFriendship;
-	int colorLove;
+	static int colorLove;
 	boolean canShowPower;
 	boolean canShowFriendship;
 	boolean canShowLove;
@@ -479,6 +492,18 @@ public class PolSys extends PApplet {
 	float fishLerpAmount;
 	
 	float showAlpha;
+	
+	Button predatorButton;
+	Button resourceButton;
+	Button connectionsButton;
+	
+	Button friendshipButton;
+	Button loveButton;
+	Button powerButton;
+	
+	Button warButton;
+	Button tradeButton;
+	Button alliancesButton;
 	
 	/* ---------------- Button variables for StartGame1 ---------------- */
 	float buttonGoalRight;
@@ -770,6 +795,10 @@ public class PolSys extends PApplet {
 	float allianceTrust;
 	float cultureExternal;
 	
+	static int colorAlliances;
+	static int colorTrade;
+	static int colorWar;
+	
 	Button allianceModifierUp;
 	Button allianceModifierDown;
 	Button tradeModifierUp;
@@ -894,7 +923,7 @@ public class PolSys extends PApplet {
 	static boolean isPaused;
 	
 	public void setup() {
-		randomSeed(5);// FOR DEBUG
+		//randomSeed(5);// FOR DEBUG
 		//size(1600, 900);
 		//size(displayWidth, displayHeight);
 		
@@ -954,7 +983,8 @@ public class PolSys extends PApplet {
 		rectBorderHMenu = height-(rectBorderY*2.0f);
 		rectBorderHTemp = rectBorderHMenu;
 		
-		statement = true;
+		splash = true;
+		statement = false;
 		intro = false;
 		startGame1 = false;
 		startGame2 = false;
@@ -995,6 +1025,27 @@ public class PolSys extends PApplet {
 		thoughtFontSize = 16;
 		seasonsFontSize = 100;
 		
+		/* ---------------- Variables for splash screen ---------------- */
+		int splashNum = 20;
+		splashFish = new Fish[splashNum];
+		splashLerpVal = new float[4];
+		splashLerpInc = new float[4];
+		splashStartPos = new PVector[4];
+		splashTempPos = new PVector[4];
+		splashEndPos = new PVector[4];
+		
+		for(int i = 0; i < splashNum; i++){
+			splashFish[i] = new Fish(random(width*0.01f, width*0.9f), random(height*0.3f, height*0.9f), 5, (int)random(20, 40), 100+(int)random(55), this);
+		}
+		
+		for(int i = 0; i < splashLerpVal.length; i++){
+			splashLerpVal[i] = 0;
+			splashLerpInc[i] = random(0.01f, 0.05f);
+			splashStartPos[i] = splashFish[(int)random(splashFish.length)].pos;
+			splashTempPos[i] = splashStartPos[i];
+			splashEndPos[i] = splashFish[(int)random(splashFish.length)].pos;
+		}
+		
 		/* ---------------- Variables for artist statement ---------------- */
 		statementPage = 0;
 		statementText = loadStrings("data/text/en/statement.txt");
@@ -1022,7 +1073,7 @@ public class PolSys extends PApplet {
 		statementTargetPos = statementRectPos;
 		
 		leftColX = width*0.15f;
-		rightColX = width*0.85f;
+		rightColX = width*0.5f;
 		buttonBufferY = height*0.044f;
 		bufferXstart1 = width*0.075f;
 		headerHeight = height*0.2f;
@@ -1035,7 +1086,7 @@ public class PolSys extends PApplet {
 		
 		canShowLegend = false;
 	
-		showLegendPos = new PVector(width*0.04f, height*0.975f);
+		showLegendPos = new PVector(width*0.05f, height*0.9f);
 		legendW = width*0.125f;
 		legendH = height*0.0375f;
 		legendLerpVal = 0;
@@ -1171,6 +1222,7 @@ public class PolSys extends PApplet {
 		
 		resourceSeek = 1.0f;
 		resourceText = "";
+		colorResources = color(0, 100, 0);
 
 		startTime = millis();
 		timer = 500;
@@ -1193,6 +1245,7 @@ public class PolSys extends PApplet {
 		hoveringPredator = false;
 		hoveredPredator = null;
 		predatorThought = "";
+		colorPredator = color(210, 180, 140);
 		hoverRand = random(1);
 		hoverCanGenerateRand = true;
 		
@@ -1317,40 +1370,41 @@ public class PolSys extends PApplet {
 		
 		
 		// ------------------------------------------------------------------------------------ FISHTANK
-		buttonGoalLeft = width*0.38f;
-		buttonGoalRight = width*0.62f;
+		fishTankPos = new PVector(width*0.85f, height*0.5f);
+		buttonGoalLeft = fishTankPos.x*0.9f;
+		buttonGoalRight = fishTankPos.x*1.1f;
 		buttonGoalHeight = height*0.7725f;
 		bufferGoalHeight = height*0.01f;
 		subtitleHeight = height*0.13f;
 		subtitle2Height = height*0.16f;
 		subtitle3Height = height*0.19f;
+
+		rotateTimer = 2000;
+		rotateStartTime = millis();
+		rotatePos = 0;
+		hasClicked = true;
+		
+		fishes = new ArrayList<Fish>();
+		fishTankSize = height*0.3334f;
+		fishTankAlpha = 0;
+		fishTankExpand = 0;
 		
 		fishResourceSides = (int)random(5, 10);
 		fishResourceRad = 10;
-		fishResourcePos = new PVector(random(width*0.45f, width*0.55f), random(height*0.45f, height*0.55f));
+		fishResourcePos = new PVector(random(fishTankPos.x*0.95f, fishTankPos.x*1.05f), random(fishTankPos.y*0.95f, fishTankPos.y*1.05f));
 		fishResourceSidesVar = new float[fishResourceSides];
 		for(int i = 0; i < fishResourceSides; i++){
 			fishResourceSidesVar[i] = random(10, 50);
 		}
 		
-		rotateTimer = 2000;
-		rotateStartTime = millis();
-		rotatePos = 0;
-		hasClicked = false;
-		
-		fishes = new ArrayList<Fish>();
-		fishTankSize = height/3;
-		fishTankAlpha = 0;
-		fishTankExpand = 0;
-		
 		fishNumber = 5;
 		for(int i = 0; i < fishNumber; i++){
-			fishes.add(new Fish(random(width/2 - fishTankSize/2 + rad*1.5f, width/2 + fishTankSize/2 - rad*1.5f), random(height/2 - fishTankSize/2 + rad*1.5f, height/2 + fishTankSize/2 - rad*1.5f), connec, 25, 250, this));
+			fishes.add(new Fish(random(fishTankPos.x - fishTankSize/2 + rad*1.5f, fishTankPos.x + fishTankSize/2 - rad*1.5f), random(fishTankPos.y - fishTankSize/2 + rad*1.5f, fishTankPos.y + fishTankSize/2 - rad*1.5f), connec, 25, 250, this));
 		}
-		deadFishPos = new PVector(width*0.42f, height*0.42f);
-		deadFishPos2 = new PVector(width*0.53f, height*0.43f);
+		deadFishPos = new PVector(fishTankPos.x*0.95f, fishTankPos.y*1.05f);
+		deadFishPos2 = new PVector(fishTankPos.x*0.9f, fishTankPos.y*0.95f);
 		
-		fishPred = new Fish(width*0.5f, height*0.5f, this);
+		fishPred = new Fish(fishTankPos.x, fishTankPos.y, this);
 		
 		colorPower = color(10);
 		colorFriendship = color(0, 100, 0);
@@ -1373,9 +1427,9 @@ public class PolSys extends PApplet {
 		citizenFishRad = new float[citizenFishNum];
 		citizenFishWeight = new int[citizenFishNum];
 		for(int i = 0; i < citizenFishNum; i++) {
-			citizenFishPos[i] = new PVector(random(width*0.52f, width*0.6f), random(height*0.52f, height*0.6f));
-			citizenFishPos[i].x = constrain(citizenFishPos[i].x, width*0.5f - height/6,  width*0.5f + height/6);
-			citizenFishPos[i].y = constrain(citizenFishPos[i].y, height*0.5f - height/6,  height*0.5f + height/6);
+			citizenFishPos[i] = new PVector(random(fishTankPos.x*1.05f, fishTankPos.x*1.1f), random(fishTankPos.y*1.1f, fishTankPos.y*1.3f));
+			citizenFishPos[i].x = constrain(citizenFishPos[i].x, fishTankPos.x - fishTankSize*0.5f,  fishTankPos.x + fishTankSize*0.5f);
+			citizenFishPos[i].y = constrain(citizenFishPos[i].y, fishTankPos.y - fishTankSize*0.5f,  fishTankPos.y + fishTankSize*0.5f);
 			citizenFishWeight[i] = (int)random(1, 4);
 			citizenFishRad[i] = random(5, 10);
 		}
@@ -1385,9 +1439,9 @@ public class PolSys extends PApplet {
 		citizenFishRad2 = new float[citizenFishNum2];
 		citizenFishWeight2 = new int[citizenFishNum2];
 		for(int i = 0; i < citizenFishNum2; i++) {
-			citizenFishPos2[i] = new PVector(random(width*0.4f, width*0.48f), random(height*0.4f, height*0.48f));
-			citizenFishPos2[i].x = constrain(citizenFishPos2[i].x, width*0.5f - height/6,  width*0.5f + height/6);
-			citizenFishPos2[i].y = constrain(citizenFishPos2[i].y, height*0.5f - height/6,  height*0.5f + height/6);
+			citizenFishPos2[i] = new PVector(random(fishTankPos.x*0.9f, fishTankPos.x*0.95f), random(fishTankPos.y*0.7f, fishTankPos.y*0.9f));
+			citizenFishPos2[i].x = constrain(citizenFishPos2[i].x, fishTankPos.x - fishTankSize*0.5f,  fishTankPos.x + fishTankSize*0.5f);
+			citizenFishPos2[i].y = constrain(citizenFishPos2[i].y, fishTankPos.y - fishTankSize*0.5f,  fishTankPos.y + fishTankSize*0.5f);
 			citizenFishWeight2[i] = (int)random(1, 4);
 			citizenFishRad2[i] = random(5, 10);
 		}
@@ -1425,6 +1479,19 @@ public class PolSys extends PApplet {
 		//  BUTTONS
 		
 		// ------------------------------------------------------------ 1
+		float fishButtonSize = 30;
+		connectionsButton = new Button(fishTankPos.x*0.9f, firstRowY, fishButtonSize, 13, this);
+		resourceButton = new Button(fishTankPos.x*1.0f, firstRowY, fishButtonSize, 12, this);
+		predatorButton = new Button(fishTankPos.x*1.1f, firstRowY, fishButtonSize, 11, this);
+		
+		friendshipButton = new Button(fishTankPos.x*0.9f, firstRowY, fishButtonSize, 11, this);
+		loveButton = new Button(fishTankPos.x*1.0f, firstRowY, fishButtonSize, 12, this);
+		powerButton = new Button(fishTankPos.x*1.1f, firstRowY, fishButtonSize, 13, this);
+		
+		alliancesButton = new Button(fishTankPos.x*0.9f, firstRowY, fishButtonSize, 11, this);
+		warButton = new Button(fishTankPos.x*1.0f, firstRowY, fishButtonSize, 12, this);
+		tradeButton = new Button(fishTankPos.x*1.1f, firstRowY, fishButtonSize, 13, this);
+		
 
 		connectionsUpButton = new Button(rightColX, firstRowY-buttonBufferY, 20, 1, this);
 		connectionsDownButton = new Button(rightColX, firstRowY+buttonBufferY, 20, 0, this);
@@ -1447,7 +1514,7 @@ public class PolSys extends PApplet {
 		pursuitLeftButton = new Button(buttonGoalLeft, buttonGoalHeight, 20, 3, this);
 		pursuitRightButton = new Button(buttonGoalRight, buttonGoalHeight, 20, 4, this);
 
-		startButton = new Button(width*0.5f, height*0.9f, 60, 2, this);
+		startButton = new Button(fishTankPos.x, height*0.9f, 60, 2, this);
 		
 		proceedX = width*0.9f;
 		proceedY = height*0.93f;
@@ -1483,7 +1550,7 @@ public class PolSys extends PApplet {
 		numberOfChildren = 3;
 		independenceOfChildren = 1.0f;
 		
-		startButton2 = new Button(width*0.5f, height*0.9f, 60, 2, this);
+		startButton2 = new Button(fishTankPos.x, height*0.9f, 60, 2, this);
 		
 		powerForceUpButton = new Button(leftColX, firstRowY-buttonBufferY, 20, 1, this);
 		powerForceDownButton = new Button(leftColX, firstRowY+buttonBufferY, 20, 0, this);
@@ -1608,7 +1675,7 @@ public class PolSys extends PApplet {
 		trades = new ArrayList<Trade>();
 		wars = new ArrayList<War>();
 		
-		startButton3 = new Button(width*0.5f, height*0.9f, 60, 2, this);
+		startButton3 = new Button(fishTankPos.x, height*0.9f, 60, 2, this);
 		
 		allianceModifier = 1.0f;
 		tradeModifier = 1.0f;
@@ -1618,6 +1685,10 @@ public class PolSys extends PApplet {
 		tradeLimit = 1; //(use as constrain() per frame?)
 		allianceTrust = 1.0f;
 		cultureExternal = 1.0f;
+		
+		colorAlliances = color(80, 150, 80);
+		colorWar = color(100, 0, 0);
+		colorTrade = color(0, 100, 200);
 		
 		allianceModifierUp = new Button(leftColX, firstRowY-buttonBufferY, 20, 1, this);
 		allianceModifierDown = new Button(leftColX, firstRowY+buttonBufferY, 20, 0, this);
@@ -2020,14 +2091,18 @@ public class PolSys extends PApplet {
 					emailScreen = false;
 					finalScreen = true;
 					finalTimerSmall = millis() + 2000.0f;
-					finalTimerFull = millis() + 8000.0f;
+					finalTimerFull = millis() + 5000.0f;
 				}
 			}
 		}else{
 			if(alphaFade > 0) alphaFade -= 30;
 		}
 
-		// ------------------------------------------ 
+		// ------------------------------------------
+		if(splash){
+			splash();
+		}
+		
 		if(statement){
 			artistStatement();
 		}
@@ -2136,7 +2211,7 @@ public class PolSys extends PApplet {
 		if(language == "english"){
 			text("enter your email address to archive the story of your society.", width*0.5f, height*0.3f);
 		}else{
-			text("entrez votre addresse email afin archiver l'histoire de votre soci\u00E9t\u00E9.", width*0.5f, height*0.3f);
+			text("entrez votre addresse email pour archiver l'histoire de votre soci\u00E9t\u00E9.", width*0.5f, height*0.3f);
 		}
 		
 		
@@ -2302,45 +2377,45 @@ public class PolSys extends PApplet {
 	}
 	
 	public void showLegend(){
-		rectMode(CORNER);
-		noStroke();
-		
-		if(canShowLegend){
-			legendButtonText = "dismiss";
-
-			if(legendBackgroundAlpha < 255) legendBackgroundAlpha += legendBackgroundAlphaInc;
-			if(legendTextAlpha < 255 && legendBackgroundAlpha > 250) legendTextAlpha += legendTextAlphaInc;
-		}else{
-			legendButtonText = "about";
-			if(legendBackgroundAlpha > 0 && legendTextAlpha < 10) legendBackgroundAlpha -= legendBackgroundAlphaInc;
-			if(legendTextAlpha > 0) legendTextAlpha -= legendTextAlphaInc*2;
-		}
-		
-		strokeWeight(1);
-		fill(255, legendBackgroundAlpha);
-		rect(rectBorderX, rectBorderY, rectBorderW, rectBorderHMenu);
-	
-		fill(0, legendTextAlpha);
-		textAlign(CENTER);
-		text(legendTextContent, legendTextPos.x, legendTextPos.y);
-		legendW = textWidth(legendButtonText)*1.25f;
-		rectMode(CENTER);
-		stroke(0, showLegendAlpha+150);
-		strokeWeight(1);
-		fill(255, 200);
-		rect(showLegendPos.x, showLegendPos.y*0.995f, legendW, legendH);
-		fill(0, showLegendAlpha);
-		textFont(textFont);
-		textSize(textFontSize);
-		text(legendButtonText, showLegendPos.x, showLegendPos.y+5);
-		
-		if(mouseX > showLegendPos.x - legendW*0.5f && mouseX < showLegendPos.x + legendW*0.5f && mouseY > showLegendPos.y - legendH*0.5f && mouseY < showLegendPos.y + legendH*0.5f){
-			showLegendAlpha = 150;
-			showLegendSW = 2;
-		}else{
-			showLegendAlpha = 100;
-			showLegendSW = 1;
-		}
+//		rectMode(CORNER);
+//		noStroke();
+//		
+//		if(canShowLegend){
+//			legendButtonText = "dismiss";
+//
+//			if(legendBackgroundAlpha < 255) legendBackgroundAlpha += legendBackgroundAlphaInc;
+//			if(legendTextAlpha < 255 && legendBackgroundAlpha > 250) legendTextAlpha += legendTextAlphaInc;
+//		}else{
+//			legendButtonText = "about";
+//			if(legendBackgroundAlpha > 0 && legendTextAlpha < 10) legendBackgroundAlpha -= legendBackgroundAlphaInc;
+//			if(legendTextAlpha > 0) legendTextAlpha -= legendTextAlphaInc*2;
+//		}
+//		
+//		strokeWeight(1);
+//		fill(255, legendBackgroundAlpha);
+//		rect(rectBorderX, rectBorderY, rectBorderW, rectBorderHMenu);
+//	
+//		fill(0, legendTextAlpha);
+//		textAlign(CENTER);
+//		text(legendTextContent, legendTextPos.x, legendTextPos.y);
+//		legendW = textWidth(legendButtonText)*1.25f;
+//		rectMode(CENTER);
+//		stroke(0, showLegendAlpha+150);
+//		strokeWeight(1);
+//		fill(255, 200);
+//		rect(showLegendPos.x, showLegendPos.y*0.995f, legendW, legendH);
+//		fill(0, showLegendAlpha);
+//		textFont(textFont);
+//		textSize(textFontSize);
+//		text(legendButtonText, showLegendPos.x, showLegendPos.y+5);
+//		
+//		if(mouseX > showLegendPos.x - legendW*0.5f && mouseX < showLegendPos.x + legendW*0.5f && mouseY > showLegendPos.y - legendH*0.5f && mouseY < showLegendPos.y + legendH*0.5f){
+//			showLegendAlpha = 150;
+//			showLegendSW = 2;
+//		}else{
+//			showLegendAlpha = 100;
+//			showLegendSW = 1;
+//		}
 	}
 	
 	public void finalScreen(){
@@ -2745,6 +2820,47 @@ public class PolSys extends PApplet {
 		}
 	}
 	
+	void splash(){
+		textAlign(CENTER);
+		rectMode(CENTER);
+		textSize(mainFontSize);
+		textFont(mainFont);
+		fill(100, beginAlpha);
+		text("Social Contact", width*0.5f, height*0.1f);
+		textSize(textFontSize);
+		textFont(textFont);
+		
+		for(Fish f : splashFish){
+			f.update();
+			f.collide();
+			f.boundaries();
+			f.drawConnections();
+			f.display();
+		}
+		
+		for(int i = 0; i < splashLerpVal.length; i++){
+				if(i % 2 == 0){
+					stroke(colorFriendship, 50);
+				}else{
+					stroke(colorLove, 50);
+				}
+				
+				if(splashLerpVal[i] < 1.0f){
+					splashTempPos[i] = PVector.lerp(splashStartPos[i], splashEndPos[i], splashLerpVal[i]);
+				}else if(splashLerpVal[i] < 1.95f){
+					splashStartPos[i] = PVector.lerp(splashStartPos[i], splashTempPos[i], splashLerpVal[i]-1);
+				}else{
+					splashStartPos[i] = splashEndPos[i];
+					splashEndPos[i] = splashFish[(int)random(splashFish.length)].pos;
+					splashLerpVal[i] = 0;
+				}
+				splashLerpVal[i] += splashLerpInc[i];
+				
+				//line(splashStartPos[i].x, splashStartPos[i].y, splashTempPos[i].x, splashTempPos[i].y);
+		}
+
+	}
+	
 	void artistStatement(){
 		textAlign(CENTER);
 		rectMode(CENTER);
@@ -2823,17 +2939,19 @@ public class PolSys extends PApplet {
 		noFill();
 		strokeWeight(1);
 		stroke(0, fishTankAlpha);
-		rect(width*0.5f, height*0.5f, fishTankSize+fishTankExpand, fishTankSize+fishTankExpand);
+		rect(fishTankPos.x, fishTankPos.y, fishTankSize+fishTankExpand, fishTankSize+fishTankExpand);
 		stroke(0);
 		strokeWeight(1);
 		fill(255, 150);
-		rect(width/2, height/2, fishTankSize, fishTankSize);
-
+		rect(fishTankPos.x, fishTankPos.y, fishTankSize, fishTankSize);
 		
 		fishTankAlpha -= 25.0f;
 		fishTankExpand += 2.0f;
 		
 		if(startGame1){
+			predatorButton.display();
+			resourceButton.display();
+			connectionsButton.display();
 			for(int i = 0; i < fishes.size(); i++){
 				Fish f = fishes.get(i);
 				f.update();
@@ -2842,9 +2960,9 @@ public class PolSys extends PApplet {
 				f.collide();
 				f.drawConnections();
 				if(drawFishConnec){
-					f.alpha = 100;
+					f.alpha = 200;
 				}else{
-					f.alpha = 5;
+					f.alpha = 10;
 				}
 			}
 			
@@ -2852,7 +2970,7 @@ public class PolSys extends PApplet {
 			fishPred.update();
 			
 			if(drawFishPredators){
-				fishPred.alphaPred = 100;
+				fishPred.alphaPred = 250;
 			}else{
 				fishPred.alphaPred = 30;
 			}
@@ -2860,13 +2978,13 @@ public class PolSys extends PApplet {
 			if(drawFishResources){
 				if(resourceSeek == 0.5f){
 					stroke(0, 100, 0, 50);
-					fill(0, 100, 0, 20);
+					fill(colorResources, 20);
 				}else if(resourceSeek == 1.0f){
 					stroke(0, 100, 0, 100);
-					fill(0, 100, 0, 50);
+					fill(colorResources, 50);
 				}else{
 					stroke(0, 100, 0, 200);
-					fill(0, 100, 0, 150);
+					fill(colorResources, 150);
 				}
 			}
 			
@@ -2887,14 +3005,22 @@ public class PolSys extends PApplet {
 				textFont(PolSys.thoughtFont);
 				textSize(PolSys.thoughtFontSize);
 				fill(0, 200);
-				text("a resource", fishResourcePos.x + rad*0.75f, fishResourcePos.y - rad*0.75f);
+				if(language == "english"){
+					text("a resource", fishResourcePos.x + rad*0.75f, fishResourcePos.y - rad*0.75f);
+				}else{
+					text("une ressource", fishResourcePos.x + rad*0.75f, fishResourcePos.y - rad*0.75f);
+				}
 			}
 			
 			if(dist(mouseX, mouseY, deadFishPos.x, deadFishPos.y) < 10){
 				textFont(PolSys.thoughtFont);
 				textSize(PolSys.thoughtFontSize);
 				fill(0, 200);
-				text("a grave", deadFishPos.x + 7.5f, deadFishPos.y - 7.5f);
+				if(language == "english"){
+					text("a grave", deadFishPos.x + 7.5f, deadFishPos.y - 7.5f);
+				}else{
+					text("une tombe", deadFishPos.x + 7.5f, deadFishPos.y - 7.5f);
+				}
 			}
 			
 			textFont(textFont);
@@ -2962,6 +3088,9 @@ public class PolSys extends PApplet {
 		}
 		
 		if(startGame2){
+			friendshipButton.display();
+			loveButton.display();
+			powerButton.display();
 			for(int i = 0; i < fishes.size(); i++){
 				Fish f = fishes.get(i);
 				f.maxSpeed = 1.0f;
@@ -2973,41 +3102,41 @@ public class PolSys extends PApplet {
 			
 			if(powerForceUpButton.onClick() || powerForceDownButton.onClick()){
 				drawFishPower = true;
-				drawFishFriend = false;
-				drawFishLove = false;
-				drawCulture = false;
-				drawChildren = false;
+//				drawFishFriend = false;
+//				drawFishLove = false;
+//				drawCulture = false;
+//				drawChildren = false;
 			}
 			
 			if(friendshipForceUpButton.onClick() || friendshipForceDownButton.onClick()){
-				drawFishPower = false;
+//				drawFishPower = false;
 				drawFishFriend = true;
-				drawFishLove = false;
-				drawCulture = false;
-				drawChildren = false;
+//				drawFishLove = false;
+//				drawCulture = false;
+//				drawChildren = false;
 			}
 			
 			if(loveForceUpButton.onClick() || loveForceDownButton.onClick()){
-				drawFishPower = false;
-				drawFishFriend = false;
+//				drawFishPower = false;
+//				drawFishFriend = false;
 				drawFishLove = true;
-				drawCulture = false;
-				drawChildren = false;
+//				drawCulture = false;
+//				drawChildren = false;
 			}
 			
 			if(cultureButtonRight.onClick() || cultureButtonLeft.onClick()){
-				drawFishPower = false;
-				drawFishFriend = false;
-				drawFishLove = false;
+//				drawFishPower = false;
+//				drawFishFriend = false;
+//				drawFishLove = false;
 				drawCulture = true;
-				drawChildren = false;
+//				drawChildren = false;
 			}
 			
 			if(numberOfChildrenUpButton.onClick() || numberOfChildrenUpButton.onClick() || independenceOfChildrenDownButton.onClick() || independenceOfChildrenUpButton.onClick() || ageMajorityDownButton.onClick() || ageMajorityUpButton.onClick()){
-				drawFishPower = false;
-				drawFishFriend = false;
-				drawFishLove = false;
-				drawCulture = false;
+//				drawFishPower = false;
+//				drawFishFriend = false;
+//				drawFishLove = false;
+//				drawCulture = false;
 				drawChildren = true;
 			}
 			
@@ -3045,7 +3174,7 @@ public class PolSys extends PApplet {
 						strokeWeight(1);
 						stroke(0, 20);
 					}
-					fill(0, 20);
+					fill(0, 10);
 					bezier(startPointBezierFish[i].x, startPointBezierFish[i].y, anchorPointABezierFish[i].x, anchorPointABezierFish[i].y, anchorPointBBezierFish[i].x, anchorPointBBezierFish[i].y, endPointBezierFish[i].x, endPointBezierFish[i].y);
 					for(int k = 0; k < fishes.size(); k++){
 						Fish f = fishes.get(k);
@@ -3058,8 +3187,8 @@ public class PolSys extends PApplet {
 						anchorPointBBezierFish[i].y -= 0.04f;
 					}
 					
-					anchorPointABezierFish[i].y = constrain(anchorPointABezierFish[i].y, height*0.5f-fishTankSize*0.5f, height*0.5f+fishTankSize*0.5f);
-					anchorPointBBezierFish[i].y = constrain(anchorPointABezierFish[i].y, height*0.5f-fishTankSize*0.5f, height*0.5f+fishTankSize*0.5f);
+					anchorPointABezierFish[i].y = constrain(anchorPointABezierFish[i].y, fishTankPos.y-fishTankSize*0.5f, fishTankPos.y+fishTankSize*0.5f);
+					anchorPointBBezierFish[i].y = constrain(anchorPointABezierFish[i].y, fishTankPos.y-fishTankSize*0.5f, fishTankPos.y+fishTankSize*0.5f);
 					}
 				}
 				float[][] points = new float[fishes.size()][2];
@@ -3083,25 +3212,28 @@ public class PolSys extends PApplet {
 			
 			if(drawChildren){
 				if(fishes.size() < fishNumber + numberOfChildren){
-					fishes.add(new Fish(random(width*0.45f, width*0.55f), random(height*0.45f, height*0.55f), 0, 10, 150, this));
+					fishes.add(new Fish(random(fishTankPos.x*0.9f, fishTankPos.x*1.1f), random(fishTankPos.y*0.9f, fishTankPos.y*1.1f), 0, 10, 150, this));
 				}
 			}
 		}
 		
 		if(startGame3){
+			alliancesButton.display();
+			warButton.display();
+			tradeButton.display();
 			stroke(0, 50);
-			line(width*0.5f-height/6, height*0.5f+height/6, width*0.5f+height/6, height*0.5f-height/6);
+			line(fishTankPos.x-fishTankSize*0.5f, fishTankPos.y+fishTankSize*0.5f, fishTankPos.x+fishTankSize*0.5f, fishTankPos.y-fishTankSize*0.5f);
 			for(int i = 0; i < citizenFishNum; i++){
 				stroke(0, fishHullCol1*0.5f, fishHullCol1, 200);
 				noFill();
 				strokeWeight(citizenFishWeight[i]);
 				ellipse(citizenFishPos[i].x, citizenFishPos[i].y, citizenFishRad[i], citizenFishRad[i]);
-				if(citizenFishPos[i].x > width*0.5f) citizenFishPos[i].x += (cos(millis()*0.00001f))*0.01f;
-				if(citizenFishPos[i].x < width*0.5f) citizenFishPos[i].x -= (cos(millis()*0.00001f))*0.01f;
-				if(citizenFishPos[i].y < height*0.5f) citizenFishPos[i].y += (cos(millis()*0.00001f))*0.01f;
-				if(citizenFishPos[i].y > height*0.5f) citizenFishPos[i].y -= (cos(millis()*0.00001f))*0.01f;
-				citizenFishPos[i].x = constrain(citizenFishPos[i].x, width*0.5f - height/6,  width*0.5f + height/6);
-				citizenFishPos[i].y = constrain(citizenFishPos[i].y, height*0.5f - height/6,  height*0.5f + height/6);
+				if(citizenFishPos[i].x > fishTankPos.x) citizenFishPos[i].x += (cos(millis()*0.00001f))*0.01f;
+				if(citizenFishPos[i].x < fishTankPos.x) citizenFishPos[i].x -= (cos(millis()*0.00001f))*0.01f;
+				if(citizenFishPos[i].y < fishTankPos.y) citizenFishPos[i].y += (cos(millis()*0.00001f))*0.01f;
+				if(citizenFishPos[i].y > fishTankPos.y) citizenFishPos[i].y -= (cos(millis()*0.00001f))*0.01f;
+				citizenFishPos[i].x = constrain(citizenFishPos[i].x, fishTankPos.x - fishTankSize*0.5f,  fishTankPos.x + fishTankSize*0.5f);
+				citizenFishPos[i].y = constrain(citizenFishPos[i].y, fishTankPos.y - fishTankSize*0.5f,  fishTankPos.y + fishTankSize*0.5f);
 			}
 			
 			float[][] points = new float[(int)citizenFishNum][2];
@@ -3124,12 +3256,12 @@ public class PolSys extends PApplet {
 				noFill();
 				strokeWeight(citizenFishWeight2[i]);
 				ellipse(citizenFishPos2[i].x, citizenFishPos2[i].y, citizenFishRad2[i], citizenFishRad2[i]);
-				if(citizenFishPos2[i].x > width*0.5f) citizenFishPos2[i].x += (cos(millis()*0.00001f))*0.01f;
-				if(citizenFishPos2[i].x < width*0.5f) citizenFishPos2[i].x -= (cos(millis()*0.00001f))*0.01f;
-				if(citizenFishPos2[i].y < height*0.5f) citizenFishPos2[i].y += (cos(millis()*0.00001f))*0.01f;
-				if(citizenFishPos2[i].y > height*0.5f) citizenFishPos2[i].y -= (cos(millis()*0.00001f))*0.01f;
-				citizenFishPos2[i].x = constrain(citizenFishPos2[i].x, width*0.5f - height/6,  width*0.5f + height/6);
-				citizenFishPos2[i].y = constrain(citizenFishPos2[i].y, height*0.5f - height/6,  height*0.5f + height/6);
+				if(citizenFishPos2[i].x > fishTankPos.x) citizenFishPos2[i].x += (cos(millis()*0.00001f))*0.01f;
+				if(citizenFishPos2[i].x < fishTankPos.x) citizenFishPos2[i].x -= (cos(millis()*0.00001f))*0.01f;
+				if(citizenFishPos2[i].y < fishTankPos.y) citizenFishPos2[i].y += (cos(millis()*0.00001f))*0.01f;
+				if(citizenFishPos2[i].y > fishTankPos.y) citizenFishPos2[i].y -= (cos(millis()*0.00001f))*0.01f;
+				citizenFishPos2[i].x = constrain(citizenFishPos2[i].x, fishTankPos.x - fishTankSize*0.5f,  fishTankPos.x + fishTankSize*0.5f);
+				citizenFishPos2[i].y = constrain(citizenFishPos2[i].y, fishTankPos.y - fishTankSize*0.5f,  fishTankPos.y + fishTankSize*0.5f);
 			}
 			
 			float[][] points2 = new float[(int)citizenFishNum2][2];
@@ -3190,8 +3322,8 @@ public class PolSys extends PApplet {
 				strokeWeight(1);
 				rectMode(PApplet.CENTER);
 				for(int i = 0; i < fishVesselsNum; i++){
-					fishVesselsPos[i] = PVector.lerp(new PVector(width*0.45f, height*0.45f), new PVector(width*0.55f, height*0.55f), fishVesselsLerp[i]);
-					PVector dir = PVector.sub(new PVector(width*0.45f, height*0.45f), new PVector(width*0.55f, height*0.55f));
+					fishVesselsPos[i] = PVector.lerp(new PVector(fishTankPos.x*0.95f, fishTankPos.y*0.85f), new PVector(fishTankPos.x*1.05f, fishTankPos.y*1.15f), fishVesselsLerp[i]);
+					PVector dir = PVector.sub(new PVector(fishTankPos.x*0.95f, fishTankPos.y*0.85f), new PVector(fishTankPos.x*1.05f, fishTankPos.y*1.15f));
 					float theta = dir.heading2D();
 					pushMatrix();
 					translate(fishVesselsPos[i].x, fishVesselsPos[i].y);
@@ -3209,8 +3341,8 @@ public class PolSys extends PApplet {
 				for(int i = 0; i < 8*warModifier; i++){
 					strokeWeight(2);
 					stroke(255-random(100), 0, 0, 150*warModifier);
-					line(width*0.45f, height*0.45f, width*0.5f+random(-1, 1), height*0.5f+random(-35, 35));
-					line(width*0.55f, height*0.55f, width*0.5f+random(-1, 1), height*0.5f+random(-35, 35));
+					line(fishTankPos.x*0.95f, fishTankPos.y*0.85f, fishTankPos.x+random(-1, 1), fishTankPos.y+random(-35, 35));
+					line(fishTankPos.x*1.05f, fishTankPos.y*1.15f, fishTankPos.x+random(-1, 1), fishTankPos.y+random(-35, 35));
 				}
 			}
 			
@@ -3225,19 +3357,19 @@ public class PolSys extends PApplet {
 			
 			if(canShowRuin){
 				for(int i = 0; i < citizenFishNum2; i++){
-					if(citizenFishPos2[i].x > width*0.45f && citizenFishPos2[i].x < width*0.5f){
+					if(citizenFishPos2[i].x > fishTankPos.x*0.9f && citizenFishPos2[i].x < fishTankPos.x){
 						citizenFishPos2[i].x += 0.05f;
 					}
-					if(citizenFishPos2[i].y > height*0.45f && citizenFishPos2[i].y < height*0.5f){
+					if(citizenFishPos2[i].y > fishTankPos.y*0.9f && citizenFishPos2[i].y < fishTankPos.y){
 						citizenFishPos2[i].y += 0.05f;
 					}
 				}
 				
 				for(int i = 0; i < citizenFishNum; i++){
-					if(citizenFishPos[i].x > width*0.55f && citizenFishPos[i].x < width*0.6f){
+					if(citizenFishPos[i].x > fishTankPos.x*1.05f && citizenFishPos[i].x < fishTankPos.x*1.1f){
 						citizenFishPos[i].x -= 0.05f;
 					}
-					if(citizenFishPos[i].y > height*0.55f && citizenFishPos[i].y < height*0.6f){
+					if(citizenFishPos[i].y > fishTankPos.y*1.05f && citizenFishPos[i].y < fishTankPos.y*1.1f){
 						citizenFishPos[i].y -= 0.05f;
 					}
 				}
@@ -3518,49 +3650,12 @@ public class PolSys extends PApplet {
 		textSize(textFontSize);
 		textFont(textFont);
 		textAlign(CENTER);
-		text(goalText, width*0.5f, buttonGoalHeight-bufferGoalHeight);
+		text(goalText, fishTankPos.x, buttonGoalHeight-bufferGoalHeight);
 		assumptions[6] = goalText;
 		
 		fishTank();
 		
 		showAlpha = abs(cos(millis()*0.002f)*150)+100;
-		strokeWeight(1);
-		textAlign(LEFT);
-		if(canShowConnections){
-			fill(0, showAlpha);
-			drawFishConnec = true;
-			stroke(20);
-		}else{
-			fill(100, showAlpha+100);
-			drawFishConnec = false;
-			stroke(200);
-		}
-		line(width*0.425f, height*0.318f, width*0.425f, height*0.33f);
-		text("connexions", width*0.395f, height*0.315f);
-		
-		if(canShowResources){
-			fill(0, 100, 0, showAlpha+100);
-			drawFishResources = true;
-			stroke(20);
-		}else{
-			fill(100, showAlpha);
-			drawFishResources = false;
-			stroke(200);
-		}
-		line(width*0.5f, height*0.318f, width*0.5f, height*0.33f);
-		text("ressources", width*0.475f, height*0.315f);
-		
-		if(canShowPredators){
-			fill(50, 50, 0, showAlpha+100);
-			drawFishPredators = true;
-			stroke(20);
-		}else{
-			fill(100, showAlpha);
-			drawFishPredators = false;
-			stroke(200);
-		}
-		line(width*0.575f, height*0.318f, width*0.575f, height*0.33f);
-		text("pr\u00E9dateurs", width*0.5515f, height*0.315f);
 
 		startButton.display();
 		startButton.onClick();
@@ -3897,7 +3992,7 @@ public class PolSys extends PApplet {
 		//text("language: "+language, width*0.025f, height*0.025f);
 		//text(friendship_debug, width*0.025f, height*0.045f);
 		//text(power_debug, width*0.025f, height*0.065f);
-		text("love: "+connectionsLove.size(), width*0.025f, height*0.085f);
+		//text("love: "+connectionsLove.size(), width*0.025f, height*0.085f);
 	}
 	
 	void drawVoronoi(int stage){
@@ -5202,8 +5297,6 @@ public class PolSys extends PApplet {
 				cultureText = "culture is\never elusive";
 				storyTitle2 = "uncertainty";
 			}
-			text(cultureText, width*0.5f, buttonGoalHeight-bufferGoalHeight);
-			assumptions[6] = cultureText;
 		}else{
 			if(cultureOrigin == 1){
 				cultureText = "la culture\nest d\u00E9pendante du sol";
@@ -5215,9 +5308,9 @@ public class PolSys extends PApplet {
 				cultureText = "la culture\ndemeure un myst\u00E8re";
 				storyTitle2 = "l'incertitude";
 			}
-			text(cultureText, width*0.5f, buttonGoalHeight-bufferGoalHeight);
-			assumptions[6] = cultureText;
 		}
+		text(cultureText, fishTankPos.x, buttonGoalHeight-bufferGoalHeight);
+		assumptions[6] = cultureText;
 
 		cultureButtonRight.display();
 		cultureButtonRight.onClick();
@@ -5225,55 +5318,6 @@ public class PolSys extends PApplet {
 		cultureButtonLeft.onClick();
 		
 		showAlpha = abs(cos(millis()*0.001f)*150)+100;
-		
-		textAlign(LEFT);
-		if(canShowPower){
-			fill(colorPower, showAlpha+100);
-			drawFishPower = true;
-			stroke(colorPower);
-		}else{
-			fill(0, showAlpha);
-			drawFishPower = false;
-			stroke(200);
-		}
-		line(width*0.425f, height*0.318f, width*0.425f, height*0.33f);
-		if(language == "english"){
-			text("power", width*0.4f, height*0.315f);
-		}else{
-			text("pouvoir", width*0.4f, height*0.315f);	
-		}
-		
-		if(canShowFriendship){
-			fill(colorFriendship, showAlpha+100);
-			drawFishFriend = true;
-			stroke(colorFriendship);
-		}else{
-			fill(0, showAlpha);
-			drawFishFriend = false;
-			stroke(200);
-		}
-		line(width*0.5f, height*0.318f, width*0.5f, height*0.33f);
-		if(language == "english"){
-			text("friendship", width*0.475f, height*0.315f);
-		}else{
-			text("amiti\u00E9", width*0.475f, height*0.315f);
-		}
-		
-		if(canShowLove){
-			fill(colorLove, showAlpha+100);
-			drawFishLove = true;
-			stroke(colorLove);
-		}else{
-			fill(0, showAlpha);
-			drawFishLove = false;
-			stroke(200);
-		}
-		line(width*0.575f, height*0.318f, width*0.575f, height*0.33f);
-		if(language == "english"){
-			text("love", width*0.57f, height*0.315f);
-		}else{
-			text("amour", width*0.57f, height*0.315f);
-		}
 		
 		if(millis()-rotateStartTime > rotateTimer){
 			if(rotatePos < 2){
@@ -5950,47 +5994,6 @@ public class PolSys extends PApplet {
 		textAlign(CENTER);
 		
 		showAlpha = abs(cos(millis()*0.001f+random(0.05f, 0.08f))*150)+100;
-		strokeWeight(1);
-		
-		if(canShowAlliances){
-			fill(0, 150, 0, showAlpha+100);
-			stroke(0, 150, 0);
-		}else{
-			fill(0, showAlpha);
-			stroke(200);
-		}
-		line(width*0.425f, height*0.318f, width*0.425f, height*0.33f);
-		text("alliances", width*0.43f, height*0.315f);
-		
-		if(canShowWar){
-			fill(200, 0, 0, showAlpha+100);
-			stroke(200, 0, 0);
-		}else{
-			fill(0, showAlpha);
-			stroke(200);
-		}
-		line(width*0.505f, height*0.318f, width*0.505f, height*0.33f);
-		if(language == "english"){
-			text("war", width*0.51f, height*0.315f);
-		}else{
-			text("guerre", width*0.51f, height*0.315f);
-		}
-		
-		if(canShowTrade){
-			fill(0, 0, 150, showAlpha+100);
-			stroke(0, 0, 150);
-		}else{
-			fill(0, showAlpha);
-			stroke(200);
-		}
-		line(width*0.585f, height*0.318f, width*0.585f, height*0.33f);
-		if(language == "english"){
-			text("trade", width*0.58f, height*0.315f);
-		}else{
-			text("commerce", width*0.58f, height*0.315f);
-		}
-
-		
 		textAlign(CENTER);
 		fill(0);
 		String allianceModString = "";
@@ -6040,7 +6043,7 @@ public class PolSys extends PApplet {
 				nationGoalString = "nations strive to\naccumulate wealth";
 				storyTitle3 = "wealth";
 			}
-			text(nationGoalString, width*0.5f, buttonGoalHeight-bufferGoalHeight);
+			text(nationGoalString, fishTankPos.x, buttonGoalHeight-bufferGoalHeight);
 			assumptions[6] = nationGoalString;
 			
 			String victoryBehaviourString = "";
@@ -6156,9 +6159,6 @@ public class PolSys extends PApplet {
 			text(allianceTrustString, rightColX, thirdRowY);
 			assumptions[5] = allianceTrustString;
 		}
-		
-		
-		//text("how much their connections affects their culture ", rightColX, fourthRowY);
 		
 		allianceModifierUp.display();
 		allianceModifierDown.display();
@@ -6851,6 +6851,12 @@ public class PolSys extends PApplet {
 	public void mousePressed() {
 		//scale(scaleW, scaleH);
 		translate(translateBufferX, translateBufferY);
+		
+		if(splash){
+			splash = false;
+			statement = true;
+		}
+		
 		if(statement){
 			if(statementPage0.onClick()){
 				clickSound(1);
@@ -6945,22 +6951,20 @@ public class PolSys extends PApplet {
 				clickSound(1);
 			}
 			
-			if(mouseY > height*0.275f && mouseY < height*0.33f){
-				hasClicked = true;
-				if(mouseX > width*0.35f && mouseX < width*0.45f){
-					clickSound(1);
-					canShowConnections = !canShowConnections;
-				}
-				
-				if(mouseX > width*0.45f && mouseX < width*0.53f){
-					clickSound(1);
-					canShowResources = !canShowResources;
-				}
-				
-				if(mouseX > width*0.53f && mouseX < width*0.62f){
-					clickSound(1);
-					canShowPredators = !canShowPredators;
-				}
+
+			if(connectionsButton.onClick()){
+				clickSound(1);
+				drawFishConnec = !drawFishConnec;
+			}
+			
+			if(resourceButton.onClick()){
+				clickSound(1);
+				drawFishResources = !drawFishResources;
+			}
+			
+			if(predatorButton.onClick()){
+				clickSound(1);
+				drawFishPredators = !drawFishPredators;
 			}
 			
 			if (stayCloseUpButton.onClick()) {
@@ -7117,22 +7121,19 @@ public class PolSys extends PApplet {
 				clickSound(1);
 			}
 			
-			if(mouseY > height*0.25f && mouseY < height*0.33f){
-				hasClicked = true;
-				if(mouseX > width*0.375f && mouseX < width*0.46f){
-					canShowPower = !canShowPower;
-					clickSound(1);
-				}
-				
-				if(mouseX > width*0.46f && mouseX < width*0.575f){
-					canShowFriendship = !canShowFriendship;
-					clickSound(1);
-				}
-				
-				if(mouseX > width*0.575f && mouseX < width*0.62f){
-					canShowLove = !canShowLove;
-					clickSound(1);
-				}
+			if(powerButton.onClick()){
+				drawFishPower = !drawFishPower;
+				clickSound(1);
+			}
+			
+			if(friendshipButton.onClick()){
+				drawFishFriend = !drawFishFriend;
+				clickSound(1);
+			}
+			
+			if(loveButton.onClick()){
+				drawFishLove = !drawFishLove;
+				clickSound(1);
 			}
 			
 			if(canStart && startButton2.onClick()){
@@ -7283,21 +7284,19 @@ public class PolSys extends PApplet {
 				clickSound(1);
 			}
 			
-			if(mouseY > height*0.25f && mouseY < height*0.33f){
-				if(mouseX > width*0.35f && mouseX < width*0.465f){
-					canShowAlliances = !canShowAlliances;
-					clickSound(1);
-				}
-				
-				if(mouseX > width*0.465f && mouseX < width*0.55f){
-					canShowWar = !canShowWar;
-					clickSound(1);
-				}
-				
-				if(mouseX > width*0.55f && mouseX < width*0.6f){
-					canShowTrade = !canShowTrade;
-					clickSound(1);
-				}
+			if(alliancesButton.onClick()){
+				canShowAlliances = !canShowAlliances;
+				clickSound(1);
+			}
+			
+			if(warButton.onClick()){
+				canShowWar = !canShowWar;
+				clickSound(1);
+			}
+			
+			if(tradeButton.onClick()){
+				canShowTrade = !canShowTrade;
+				clickSound(1);
 			}
 			
 			if(allianceModifierUp.onClick()){
@@ -7901,7 +7900,24 @@ public class PolSys extends PApplet {
 				language = "francais";
 			}
 			
+			if(key == '0'){
+				splash = true;
+				statement = false;
+				intro = false;
+				startGame1 = false;
+				startGame2 = false;
+				startGame3 = false;
+				inGame1 = false;
+				inGame2 = false;
+				inGame3 = false;
+				endGame1 = false;
+				endGame2 = false;
+				endGame3 = false;
+				emailScreen = false;
+			}
+			
 			if(key == '1'){
+				splash = false;
 				statement = false;
 				intro = false;
 				startGame1 = true;
@@ -7917,6 +7933,7 @@ public class PolSys extends PApplet {
 			}
 			
 			if(key == '2'){
+				splash = false;
 				statement = false;
 				intro = false;
 				startGame1 = false;
@@ -7932,6 +7949,7 @@ public class PolSys extends PApplet {
 			}
 			
 			if(key == '3'){
+				splash = false;
 				statement = false;
 				intro = false;
 				startGame1 = false;

@@ -19,6 +19,7 @@ public class Fish {
 	float timerMovement;
 	PVector mov;
 	float maxSpeed;
+	float splashMaxSpeed;
 	float maxForce;
 	float dist;
 	
@@ -52,6 +53,7 @@ public class Fish {
 		alphaPred = 30;
 		mov = new PVector();
 		maxSpeed = 5.0f;
+
 		maxForce = 0.75f;
 		powerSW = 2;
 	}
@@ -73,6 +75,7 @@ public class Fish {
 		timerMovement = p.millis() + p.random(2, 4)*1000.0f;
 		mov = new PVector();
 		maxSpeed = 1.0f;
+		splashMaxSpeed = 0.75f;
 		maxForce = 0.15f;
 		dist = 100;
 		color = p.color(50);
@@ -103,6 +106,7 @@ public class Fish {
 	    }
 	    
 		velocity.add(acceleration);
+		if(PolSys.splash) velocity.limit(splashMaxSpeed);
 		if(PolSys.startGame1) velocity.limit(maxSpeed);
 		if(PolSys.startGame2) velocity.limit(maxSpeed*slow);
 		pos.add(velocity);
@@ -115,51 +119,84 @@ public class Fish {
 	  }
 	
 	  void boundaries() {
+		  
+		  if(PolSys.splash){
+			  PVector desired = null;
 
-		    PVector desired = null;
+			    if (pos.x < 0 + rad*2.0f) {
+			      desired = new PVector(maxSpeed, velocity.y);
+			    } 
+			    else if (pos.x > p.width - rad*2.0f) {
+			      desired = new PVector(-maxSpeed, velocity.y);
+			    } 
 
-		    if (pos.x < (p.width/2 - p.height/6) + rad*2.0f) {
-		      desired = new PVector(maxSpeed, velocity.y);
-		    } 
-		    else if (pos.x > (p.width/2 + p.height/6) - rad*2.0f) {
-		      desired = new PVector(-maxSpeed, velocity.y);
-		    } 
+			    if (pos.y < p.height*0.2f + rad*2.0f) {
+			      desired = new PVector(velocity.x, maxSpeed);
+			    } 
+			    else if (pos.y > p.height - rad*2.0f) {
+			      desired = new PVector(velocity.x, -maxSpeed);
+			    } 
 
-		    if (pos.y < (p.height/2 - p.height/6) + rad*2.0f) {
-		      desired = new PVector(velocity.x, maxSpeed);
-		    } 
-		    else if (pos.y > (p.height/2 + p.height/6) - rad*2.0f) {
-		      desired = new PVector(velocity.x, -maxSpeed);
-		    } 
+			    if (desired != null) {
+			      desired.normalize();
+			      desired.mult(maxSpeed);
+			      PVector steer = PVector.sub(desired, this.velocity);
+			      steer.limit(maxForce);
+			      applyForce(steer);
+			    }
+		  }else{
+			  PVector desired = null;
 
-		    if (desired != null) {
-		      desired.normalize();
-		      desired.mult(maxSpeed);
-		      PVector steer = PVector.sub(desired, this.velocity);
-		      steer.limit(maxForce);
-		      applyForce(steer);
-		    }
+			    if (pos.x < (PolSys.fishTankPos.x - p.height/6) + rad*2.0f) {
+			      desired = new PVector(maxSpeed, velocity.y);
+			    } 
+			    else if (pos.x > (PolSys.fishTankPos.x + p.height/6) - rad*2.0f) {
+			      desired = new PVector(-maxSpeed, velocity.y);
+			    } 
+
+			    if (pos.y < (PolSys.fishTankPos.y - p.height/6) + rad*2.0f) {
+			      desired = new PVector(velocity.x, maxSpeed);
+			    } 
+			    else if (pos.y > (PolSys.fishTankPos.y + p.height/6) - rad*2.0f) {
+			      desired = new PVector(velocity.x, -maxSpeed);
+			    } 
+
+			    if (desired != null) {
+			      desired.normalize();
+			      desired.mult(maxSpeed);
+			      PVector steer = PVector.sub(desired, this.velocity);
+			      steer.limit(maxForce);
+			      applyForce(steer);
+			    }  
 		  }
+	 }
 	  
 	  void collide(){
-		  for(int i = 0; i < PolSys.fishes.size(); i++){
-			  Fish f = PolSys.fishes.get(i);
-			  if (PApplet.dist(this.pos.x, this.pos.y, f.pos.x, f.pos.y) < rad*1.25f && this != f){
-			        PVector diff = PVector.sub(this.pos, f.pos);
-			        diff.normalize();
-			        diff.mult(maxSpeed);
-			        
-			        PVector steer = PVector.sub(diff, velocity);
-			        steer.limit(maxForce);
-			        applyForce(steer);
-			        
-//				  PVector bounce = this.velocity.get();
-//			        bounce.mult(-0.95f);
-//			        applyForce(bounce);
-//			        
-//			        PVector bounce2 = f.velocity.get();
-//			        bounce2.mult(-1.0f);
-//			        applyForce(bounce2);
+		  if(PolSys.splash){
+			  for(int i = 0; i < PolSys.splashFish.length; i++){
+				  Fish f = PolSys.splashFish[i];
+				  if (PApplet.dist(this.pos.x, this.pos.y, f.pos.x, f.pos.y) < rad*1.25f && this != f){
+				        PVector diff = PVector.sub(this.pos, f.pos);
+				        diff.normalize();
+				        diff.mult(maxSpeed);
+				        
+				        PVector steer = PVector.sub(diff, velocity);
+				        steer.limit(maxForce);
+				        applyForce(steer);
+				  }
+			  }
+		  }else{
+			  for(int i = 0; i < PolSys.fishes.size(); i++){
+				  Fish f = PolSys.fishes.get(i);
+				  if (PApplet.dist(this.pos.x, this.pos.y, f.pos.x, f.pos.y) < rad*1.25f && this != f){
+				        PVector diff = PVector.sub(this.pos, f.pos);
+				        diff.normalize();
+				        diff.mult(maxSpeed);
+				        
+				        PVector steer = PVector.sub(diff, velocity);
+				        steer.limit(maxForce);
+				        applyForce(steer);
+				  }
 			  }
 		  }
 	  }
@@ -189,8 +226,9 @@ public class Fish {
 			p.ellipse(pos.x, pos.y, rad, rad);
 		}
 		
-		if(PolSys.startGame2){
+		if(PolSys.startGame2 || PolSys.splash){
 			p.noFill();
+			if(PolSys.splash) p.fill(250);
 			p.strokeWeight(2);
 			p.stroke(10, strokeAlpha);
 			  float angleHeading = this.velocity.heading2D() + PApplet.PI/2;
@@ -211,16 +249,6 @@ public class Fish {
 			  rad += (PApplet.cos(xPulse))*0.15f;
 			  xPulse += pulseRatio;
 			  p.popMatrix();
-			  
-				for(int i = 0; i < PolSys.fishNumber; i++){
-					Fish f = PolSys.fishes.get(i);
-					if(PApplet.dist(this.pos.x, this.pos.y, f.pos.x, f.pos.y) < dist){
-						p.stroke(0, 100);
-						p.strokeWeight(powerSW);
-						//p.line(this.pos.x, this.pos.y, f.pos.x, f.pos.y);
-					}
-
-				}
 		}
 	}
 	
@@ -234,14 +262,14 @@ public class Fish {
 		
 		p.rectMode(PConstants.CENTER);
 	    p.strokeWeight(2);
-	    p.stroke(20, 20, 0, alphaPred);
+	    p.stroke(PolSys.colorPredator, alphaPred);
 	    p.noFill();
 		theta = this.velocity.heading2D() + PApplet.PI/2;
     	p.pushMatrix();
     	p.translate(pos.x, pos.y);
     	p.rotate(theta);
     	p.rect(0, 0, rad, rad*2.0f);
-    	p.stroke(20, 20, 0, alphaPred);
+    	p.stroke(PolSys.colorPredator, alphaPred);
     	p.rect(0, 0, rad, rad*2);
     	p.popMatrix();
 
@@ -249,17 +277,31 @@ public class Fish {
 	    p.noStroke();
 	}
 	
-	void drawConnections(){		
-		for(int i = 0; i < PolSys.fishes.size(); i++){
-			Fish f = PolSys.fishes.get(i);
-			if(PApplet.dist(this.pos.x, this.pos.y, f.pos.x, f.pos.y) < dist){
-				p.stroke(0, alpha);
-				p.strokeWeight(powerSW);
-				for(int j = 0; j < connec; j++){
-					p.line(this.pos.x, this.pos.y, f.pos.x, f.pos.y);
+	void drawConnections(){
+		if(PolSys.splash){
+			for(int i = 0; i < PolSys.splashFish.length; i++){
+				Fish f = PolSys.splashFish[i];
+				if(PApplet.dist(this.pos.x, this.pos.y, f.pos.x, f.pos.y) < dist){
+					p.stroke(0, 5);
+					p.strokeWeight(2);
+					for(int j = 0; j < connec; j++){
+						p.line(this.pos.x, this.pos.y, f.pos.x, f.pos.y);
+					}
 				}
+	
 			}
-
+		}else{
+			for(int i = 0; i < PolSys.fishes.size(); i++){
+				Fish f = PolSys.fishes.get(i);
+				if(PApplet.dist(this.pos.x, this.pos.y, f.pos.x, f.pos.y) < dist){
+					p.stroke(0, alpha);
+					p.strokeWeight(powerSW);
+					for(int j = 0; j < connec; j++){
+						p.line(this.pos.x, this.pos.y, f.pos.x, f.pos.y);
+					}
+				}
+	
+			}
 		}
 	}
 	

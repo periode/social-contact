@@ -717,7 +717,7 @@ public class Agent extends ProcessingObject {
 			  //p.text("power: "+power, pos.x-rad, pos.y+rad);
 			  //p.text("agents power: "+agentsPower.size(), pos.x+rad, pos.y-rad);
 			  //if(agentsLove.size() > 0) p.text("in love", pos.x+rad, pos.y+(rad*2));
-			  if(canReproduce) p.text(""+canReproduce, pos.x+rad, pos.y+rad);
+			  //if(canReproduce) p.text(""+canReproduce, pos.x+rad, pos.y+rad);
 			  //if(isOfAge) p.text("is of age", pos.x+rad, pos.y-rad);
 			  //p.text("culture: "+(int)culture[0]+" / "+(int)culture[1]+" / "+(int)culture[2]+" / "+(int)culture[3], pos.x, pos.y+rad);
 			  //p.text("friends: "+agentsFriendship.size(), pos.x, pos.y+rad*1.5f);
@@ -804,13 +804,21 @@ public class Agent extends ProcessingObject {
 				  p.stroke(col, alpha);
 				  p.noFill();
 				  p.strokeWeight(1);
-				    for (int i = 0; i < connec; i++) {
-				    	p.ellipse(pos.x, pos.y, (i+1)*5, (i+1)*5);
-				    }
-				  p.strokeWeight(2); 
-				  p.ellipse(pos.x, pos.y, rad, rad);
-			      rad += (PApplet.cos(xPulse))*0.15f;
-			      xPulse += pulseRatio;
+				  p.pushMatrix();
+				  p.translate(pos.x, pos.y);
+				  p.ellipse(0, -rad*0.2f, rad*0.2f, rad*0.2f);
+				//line(-rad*0.2f, 0, rad*0.2f, 0);
+				  p.line(0, rad*0.1f, 0, -rad*0.1f);
+				  p.line(-rad*0.1f, rad*0.4f, 0, rad*0.1f);
+				  p.line(rad*0.1f, rad*0.4f, 0, rad*0.1f);
+//				    for (int i = 0; i < connec; i++) {
+//				    	p.ellipse(pos.x, pos.y, (i+1)*5, (i+1)*5);
+//				    }
+//				  p.strokeWeight(2); 
+//				  p.ellipse(pos.x, pos.y, rad, rad);
+//			      rad += (PApplet.cos(xPulse))*0.15f;
+//			      xPulse += pulseRatio;
+				  p.popMatrix();
 			  }
 
 			  if(PolSys.inGame2){

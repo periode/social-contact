@@ -70,7 +70,7 @@ public class Trade {
 		alpha = -50;
 		alphaMax = 100;
 		alphaInc = 1.0f;
-		col = p.color(0, 100, 200); 
+		col = PolSys.colorTrade; 
 		sw = 10;
 		
 		numHarmonics = 1;

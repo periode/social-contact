@@ -49,7 +49,7 @@ public class War {
 		alpha = 0;
 		alphaMax = 150;
 		alphaInc = 1.0f;
-		col = p.color(255, 0, 0);
+		col = PolSys.colorWar;
 		lineNum = 7; //TODO make this proportional to the wealth of belligerants
 		halfway = new PVector((n1.pos.x+n2.pos.x)*0.5f, (n1.pos.y+n2.pos.y)*0.5f);
 		
