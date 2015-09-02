@@ -26,6 +26,9 @@ public class Connection extends ProcessingObject {
 	  
 	  boolean canRemove;
 	  
+	  float lerpVal;
+	  float lerpInc;
+	  
 	  Connection() {
 	  }
 
@@ -46,6 +49,9 @@ public class Connection extends ProcessingObject {
 	    circleRadRate = 5.0f;
 		averagePos = new PVector((a1.pos.x+a2.pos.x)*0.5f, (a1.pos.y+a2.pos.y)*0.5f);
 		canRemove = false;
+		
+		lerpVal = 0;
+		lerpInc = 0.175f;
 	  }
 
 	  void display() {
@@ -62,8 +68,6 @@ public class Connection extends ProcessingObject {
 				circleRad2 += circleRadRate;
 				circleAlpha -= circleAlphaRate;
 		  }
-
-		
 		  
 		p.strokeWeight(w);
 		
@@ -73,13 +77,17 @@ public class Connection extends ProcessingObject {
 		}else{
 			w = 1;
 		}
-	    
-	    pos1 = new PVector(a1.pos.x, a1.pos.y);
-	    pos2 = new PVector(a2.pos.x, a2.pos.y);
+		
+		PVector tempPos1 = PVector.lerp(a1.pos, averagePos, lerpVal);
+		PVector tempPos2 = PVector.lerp(a2.pos, averagePos, lerpVal);
 
-	    p.line(a1.pos.x, a1.pos.y, a2.pos.x, a2.pos.y);
-	    
-
+	    if(lerpVal < 1){
+	    	p.line(a1.pos.x, a1.pos.y, tempPos1.x, tempPos1.y);
+	    	p.line(a2.pos.x, a2.pos.y, tempPos2.x, tempPos2.y);
+	    	lerpVal += lerpInc;
+	    }else{
+	    	p.line(a1.pos.x, a1.pos.y, a2.pos.x, a2.pos.y);	
+	    }
 	  }
 
 	  void destroyConnection() {

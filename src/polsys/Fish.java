@@ -52,7 +52,7 @@ public class Fish {
 		timerMovement = p.millis() + p.random(1, 2)*1000.0f;
 		alphaPred = 30;
 		mov = new PVector();
-		maxSpeed = 5.0f;
+		maxSpeed = 1.0f;
 
 		maxForce = 0.75f;
 		powerSW = 2;
@@ -85,7 +85,7 @@ public class Fish {
 		this.strokeAlpha = strokeAlpha;
 		
 		sides = (int)p.random(5, 8);
-	    pulseRatio = 0.1f;
+	    pulseRatio = 0.05f;
 	    xPulse = p.random(10);
 	    
 	    slow = 0.5f;
@@ -246,7 +246,7 @@ public class Fish {
 				  p.vertex(x, y);
 			  }
 			  p.endShape(PApplet.CLOSE);
-			  rad += (PApplet.cos(xPulse))*0.15f;
+			  rad += (PApplet.cos(xPulse))*0.25f;
 			  xPulse += pulseRatio;
 			  p.popMatrix();
 		}

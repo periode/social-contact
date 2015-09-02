@@ -262,13 +262,15 @@ public class Agent extends ProcessingObject {
 		  boolean hasForcedSim;
 		  boolean hasForcedDiff;
 		  
-		  boolean isSelected2;		  
+		  boolean isSelected2;	
+		  
+		  boolean isOppressed;
 		  
 		  Agent() {}
 		  
 		  Agent(float x, float y, float rad, int connections, float speed1, float speed2, float distance, float formingStableRelationships, float meetingOthers, float violence, float resourceSeek, PApplet p) {
 		    this.p = p;
-		    
+		    isOppressed = false;
 		    currentConnections = new ArrayList<Connection>();
 		    
 		    arrived = false;
@@ -336,7 +338,8 @@ public class Agent extends ProcessingObject {
 		    ageMajorityModifier = 0.175f;
 		    ageMajority = p.millis() + lifeSpan*ageMajorityModifier;
 		    ageSettle = ageMajority*1.5f; //being settled happens after you've reached majority.
-		    isOfAge = false;
+		    isOfAge = false;//TODO reset to false
+		    isSettled = true;
 		    
 		    isAlive =  true;
 		    isAlone = true;
@@ -408,7 +411,7 @@ public class Agent extends ProcessingObject {
 			loveThreshold = 0.15f;
 			loveIntensity = 2.0f;
 			loveModifier = 50.0f;
-			reproduceSpanLove = 8 * 1000.0f; //in seconds
+			reproduceSpanLove = p.random(6.5f, 7.9f) * 1000.0f; //in seconds
 			loveSeparationThreshold = 7.5f;
 			mate = null;
 			siblings = new ArrayList<Agent>();
@@ -509,6 +512,7 @@ public class Agent extends ProcessingObject {
 		  }
 		  
 		  void update(){
+			  collide();
 			  if(PolSys.inGame1){
 				  if(!hasArrived) startTimeDeath = p.millis();
 				  if(this.wealthAccumulation > 0) this.wealthAccumulation -= 0.0001f;
@@ -789,7 +793,6 @@ public class Agent extends ProcessingObject {
 				  p.translate(this.pos.x, this.pos.y);
 				  p.rotate(PApplet.PI/4+rotateValue);
 				  rotateValue += rotateSpeed;
-				  p.noFill();
 				  p.stroke(selectedCol);
 				  p.strokeWeight(1);
 				  p.rect(0, 0, rad*1.2f, rad*1.2f);
@@ -804,31 +807,39 @@ public class Agent extends ProcessingObject {
 				  p.stroke(col, alpha);
 				  p.noFill();
 				  p.strokeWeight(1);
-				  p.pushMatrix();
-				  p.translate(pos.x, pos.y);
-				  p.ellipse(0, -rad*0.2f, rad*0.2f, rad*0.2f);
-				//line(-rad*0.2f, 0, rad*0.2f, 0);
-				  p.line(0, rad*0.1f, 0, -rad*0.1f);
-				  p.line(-rad*0.1f, rad*0.4f, 0, rad*0.1f);
-				  p.line(rad*0.1f, rad*0.4f, 0, rad*0.1f);
-//				    for (int i = 0; i < connec; i++) {
-//				    	p.ellipse(pos.x, pos.y, (i+1)*5, (i+1)*5);
-//				    }
-//				  p.strokeWeight(2); 
-//				  p.ellipse(pos.x, pos.y, rad, rad);
-//			      rad += (PApplet.cos(xPulse))*0.15f;
-//			      xPulse += pulseRatio;
-				  p.popMatrix();
+//				  p.pushMatrix();
+//				  p.translate(pos.x, pos.y);
+//				  p.ellipse(0, -rad*0.2f, rad*0.2f, rad*0.2f);
+//				//line(-rad*0.2f, 0, rad*0.2f, 0);
+//				  p.line(0, rad*0.1f, 0, -rad*0.1f);
+//				  p.line(-rad*0.1f, rad*0.4f, 0, rad*0.1f);
+//				  p.line(rad*0.1f, rad*0.4f, 0, rad*0.1f);
+				    for (int i = 0; i < connec; i++) {
+				    	p.ellipse(pos.x, pos.y, (i+1)*5, (i+1)*5);
+				    }
+				  p.strokeWeight(2); 
+				  p.ellipse(pos.x, pos.y, rad, rad);
+			      rad += (PApplet.cos(xPulse))*0.15f;
+			      xPulse += pulseRatio;
+//				  p.popMatrix();
 			  }
 
 			  if(PolSys.inGame2){
 				  p.strokeWeight(2);
+				  
+				  
 				  if(!isOfAge){
-					  p.stroke(originalCol, alpha2*0.4f);
+					  p.stroke(originalCol, alpha2*0.6f);
 				  }else{
 					  p.stroke(originalCol, alpha2);
 				  }
-				  p.noFill();
+				  
+				  
+				  if(!isOppressed){
+					  p.noFill();
+				  }else{
+					 p.fill(PApplet.map(rad, 10, 40, 100, 250));
+				  }
 				  float angleHeading = this.velocity.heading2D() + PApplet.PI/2;
 				  p.pushMatrix();
 				  p.translate(pos.x, pos.y);
@@ -1169,6 +1180,7 @@ public class Agent extends ProcessingObject {
 						  
 						  this.applyForce(force);
 						  a.applyForce(inverse);
+						  isOppressed = true;
 					  }
 					  
 					  //pushing the culture 1 slot in the different directions --> the more powerful you are, the more powerful you become and vice versa
@@ -1921,6 +1933,19 @@ public class Agent extends ProcessingObject {
 				        applyForce(steer);
 				      }
 				    }
+			  }else{				  
+				  for(int i = 0; i < PolSys.community.size(); i++){
+					  Agent a  = PolSys.community.get(i);
+					  if(PApplet.dist(this.pos.x, this.pos.y, a.pos.x, a.pos.y) < rad && a != this && a.isAlive){
+					        PVector diff = PVector.sub(this.pos, a.pos);
+					        diff.normalize();
+					        diff.mult(maxSpeed);
+					        
+					        PVector steer = PVector.sub(diff, velocity);
+					        steer.limit(maxForce);
+					        applyForce(steer);
+					  }  
+				  }
 			  }
 		  }
 		  

@@ -1586,7 +1586,7 @@ public class PolSys extends PApplet {
 		strataCol = color(0);
 		strataAlpha = 50;
 		
-		spatialCultureIncrement = 0.01f;
+		spatialCultureIncrement = 0.02f;
 		
 		selRevolt = false;
 		selOppression = false;
@@ -1617,10 +1617,10 @@ public class PolSys extends PApplet {
 		
 		for(int i = 0; i < bezierNum; i++){
 			//line(, (width/2+fishTankSize/2), (height/2-fishTankSize/2)+(i*20));
-			startPointBezierFish[i] = new PVector((width*0.5f-fishTankSize*0.5f), (height*0.5f-fishTankSize*0.5f)+(i*20));
-			anchorPointABezierFish[i] = new PVector((width*0.5f-fishTankSize*0.25f), (height*0.5f-fishTankSize*0.5f)+(i*20));
-			anchorPointBBezierFish[i] = new PVector((width*0.5f+fishTankSize*0.25f), (height*0.5f-fishTankSize*0.5f)+(i*20));
-			endPointBezierFish[i] = new PVector((width*0.5f+fishTankSize*0.5f), (height*0.5f-fishTankSize*0.5f)+(i*20));
+			startPointBezierFish[i] = new PVector((fishTankPos.x-fishTankSize*0.5f), (fishTankPos.y-fishTankSize*0.5f)+(i*20));
+			anchorPointABezierFish[i] = new PVector((fishTankPos.x-fishTankSize*0.25f), (fishTankPos.y-fishTankSize*0.5f)+(i*20));
+			anchorPointBBezierFish[i] = new PVector((fishTankPos.x+fishTankSize*0.25f), (fishTankPos.y-fishTankSize*0.5f)+(i*20));
+			endPointBezierFish[i] = new PVector((fishTankPos.x+fishTankSize*0.5f), (fishTankPos.y-fishTankSize*0.5f)+(i*20));
 		}
 		
 		
@@ -1748,7 +1748,7 @@ public class PolSys extends PApplet {
 		finalTimerFull = 0;
 		finalTimerSmall = 0;
 		
-		ac.start();
+		//ac.start();
 		
 		  
 	  alphaFade = 0;
@@ -1824,7 +1824,6 @@ public class PolSys extends PApplet {
 			if (agents[i].isAlive && !checkedAgents.contains(agents[i]) && agents[i].arrived){
 				agents[i].update();
 				agents[i].connect();
-				agents[i].collide();
 			}
 		}
 		
@@ -3047,7 +3046,7 @@ public class PolSys extends PApplet {
 			}
 			
 			if(meetingOthers == 1.0f){
-				//TODO how to represent meeting others?
+				//TODO how to represent meeting others? just a hull
 			}
 			
 			if(formingStableRelationships == 0.5f){
@@ -3102,41 +3101,21 @@ public class PolSys extends PApplet {
 			
 			if(powerForceUpButton.onClick() || powerForceDownButton.onClick()){
 				drawFishPower = true;
-//				drawFishFriend = false;
-//				drawFishLove = false;
-//				drawCulture = false;
-//				drawChildren = false;
 			}
 			
 			if(friendshipForceUpButton.onClick() || friendshipForceDownButton.onClick()){
-//				drawFishPower = false;
 				drawFishFriend = true;
-//				drawFishLove = false;
-//				drawCulture = false;
-//				drawChildren = false;
 			}
 			
 			if(loveForceUpButton.onClick() || loveForceDownButton.onClick()){
-//				drawFishPower = false;
-//				drawFishFriend = false;
 				drawFishLove = true;
-//				drawCulture = false;
-//				drawChildren = false;
 			}
 			
 			if(cultureButtonRight.onClick() || cultureButtonLeft.onClick()){
-//				drawFishPower = false;
-//				drawFishFriend = false;
-//				drawFishLove = false;
 				drawCulture = true;
-//				drawChildren = false;
 			}
 			
 			if(numberOfChildrenUpButton.onClick() || numberOfChildrenUpButton.onClick() || independenceOfChildrenDownButton.onClick() || independenceOfChildrenUpButton.onClick() || ageMajorityDownButton.onClick() || ageMajorityUpButton.onClick()){
-//				drawFishPower = false;
-//				drawFishFriend = false;
-//				drawFishLove = false;
-//				drawCulture = false;
 				drawChildren = true;
 			}
 			
@@ -3747,9 +3726,9 @@ public class PolSys extends PApplet {
 				p.display();
 			}
 			if (!p.isAlive) {
-				fill(10);
-				line(p.pos.x-2, p.pos.y-2, p.pos.x+2, p.pos.y+2);
-				line(p.pos.x-2, p.pos.y+2, p.pos.x+2, p.pos.y-2);
+				stroke(10);
+				line(p.pos.x-random(1, 3), p.pos.y-random(1, 3), p.pos.x+random(1, 3), p.pos.y+random(1, 3));
+				line(p.pos.x-random(1, 3), p.pos.y+random(1, 3), p.pos.x+random(1, 3), p.pos.y-random(1, 3));
 			}
 		}
 
@@ -3906,8 +3885,7 @@ public class PolSys extends PApplet {
 		
 		death(1);
 		
-		stroke(200, rectFadeAlpha*0.5f);
-		strokeWeight(1);
+		noStroke();
 		fill(255, rectFadeAlpha);
 		
 		if(rectFadeAlpha > 0 && selectedAgent == null){
@@ -4741,7 +4719,8 @@ public class PolSys extends PApplet {
 				}
 			}
 			
-			resources.clear();
+			resources2.clear();
+			
 			
 			for(int i = 0; i < community.size(); i++){ //this is where i modify the variables of the agents based on start2 decisions
 				Agent a = community.get(i);
@@ -4791,7 +4770,7 @@ public class PolSys extends PApplet {
 			}
 			
 			for(int i = 0; i < numberOfResources; i++){
-				resources.add(new Resource(random(width*0.1f, width*0.9f), random(height*0.1f, height*0.8f), (int)random(40, 100), this));
+				resources2.add(new Resource(random(width*0.1f, width*0.9f), random(height*0.1f, height*0.8f), (int)random(40, 100), this));
 			}
 		}else{ //start game = 1
 			println("generating agents from scratch");
@@ -5410,6 +5389,7 @@ public class PolSys extends PApplet {
 		seasons.cycle();
 		//seasons.populate(Seasons.numberOfSeasons);
 		for(int i = 0; i < resources2.size(); i++){
+			println("displaying resource"+i);
 			Resource r = resources2.get(i);
 			r.display();
 			r.deplete();
@@ -5422,10 +5402,13 @@ public class PolSys extends PApplet {
 			}else{
 				strokeWeight(1);
 				noFill();
-				ellipse(a.pos.x, a.pos.y, a.rad*0.75f, a.rad*0.75f);
-				strokeWeight(2);
-				line(a.pos.x-4, a.pos.y-4, a.pos.x+4, a.pos.y+4);
-				line(a.pos.x-4, a.pos.y+4, a.pos.x+4, a.pos.y-4);
+				a.deathVisuals();
+				strokeWeight(1);
+				stroke(0, a.graveAlpha);
+				a.graveAlpha -= a.graveAlphaInc*(1.5f-rememberDead);
+				float inc = agents[i].rad*0.2f;
+				line(a.pos.x-inc, a.pos.y, a.pos.x+inc, a.pos.y);
+				line(a.pos.x, a.pos.y-inc, a.pos.x, a.pos.y+inc*2.0f);
 			}
 				a.debug();
 		}
@@ -5615,8 +5598,7 @@ public class PolSys extends PApplet {
 		showAssumptions.display();
 		showAssumptions.onClick();
 		
-		stroke(200, rectFadeAlpha*0.5f);
-		strokeWeight(1);
+		noStroke();
 		fill(255, rectFadeAlpha);
 		
 		if(rectFadeAlpha > 0 && selectedAgent2 == null){
@@ -6434,8 +6416,7 @@ public class PolSys extends PApplet {
 		showAssumptions.display();
 		showAssumptions.onClick();
 		
-		stroke(200, rectFadeAlpha*0.5f);
-		strokeWeight(1);
+		noStroke();
 		fill(255, rectFadeAlpha);
 		
 		if(rectFadeAlpha > 0 && selectedNation == null){
@@ -7257,10 +7238,14 @@ public class PolSys extends PApplet {
 				clickSound(1);
 				if(cultureOrigin == 1){
 					cultureOrigin = 2;
+					spatialCultureIncrement = 0.1f;
 				}else if(cultureOrigin == 2){
 					cultureOrigin = 0;
+					spatialCultureIncrement = 0.2f;
 				}else{
 					cultureOrigin = 1;
+					spatialCultureIncrement = 0.3f;
+					
 				}
 			}
 			
@@ -7268,10 +7253,13 @@ public class PolSys extends PApplet {
 				clickSound(1);
 				if(cultureOrigin == 1){
 					cultureOrigin = 0;
+					spatialCultureIncrement = 0.2f;
 				}else if(cultureOrigin == 2){
 					cultureOrigin = 1;
+					spatialCultureIncrement = 0.3f;
 				}else{
 					cultureOrigin = 2;
+					spatialCultureIncrement = 0.1f;
 				}
 			}
 		}

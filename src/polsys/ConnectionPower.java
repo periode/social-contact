@@ -114,6 +114,8 @@ public class ConnectionPower extends ProcessingObject {
 		  powerDifference = PApplet.abs(a1.culture[1] - a2.culture[1]);
 		  
 		  if(alpha < alphaMax) alpha += alphaInc;
+		  
+		  size = PVector.dist(a1.pos, a2.pos);
 	  }
 
 	  void display() {
@@ -128,10 +130,30 @@ public class ConnectionPower extends ProcessingObject {
 	    p.strokeWeight(2);
 	    p.noFill();
 	    p.pushMatrix();
-	    p.translate(posViz.x, posViz.y);
+	    p.translate(averagePos.x, averagePos.y);
 	    p.rotate(theta);
-	    p.line(-5.0f, 0.0f, 0.0f, -7.0f);
-	    p.line(5.0f, 0.0f, 0.0f, -7.0f);
+	    
+	    p.noStroke();
+	    p.fill(0, 20);
+
+	    p.beginShape();
+	    //p.line(a1.pos.x, a1.pos.y, a2.pos.x, a2.pos.y);
+	    
+	    float radIncS = 0.6f;
+	    float radIncI = 0.35f;
+	    p.vertex(size*0.35f, aSuperior.rad*radIncS);
+	    p.vertex(size*0.3f, 0);
+	    p.vertex(size*0.35f, -aSuperior.rad*radIncS);
+	    
+	    p.vertex(-size*0.45f, -aInferior.rad*radIncI);
+	    p.vertex(-size*0.5f, p.random(-aInferior.rad*radIncI*0.5f, aInferior.rad*radIncI*0.5f));
+	    p.vertex(-size*0.45f, aInferior.rad*radIncI);
+	    
+	    p.vertex(size*0.5f, aSuperior.rad*radIncS);
+	    
+	    p.endShape(PApplet.CLOSE);
+//	    p.line(-5.0f, 0.0f, 0.0f, -7.0f);
+//	    p.line(5.0f, 0.0f, 0.0f, -7.0f);
 	    p.popMatrix();
 	    /*
 	    p.rectMode(PApplet.CENTER);
@@ -140,7 +162,7 @@ public class ConnectionPower extends ProcessingObject {
 	    posViz = PVector.lerp(aSuperior.pos, aInferior.pos, lerpAmt);
 	    
 		PVector dir = PVector.sub(aInferior.pos, aSuperior.pos);
-		theta = dir.heading2D()+ PApplet.PI*0.5f;
+		theta = dir.heading2D()+ PApplet.PI*1.0f;
 	    
 	    lerpAmt += lerpSpeed;
 	    if(lerpAmt > 1) lerpAmt = 0;
@@ -150,10 +172,11 @@ public class ConnectionPower extends ProcessingObject {
 	    p.strokeWeight(1);
 	    p.stroke(c, rectAlpha);
 	    if(rectAlpha > 0){
-	    	p.rect(rectPos.x+p.random(2), rectPos.y, rectSizeX, rectSizeY);
-	    	p.rect(rectPos.x, rectPos.y+p.random(2), rectSizeX, rectSizeY);
+//	    	p.rect(rectPos.x+p.random(2), rectPos.y, rectSizeX, rectSizeY);
+//	    	p.rect(rectPos.x, rectPos.y+p.random(2), rectSizeX, rectSizeY);
+	    	p.line(a1.pos.x, a1.pos.y, a2.pos.x, a2.pos.y);
 	    }
-	    rectAlpha -= 10.0f;
+	    rectAlpha -= 1.0f;
 	    
 	  }
 
