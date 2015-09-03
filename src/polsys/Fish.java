@@ -9,7 +9,7 @@ public class Fish {
 	PVector pos;
 	PVector velocity;
 	PVector acceleration;
-	PVector posViz;
+	PVector averagePos;
 	PApplet p;
 	int connec;
 	int minConnec;
@@ -64,7 +64,7 @@ public class Fish {
 		this.pos = new PVector(x, y);
 		velocity = new PVector(p.random(-1.5f, 1.5f), p.random(-1.5f, 1.5f));
 	    acceleration = new PVector(0, 0);
-	    posViz = new PVector();
+	    averagePos = new PVector();
 		
 		this.connec = connec;
 		minConnec = 3;
@@ -281,7 +281,7 @@ public class Fish {
 		if(PolSys.splash){
 			for(int i = 0; i < PolSys.splashFish.length; i++){
 				Fish f = PolSys.splashFish[i];
-				if(PApplet.dist(this.pos.x, this.pos.y, f.pos.x, f.pos.y) < dist){
+				if(PApplet.dist(this.pos.x, this.pos.y, f.pos.x, f.pos.y) < dist*2){
 					p.stroke(0, 5);
 					p.strokeWeight(2);
 					for(int j = 0; j < connec; j++){
@@ -306,22 +306,36 @@ public class Fish {
 	}
 	
 	void drawPower(int fp){
-		p.stroke(10, 100);
-		p.strokeWeight(powerSW);
+		p.noStroke();
+		p.fill(0, 40);
 		p.strokeCap(PApplet.SQUARE);
 		
 		for(int i = 0; i < fp; i++){
 			Fish fish = PolSys.fishes.get(i);
 			
 			if(this != fish && PApplet.dist(this.pos.x, this.pos.y, fish.pos.x, fish.pos.y) < dist){
-				posViz = PVector.lerp(this.pos, fish.pos, lerpAmt);
+				averagePos = new PVector((this.pos.x + fish.pos.x)*0.5f,(this.pos.y + fish.pos.y)*0.5f) ;
 				p.pushMatrix();
 				PVector dir = PVector.sub(fish.pos, this.pos);
-				theta = dir.heading2D()+PApplet.PI*0.5f;
-			    p.translate(posViz.x, posViz.y);
+				theta = dir.heading2D()+PApplet.PI*1.0f;
+			    p.translate(averagePos.x, averagePos.y);
 			    p.rotate(theta);
-			    p.line(-5.0f, 0.0f, 0.0f, -7.0f);
-			    p.line(5.0f, 0.0f, 0.0f, -7.0f);
+		    	p.beginShape();
+
+	    	 	float size = PVector.dist(this.pos, fish.pos);
+		 	    float radIncS = 0.3f;
+		 	    float radIncI = 0.15f;
+		 	    p.vertex(size*0.25f, fish.rad*radIncS);
+		 	    p.vertex(size*0.2f, 0);
+		 	    p.vertex(size*0.25f, -fish.rad*radIncS);
+		 	    
+		 	    p.vertex(-size*0.4f, -this.rad*radIncI);
+		 	    p.vertex(-size*0.45f, p.random(-this.rad*radIncI*0.5f, this.rad*radIncI*0.5f));
+		 	    p.vertex(-size*0.4f, this.rad*radIncI);
+		 	    
+		 	    //p.vertex(size*0.5f, aSuperior.rad*radIncS);
+		 	    
+		 	    p.endShape(PApplet.CLOSE);
 			    p.popMatrix();
 			    
 				

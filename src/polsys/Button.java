@@ -71,7 +71,7 @@ public class Button extends ProcessingObject {
 	    	p.pushMatrix();
 	    	p.scale(1.5f);
 	    	p.strokeWeight(swa);
-	    	p.stroke(50);
+	    	p.stroke(50, alpha);
 	    	
 	    	p.line(0-(size*0.35f), 0+(size*0.2f)+inc, 0, 0-(size*0.3f)+inc);
 	    	p.line(0, 0-(size*0.3f)+inc, 0+(size*0.35f), 0+(size*0.2f)+inc);
@@ -84,7 +84,7 @@ public class Button extends ProcessingObject {
 	    	p.pushMatrix();
 	    	p.scale(1.5f);
 	    	p.strokeWeight(swa);
-	    	p.stroke(50);
+	    	p.stroke(50, alpha);
 	    	
 	    	p.line(0-(size*0.35f), 0-(size*0.2f)-inc, 0, 0+(size*0.3f)-inc);
 		    p.line(0, 0+(size*0.3f)-inc, 0+(size*0.35f), 0-(size*0.2f)-inc);
@@ -95,7 +95,7 @@ public class Button extends ProcessingObject {
 	    } else if (type == 2) {//start
 			p.textAlign(PConstants.CENTER);
 			if(PolSys.startGame1 || PolSys.startGame2 || PolSys.startGame3){
-		    	if(PolSys.canStart){
+		    	if(PolSys.canShowSettings[7]){
 					p.stroke(70, startRectAlpha);
 					p.noFill();
 					p.rect(0, 0, startRectSize*3f, startRectSize);
@@ -105,9 +105,9 @@ public class Button extends ProcessingObject {
 		    		p.rect(0, 0, size*3f, size*1f);
 		    		p.fill(255);
 			    	if(language == "english"){
-			    		p.text("begin\nsocial contact", 0, -5);
+			    		p.text("social\ncontact", 0, -5);
 			    	}else{
-			    		p.text("initier\nun contact social", 0, -5);
+			    		p.text("contact\nsocial", 0, -5);
 			    	}
 			    	startRectAlpha -= startRectAlphaInc;
 			    	startRectSize += startRectSizeInc;
@@ -124,7 +124,7 @@ public class Button extends ProcessingObject {
 			    	}
 		    	}
 			}else{
-	    		p.noFill();
+	    		p.fill(255, 100);
 		    	p.strokeWeight(sw);
 	    		p.rect(0, 0, size*4.0f-2, size*0.5f);
 	    		p.fill(0);
@@ -310,8 +310,8 @@ public class Button extends ProcessingObject {
 	}
 
 	boolean onClick() {
-	    if (p.mousePressed && p.mouseX > this.pos.x-size*1.5f && p.mouseX < this.pos.x+size*1.5f && p.mouseY > this.pos.y-size*1.5f && p.mouseY < this.pos.y +size*1.5f) {
-	    	if(p.mousePressed && !PolSys.statement && !PolSys.intro) PolSys.interactions++;
+	    if (p.mouseX > this.pos.x-size*1.5f && p.mouseX < this.pos.x+size*1.5f && p.mouseY > this.pos.y-size*1.5f && p.mouseY < this.pos.y +size*1.5f) {
+	    	//if(p.mousePressed && !PolSys.statement && !PolSys.intro) PolSys.interactions++;
 	    	return true;
 	    } else {
 	    	return false;

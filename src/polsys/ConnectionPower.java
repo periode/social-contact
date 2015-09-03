@@ -51,6 +51,9 @@ public class ConnectionPower extends ProcessingObject {
 	  
 	  float theta;
 	  
+	  float lerpVal;
+	  float lerpInc;
+	  
 	  ConnectionPower() {
 	  }
 
@@ -100,6 +103,9 @@ public class ConnectionPower extends ProcessingObject {
 	    }
 	    
 	    PolSys.ac.out.addInput(gConnecPower);
+	    
+	    lerpVal = 0;
+	    lerpInc = 0.1f;
 	  }
 	  
 	  void update(){
@@ -116,6 +122,8 @@ public class ConnectionPower extends ProcessingObject {
 		  if(alpha < alphaMax) alpha += alphaInc;
 		  
 		  size = PVector.dist(a1.pos, a2.pos);
+		  
+		  if(lerpVal < 1) lerpVal += lerpInc;
 	  }
 
 	  void display() {
@@ -135,30 +143,43 @@ public class ConnectionPower extends ProcessingObject {
 	    
 	    p.noStroke();
 	    p.fill(0, 20);
+	    
+	    if(lerpVal < 1){
+	    	 p.beginShape();
 
-	    p.beginShape();
-	    //p.line(a1.pos.x, a1.pos.y, a2.pos.x, a2.pos.y);
+	 	    float radIncS = 0.3f;
+	 	    float radIncI = 0.15f;
+	 	    p.vertex(size*0.25f, aSuperior.rad*radIncS);
+	 	    p.vertex(size*0.2f, 0);
+	 	    p.vertex(size*0.25f, -aSuperior.rad*radIncS);
+	 	    
+	 	    p.vertex(PApplet.lerp(size*0.25f, -size*0.4f, lerpVal), -aInferior.rad*radIncI);
+	 	    p.vertex(PApplet.lerp(size*0.2f, -size*0.45f, lerpVal), p.random(-aInferior.rad*radIncI*0.5f, aInferior.rad*radIncI*0.5f));
+	 	    p.vertex(PApplet.lerp(size*0.25f, -size*0.4f, lerpVal), aInferior.rad*radIncI);
+	 	    
+	 	    //p.vertex(size*0.5f, aSuperior.rad*radIncS);
+	 	    
+	 	    p.endShape(PApplet.CLOSE);
+	    }else{
+	    	 p.beginShape();
+
+		 	    float radIncS = 0.3f;
+		 	    float radIncI = 0.15f;
+		 	    p.vertex(size*0.25f, aSuperior.rad*radIncS);
+		 	    p.vertex(size*0.2f, 0);
+		 	    p.vertex(size*0.25f, -aSuperior.rad*radIncS);
+		 	    
+		 	    p.vertex(-size*0.4f, -aInferior.rad*radIncI);
+		 	    p.vertex(-size*0.45f, p.random(-aInferior.rad*radIncI*0.5f, aInferior.rad*radIncI*0.5f));
+		 	    p.vertex(-size*0.4f, aInferior.rad*radIncI);
+		 	    
+		 	    //p.vertex(size*0.5f, aSuperior.rad*radIncS);
+		 	    
+		 	    p.endShape(PApplet.CLOSE);
+	    }
 	    
-	    float radIncS = 0.6f;
-	    float radIncI = 0.35f;
-	    p.vertex(size*0.35f, aSuperior.rad*radIncS);
-	    p.vertex(size*0.3f, 0);
-	    p.vertex(size*0.35f, -aSuperior.rad*radIncS);
-	    
-	    p.vertex(-size*0.45f, -aInferior.rad*radIncI);
-	    p.vertex(-size*0.5f, p.random(-aInferior.rad*radIncI*0.5f, aInferior.rad*radIncI*0.5f));
-	    p.vertex(-size*0.45f, aInferior.rad*radIncI);
-	    
-	    p.vertex(size*0.5f, aSuperior.rad*radIncS);
-	    
-	    p.endShape(PApplet.CLOSE);
-//	    p.line(-5.0f, 0.0f, 0.0f, -7.0f);
-//	    p.line(5.0f, 0.0f, 0.0f, -7.0f);
 	    p.popMatrix();
-	    /*
-	    p.rectMode(PApplet.CENTER);
-	    p.rect(posViz.x, posViz.y, w*2, w*2);
-	    */
+	    
 	    posViz = PVector.lerp(aSuperior.pos, aInferior.pos, lerpAmt);
 	    
 		PVector dir = PVector.sub(aInferior.pos, aSuperior.pos);

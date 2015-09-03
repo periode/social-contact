@@ -31,11 +31,11 @@ public class ConnectionFriendship extends ProcessingObject {
 	  float alphaMax;
 	  float alphaInc;
 	  
-	  float dsharp4;
+	  float g6;
 	  float f4;
 	  float c5;
 	  float e5;
-	  float f5;
+	  float f6;
 	  float c6;
 	  float e6;
 	  
@@ -45,6 +45,9 @@ public class ConnectionFriendship extends ProcessingObject {
 	  Envelope[] e;
 	  
 	  Gain gConnecFriendship;
+	  
+	  float lerpVal;
+	  float lerpInc;
 	  
 	  ConnectionFriendship() {}
 
@@ -59,18 +62,20 @@ public class ConnectionFriendship extends ProcessingObject {
 	    
 	    alpha = 0;
 	    alphaMax = 50;
-	    alphaInc = 1.0f;
+	    alphaInc = 5.0f;
 	    
 	    maxWeight = 3;
 	    creationTime = p.millis();
 	    
-	    dsharp4 = 311.127f;
+	    g6 = 1567.98f;
+	    f6 = 1396.91f;
+	    c6 = 1046.50f;
+	    e6 = 1318.51f;
+	    
 	    f4 = 349.228f;
 	    c5 = 523.251f;
 	    e5 = 659.255f;
-	    f5 = 698.456f;
-	    c6 = 1046.50f;
-	    e6 = 1318.51f;
+
 	    
 	    numHarmonics = 2;
 	    wp = new WavePlayer[numHarmonics];
@@ -83,30 +88,30 @@ public class ConnectionFriendship extends ProcessingObject {
 	    	switch(Seasons.numberOfSeasons){
 	    	case 0: //fall = Am
 	    		if(r < 0.5f){
-		    		wp[i] = new WavePlayer(PolSys.ac,  c5, Buffer.SINE);
+		    		wp[i] = new WavePlayer(PolSys.ac,  c6, Buffer.SINE);
 		    	}else{
-		    		wp[i] = new WavePlayer(PolSys.ac, f4, Buffer.SINE);
+		    		wp[i] = new WavePlayer(PolSys.ac, e6, Buffer.SINE);
 		    	}
 	    		break;
 	    	case 1: //winter = Dm7
 	    		if(r < 0.5f){
-		    		wp[i] = new WavePlayer(PolSys.ac,  dsharp4, Buffer.SINE);
+		    		wp[i] = new WavePlayer(PolSys.ac,  c6, Buffer.SINE);
 		    	}else{
-		    		wp[i] = new WavePlayer(PolSys.ac, f5, Buffer.SINE);
+		    		wp[i] = new WavePlayer(PolSys.ac, f6, Buffer.SINE);
 		    	}
 	    		break;
 	    	case 2: //spring = Cmaj7
 	    		if(r < 0.5f){
-		    		wp[i] = new WavePlayer(PolSys.ac,  c5, Buffer.SINE);
+		    		wp[i] = new WavePlayer(PolSys.ac,  g6, Buffer.SINE);
 		    	}else{
-		    		wp[i] = new WavePlayer(PolSys.ac, e5, Buffer.SINE);
+		    		wp[i] = new WavePlayer(PolSys.ac, e6, Buffer.SINE);
 		    	}
 	    		break;
 	    	case 3: //summer = Fmaj7
 	    		if(r < 0.5f){
-		    		wp[i] = new WavePlayer(PolSys.ac,  c6, Buffer.SINE);
+		    		wp[i] = new WavePlayer(PolSys.ac,  g6, Buffer.SINE);
 		    	}else{
-		    		wp[i] = new WavePlayer(PolSys.ac, e6, Buffer.SINE);
+		    		wp[i] = new WavePlayer(PolSys.ac, f6, Buffer.SINE);
 		    	}
 	    		break;
 	    	}
@@ -120,6 +125,9 @@ public class ConnectionFriendship extends ProcessingObject {
 	    }
 	    
 	    PolSys.ac.out.addInput(gConnecFriendship);
+	    
+	    lerpVal = 0;
+	    lerpInc = 0.1f;
 	  }
 
 	  void display() {
@@ -137,8 +145,19 @@ public class ConnectionFriendship extends ProcessingObject {
 		  p.strokeWeight(1);
 		  p.stroke(c, alpha);
 		  
-		  for(int i = -(int)(maxWeight*0.5f); i < maxWeight; i++){
-			  p.line(a1.pos.x-i*7.5f, a1.pos.y, a2.pos.x+i*7.5f, a2.pos.y);
+		  PVector tempPos1 = PVector.lerp(a1.pos, averagePos, lerpVal);
+		  PVector tempPos2 = PVector.lerp(a2.pos, averagePos, lerpVal);
+		  
+		  if(lerpVal < 1){
+			  for(int i = -(int)(maxWeight*0.5f); i < maxWeight; i++){
+				  p.line(a1.pos.x-i*5f, a1.pos.y, tempPos1.x+i*5f, tempPos1.y);
+				  p.line(a2.pos.x-i*5f, a2.pos.y, tempPos2.x+i*5f, tempPos2.y);
+			  }
+			  lerpVal += lerpInc;
+		  }else{
+			  for(int i = -(int)(maxWeight*0.5f); i < maxWeight; i++){
+				  p.line(a1.pos.x-i*5f, a1.pos.y, a2.pos.x+i*5f, a2.pos.y);
+			  }  
 		  }
 		  
 	    }

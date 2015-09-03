@@ -194,11 +194,12 @@ public class PolSys extends PApplet {
 	float rectFadeBufferMax;
 	float rectFadeBuffer;
 	
-	static boolean canStart;
 	static int interactions;
 	int interactionsThreshold;
 	
 	/* ---------------- Legend/help variables ---------------- */
+	static boolean[] canShowSettings;
+	
 	boolean canShowLegend;
 	
 	PVector showLegendPos;
@@ -964,6 +965,7 @@ public class PolSys extends PApplet {
 		mouse = new PVector();
 		
 		language = "english";
+		loadText(language);
 		
 		englishButton = new Button(width*0.95f, height*0.95f, width*0.05f, 7, this);
 		frenchButton = new Button(width*0.05f, height*0.95f, width*0.05f, 8, this);
@@ -1083,6 +1085,12 @@ public class PolSys extends PApplet {
 		thirdRowY = height*0.7f;
 		fourthRowY = height*0.75f;
 		goalButtonHeight = 0.8f;
+		
+		canShowSettings = new boolean[8];
+		for(boolean b : canShowSettings){
+			b = false;
+		}
+		canShowSettings[0] = true;
 		
 		canShowLegend = false;
 	
@@ -1229,7 +1237,7 @@ public class PolSys extends PApplet {
 		startPhaseTimer = 20000; // start phase is 5 seconds before checking if
 									// we can end the simulation
 		
-		agentsArriveTimer = 7500.0f;
+		agentsArriveTimer = 4500.0f;
 		agentsArriveStartTimer = 0.0f;
 		arriveIndex = 0;
 		totalDeaths = 0;
@@ -1371,10 +1379,11 @@ public class PolSys extends PApplet {
 		
 		// ------------------------------------------------------------------------------------ FISHTANK
 		fishTankPos = new PVector(width*0.85f, height*0.5f);
-		buttonGoalLeft = fishTankPos.x*0.9f;
-		buttonGoalRight = fishTankPos.x*1.1f;
+		fishTankSize = height*0.3334f;
+		buttonGoalLeft = fishTankPos.x-fishTankSize*0.5f;
+		buttonGoalRight = fishTankPos.x+fishTankSize*0.5f;
 		buttonGoalHeight = height*0.7725f;
-		bufferGoalHeight = height*0.01f;
+		bufferGoalHeight = -height*0.005f;
 		subtitleHeight = height*0.13f;
 		subtitle2Height = height*0.16f;
 		subtitle3Height = height*0.19f;
@@ -1385,7 +1394,7 @@ public class PolSys extends PApplet {
 		hasClicked = true;
 		
 		fishes = new ArrayList<Fish>();
-		fishTankSize = height*0.3334f;
+		
 		fishTankAlpha = 0;
 		fishTankExpand = 0;
 		
@@ -1748,7 +1757,7 @@ public class PolSys extends PApplet {
 		finalTimerFull = 0;
 		finalTimerSmall = 0;
 		
-		//ac.start();
+		ac.start();
 		
 		  
 	  alphaFade = 0;
@@ -1768,7 +1777,6 @@ public class PolSys extends PApplet {
 	  rectFadeBufferMax = 20 * 4.0f; //hard coded because it's 20 in generateAgents()
 	  rectFadeBuffer = 0; 
 	  
-	  canStart = false;
 	  interactions = 0;
 	  interactionsThreshold = 10;
 	}
@@ -1951,8 +1959,10 @@ public class PolSys extends PApplet {
 				a.connectLove();
 				a.exertLove();
 				
-				a.connectFriendship();
-				a.exertFriendship();
+				if(rectFadeAlpha < 10){
+					a.connectFriendship();
+					a.exertFriendship();
+				}
 				
 				if(a.isSettled){
 					a.connectPower();
@@ -2826,8 +2836,6 @@ public class PolSys extends PApplet {
 		textFont(mainFont);
 		fill(100, beginAlpha);
 		text("Social Contact", width*0.5f, height*0.1f);
-		textSize(textFontSize);
-		textFont(textFont);
 		
 		for(Fish f : splashFish){
 			f.update();
@@ -2857,7 +2865,10 @@ public class PolSys extends PApplet {
 				
 				//line(splashStartPos[i].x, splashStartPos[i].y, splashTempPos[i].x, splashTempPos[i].y);
 		}
-
+		
+		textSize(textFontSize);
+		textFont(textFont);
+		fill(100, beginAlpha);
 	}
 	
 	void artistStatement(){
@@ -2876,14 +2887,14 @@ public class PolSys extends PApplet {
 				text(currentStatement[i], width*0.5f, height*0.4f+(i*height*0.05f), width*0.45f, height*0.3f);
 			}
 			fill(100, beginAlpha);
-			text("press space to begin", width*0.5f, height*0.95f);
+			text("space", width*0.5f, height*0.95f);
 		}else{
 			fill(100, statementAlpha);
 			for(int i = 0; i < currentStatementFR.length; i++){
 				text(currentStatementFR[i], width*0.5f, height*0.4f+(i*height*0.05f), width*0.45f, height*0.3f);
 			}
 			fill(100, beginAlpha);
-			text("espace pour commencer", width*0.5f, height*0.95f);
+			text("espace", width*0.5f, height*0.95f);
 		}
 		
 		if(!initiate){
@@ -3375,8 +3386,6 @@ public class PolSys extends PApplet {
 		strokeWeight(1);
 		stroke(0);
 		
-		if(interactions > interactionsThreshold) canStart = true;
-		
 		rectBorderHTemp = rectBorderHMenu;
 		
 		if(language == "english"){
@@ -3385,6 +3394,10 @@ public class PolSys extends PApplet {
 		}else{
 			loadingText = "calcul de votre monde";
 			legendTextContent = legendTextContent1FR;
+		}
+		
+		for(int i = 0; i < canShowSettings.length; i++){
+			if(interactions > i * 3) canShowSettings[i] = true;
 		}
 		
 		
@@ -3423,7 +3436,15 @@ public class PolSys extends PApplet {
 		rememberDeadDownButton.display();
 		
 		//textAlign(LEFT);
-		fill(0);
+		if(canShowSettings[0]){
+			fill(0);
+			stayCloseUpButton.alpha = 255;
+			stayCloseDownButton.alpha = 255;
+		}else{
+			fill(200);
+			stayCloseUpButton.alpha = 50;
+			stayCloseDownButton.alpha = 50;
+		}
 		
 		if(language == "english"){
 			if(formingStableRelationships == 0.5f){
@@ -3445,6 +3466,16 @@ public class PolSys extends PApplet {
 			}
 			text("ils doivent " + formingStableRelationshipsString, leftColX, firstRowY);
 			assumptions[0] = "ils doivent " + formingStableRelationshipsString;
+		}
+		
+		if(canShowSettings[1]){
+			fill(0);
+			meetingOthersUpButton.alpha = 255;
+			meetingOthersDownButton.alpha = 255;
+		}else{
+			fill(200);
+			meetingOthersUpButton.alpha = 50;
+			meetingOthersDownButton.alpha = 50;
 		}
 		
 		if(language == "english"){
@@ -3469,6 +3500,16 @@ public class PolSys extends PApplet {
 			assumptions[1] = "les nouveaux-venus " + meetingOthersString;
 		}
 		
+		if(canShowSettings[2]){
+			fill(0);
+			rememberDeadUpButton.alpha = 255;
+			rememberDeadDownButton.alpha = 255;
+		}else{
+			fill(200);
+			rememberDeadUpButton.alpha = 50;
+			rememberDeadDownButton.alpha = 50;
+		}
+		
 		if(language == "english"){
 			if(rememberDead == 0.5f){
 				rememberDeadString = "forgotten";
@@ -3491,6 +3532,19 @@ public class PolSys extends PApplet {
 			assumptions[2] = "les morts doivent " + rememberDeadString;
 		}
 
+		
+
+		
+		
+		if(canShowSettings[3]){
+			fill(0);
+			connectionsUpButton.alpha = 255;
+			connectionsDownButton.alpha = 255;
+		}else{
+			fill(200);
+			connectionsUpButton.alpha = 50;
+			connectionsDownButton.alpha = 50;
+		}
 		
 		textSize(textFontSize);
 		textFont(textFont);
@@ -3533,6 +3587,16 @@ public class PolSys extends PApplet {
 		}
 
 		connectionsDownButton.display();
+		
+		if(canShowSettings[4]){
+			fill(0);
+			violenceUpButton.alpha = 255;
+			violenceDownButton.alpha = 255;
+		}else{
+			fill(200);
+			violenceUpButton.alpha = 50;
+			violenceDownButton.alpha = 50;
+		}
 
 		if(language == "english"){
 			if (violence == 0.5f) {
@@ -3557,7 +3621,17 @@ public class PolSys extends PApplet {
 		}
 
 		violenceUpButton.display();
-		violenceDownButton.display();		
+		violenceDownButton.display();
+		
+		if(canShowSettings[5]){
+			fill(0);
+			resourceUpButton.alpha = 255;
+			resourceDownButton.alpha = 255;
+		}else{
+			fill(200);
+			resourceUpButton.alpha = 50;
+			resourceDownButton.alpha = 50;
+		}
 		
 		if(language == "english"){
 			if(resourceSeek == 0.5f){
@@ -3583,6 +3657,16 @@ public class PolSys extends PApplet {
 		assumptions[5] = resourceText;
 		resourceDownButton.display();
 
+		if(canShowSettings[6]){
+			fill(0);
+			pursuitLeftButton.alpha = 255;
+			pursuitRightButton.alpha = 255;
+		}else{
+			fill(200);
+			pursuitLeftButton.alpha = 50;
+			pursuitRightButton.alpha = 50;
+		}
+		
 		
 		if(language == "english"){
 			if (goalInt == 0) {
@@ -3621,16 +3705,15 @@ public class PolSys extends PApplet {
 				goalInt = 3;
 			}
 		}
-
-		
-		pursuitLeftButton.display();
-		pursuitRightButton.display();
 		
 		textSize(textFontSize);
 		textFont(textFont);
 		textAlign(CENTER);
 		text(goalText, fishTankPos.x, buttonGoalHeight-bufferGoalHeight);
 		assumptions[6] = goalText;
+		
+		pursuitLeftButton.display();
+		pursuitRightButton.display();
 		
 		fishTank();
 		
@@ -3709,8 +3792,12 @@ public class PolSys extends PApplet {
 			if(millis() - agentsArriveStartTimer > agentsArriveTimer){
 				agents[arriveIndex].arrived = true;
 				arriveIndex++;
-				agentsArriveStartTimer = millis();
-				if(agentsArriveTimer > 1000) agentsArriveTimer -= 500;
+				if(arriveIndex % 9 == 0){
+					agentsArriveStartTimer = millis() + 10*1000f;
+				}else{
+					agentsArriveStartTimer = millis();
+				}
+				if(agentsArriveTimer > 1000) agentsArriveTimer -= 250;
 			}
 		}
 		
@@ -3727,8 +3814,8 @@ public class PolSys extends PApplet {
 			}
 			if (!p.isAlive) {
 				stroke(10);
-				line(p.pos.x-random(1, 3), p.pos.y-random(1, 3), p.pos.x+random(1, 3), p.pos.y+random(1, 3));
-				line(p.pos.x-random(1, 3), p.pos.y+random(1, 3), p.pos.x+random(1, 3), p.pos.y-random(1, 3));
+				line(p.pos.x-2, p.pos.y+2, p.pos.x+2, p.pos.y-2);
+				line(p.pos.x-2, p.pos.y-2, p.pos.x+2, p.pos.y+2);
 			}
 		}
 
@@ -3967,8 +4054,8 @@ public class PolSys extends PApplet {
 		String power_debug = "power: "+powerForce;
 		String friendship_debug = "friendship: "+friendshipForce;
 		String love_debug = "love: "+loveForce;
-		//text("language: "+language, width*0.025f, height*0.025f);
-		//text(friendship_debug, width*0.025f, height*0.045f);
+		text("frame rate: "+frameRate, width*0.025f, height*0.025f);
+		//text("bool 6: "+canShowSettings[6], width*0.025f, height*0.045f);
 		//text(power_debug, width*0.025f, height*0.065f);
 		//text("love: "+connectionsLove.size(), width*0.025f, height*0.085f);
 	}
@@ -4063,8 +4150,11 @@ public class PolSys extends PApplet {
 			rect(rectBorderX+2*i, rectBorderY+2*i, rectBorderW-4*i, rectBorderHTemp-4*i);
 		}
 		
-		canStart = false;
 		interactions = 0;
+		for(int i = 1; i < canShowSettings.length; i++){
+			canShowSettings[i] = false;
+		}
+		canShowSettings[0] = true;
 		
 		if(language == "english"){
 			loadingText = "moving on to the second stage of their history";
@@ -4127,7 +4217,7 @@ public class PolSys extends PApplet {
 			hasFoughtRNDX = (int) random(hasFoughtOthersX.length);
 			
 			randGen3 = false;
-			if(selectedAgent != null) portraitRad = map(selectedAgent.rad, 25, 30, width*0.1f, width*0.15f);
+			if(selectedAgent != null) portraitRad = map(selectedAgent.rad, 20, 35, width*0.1f, width*0.125f);
 		}
 		
 		if(finalCluster != null){
@@ -4982,14 +5072,16 @@ public class PolSys extends PApplet {
 		
 		rectBorderHTemp = rectBorderHMenu;
 		
-		if(interactions > interactionsThreshold) canStart = true;
-		
 		if(language == "english"){
 			loadingText = "computing your world";
 			legendTextContent = legendTextContent2;
 		}else{
 			loadingText = "calcul de votre monde";
 			legendTextContent = legendTextContent2FR;
+		}
+		
+		for(int i = 0; i < canShowSettings.length; i++){
+			if(interactions > i * 3) canShowSettings[i] = true;
 		}
 		
 		
@@ -5023,11 +5115,6 @@ public class PolSys extends PApplet {
 		
 		rectMode(CENTER);
 		fishTank();
-		
-		//left column
-		//textSize(headerFontSize);
-		//textFont(headerFont);
-		//text("Relations", leftColX, headerHeight);
 		
 		fill(0);
 		textFont(textFont);
@@ -5076,6 +5163,16 @@ public class PolSys extends PApplet {
 		friendshipForceDownButton.display();
 		friendshipForceDownButton.onClick();
 		
+		if(canShowSettings[1]){
+			fill(0);
+			friendshipForceUpButton.alpha = 255;
+			friendshipForceDownButton.alpha = 255;
+		}else{
+			fill(200);
+			friendshipForceUpButton.alpha = 50;
+			friendshipForceDownButton.alpha = 50;
+		}
+		
 		String friendshipForceText = "";
 		if(language == "english"){
 			if(friendshipForce == 1.0f){
@@ -5110,6 +5207,16 @@ public class PolSys extends PApplet {
 		
 		loveForceDownButton.display();
 		loveForceDownButton.onClick();
+		
+		if(canShowSettings[2]){
+			fill(0);
+			loveForceUpButton.alpha = 255;
+			loveForceDownButton.alpha = 255;
+		}else{
+			fill(200);
+			loveForceUpButton.alpha = 50;
+			loveForceDownButton.alpha = 50;
+		}
 		
 		String loveForceText = "";
 		
@@ -5155,6 +5262,16 @@ public class PolSys extends PApplet {
 		ageMajorityDownButton.display();
 		ageMajorityDownButton.onClick();
 		
+		if(canShowSettings[3]){
+			fill(0);
+			ageMajorityUpButton.alpha = 255;
+			ageMajorityDownButton.alpha = 255;
+		}else{
+			fill(200);
+			ageMajorityUpButton.alpha = 50;
+			ageMajorityDownButton.alpha = 50;
+		}
+		
 		String ageModifierText = "";
 		if(language == "english"){
 			if(ageModifier == 0.20f){
@@ -5185,6 +5302,16 @@ public class PolSys extends PApplet {
 		
 		numberOfChildrenDownButton.display();
 		numberOfChildrenDownButton.onClick();
+		
+		if(canShowSettings[4]){
+			fill(0);
+			numberOfChildrenUpButton.alpha = 255;
+			numberOfChildrenDownButton.alpha = 255;
+		}else{
+			fill(200);
+			numberOfChildrenUpButton.alpha = 50;
+			numberOfChildrenDownButton.alpha = 50;
+		}
 		
 		String numberOfChildrenText = "";
 		
@@ -5230,6 +5357,16 @@ public class PolSys extends PApplet {
 		independenceOfChildrenDownButton.display();
 		independenceOfChildrenDownButton.onClick();
 		
+		if(canShowSettings[5]){
+			fill(0);
+			independenceOfChildrenUpButton.alpha = 255;
+			independenceOfChildrenDownButton.alpha = 255;
+		}else{
+			fill(200);
+			independenceOfChildrenUpButton.alpha = 50;
+			independenceOfChildrenDownButton.alpha = 50;
+		}
+		
 		String independenceOfChildrenText = "";
 		
 		if(language == "english"){
@@ -5262,6 +5399,16 @@ public class PolSys extends PApplet {
 		//bottom
 		textFont(textFont);
 		textSize(textFontSize);
+		
+		if(canShowSettings[6]){
+			fill(0);
+			cultureButtonRight.alpha = 255;
+			cultureButtonLeft.alpha = 255;
+		}else{
+			fill(200);
+			cultureButtonRight.alpha = 50;
+			cultureButtonLeft.alpha = 50;
+		}
 		String cultureText = "";
 		
 		//these are the two big assumptions - they don't really do anything but they allow people to think about it.
@@ -5389,7 +5536,6 @@ public class PolSys extends PApplet {
 		seasons.cycle();
 		//seasons.populate(Seasons.numberOfSeasons);
 		for(int i = 0; i < resources2.size(); i++){
-			println("displaying resource"+i);
 			Resource r = resources2.get(i);
 			r.display();
 			r.deplete();
@@ -5674,8 +5820,11 @@ public class PolSys extends PApplet {
 			rect(rectBorderX+2*i, rectBorderY+2*i, rectBorderW-4*i, rectBorderHTemp-4*i);
 		}
 		
-		canStart = false;
 		interactions = 0;
+		for(int i = 1; i < canShowSettings.length; i++){
+			canShowSettings[i] = false;
+		}
+		canShowSettings[0] = true;
 		
 		if(language == "english"){
 			loadingText = "moving on to the last stage of their history";
@@ -5929,8 +6078,6 @@ public class PolSys extends PApplet {
 		
 		rectBorderHTemp = rectBorderHMenu;
 		
-		if(interactions > interactionsThreshold) canStart = true;
-		
 		if(language == "english"){
 			loadingText = "computing your world";
 			legendTextContent = legendTextContent3;
@@ -5939,6 +6086,9 @@ public class PolSys extends PApplet {
 			legendTextContent = legendTextContent3FR;
 		}
 		
+		for(int i = 0; i < canShowSettings.length; i++){
+			if(interactions > i * 3) canShowSettings[i] = true;
+		}
 
 		fill(15);
 		textSize(headerFontSize);
@@ -5981,6 +6131,8 @@ public class PolSys extends PApplet {
 		String allianceModString = "";
 		
 		if(language == "english"){
+			
+			
 			if(allianceModifier == 0.5f){
 				allianceModString = "alliances are easy to make";
 			}else if(allianceModifier == 1.0f){
@@ -5991,6 +6143,16 @@ public class PolSys extends PApplet {
 			
 			text(allianceModString, leftColX, firstRowY);
 			assumptions[0] = allianceModString;
+			
+			if(canShowSettings[1]){
+				fill(0);
+				tradeModifierUp.alpha = 255;
+				tradeModifierDown.alpha = 255;
+			}else{
+				fill(200);
+				tradeModifierUp.alpha = 50;
+				tradeModifierDown.alpha = 50;
+			}
 			
 			String tradeModString = "";
 			if(tradeModifier == 0.5f){
@@ -6003,6 +6165,16 @@ public class PolSys extends PApplet {
 			text(tradeModString, leftColX, secondRowY);
 			assumptions[1] = tradeModString;
 			
+			if(canShowSettings[2]){
+				fill(0);
+				warModifierUp.alpha = 255;
+				warModifierDown.alpha = 255;
+			}else{
+				fill(200);
+				warModifierUp.alpha = 50;
+				warModifierDown.alpha = 50;
+			}
+			
 			String warModString = "";
 			if(warModifier == 0.5f){
 				warModString = "war should never happen";//you need to have a certain amount of resources to fight and win
@@ -6013,6 +6185,16 @@ public class PolSys extends PApplet {
 			}
 			text(warModString, rightColX, secondRowY);
 			assumptions[2] = warModString;
+			
+			if(canShowSettings[6]){
+				fill(0);
+				nationGoalButtonLeft.alpha = 255;
+				nationGoalButtonRight.alpha = 255;
+			}else{
+				fill(200);
+				nationGoalButtonLeft.alpha = 50;
+				nationGoalButtonRight.alpha = 50;
+			}
 			
 			String nationGoalString = "";
 			if(nationGoal == 0.0f){
@@ -6028,6 +6210,16 @@ public class PolSys extends PApplet {
 			text(nationGoalString, fishTankPos.x, buttonGoalHeight-bufferGoalHeight);
 			assumptions[6] = nationGoalString;
 			
+			if(canShowSettings[3]){
+				fill(0);
+				victoryBehaviourDown.alpha = 255;
+				victoryBehaviourUp.alpha = 255;
+			}else{
+				fill(200);
+				victoryBehaviourDown.alpha = 50;
+				victoryBehaviourUp.alpha = 50;
+			}
+			
 			String victoryBehaviourString = "";
 			if(victoryBehaviour == 1.5f){
 				victoryBehaviourString = "victory leads to peace";
@@ -6039,6 +6231,16 @@ public class PolSys extends PApplet {
 			text("victory leads to violence", rightColX, firstRowY);
 			assumptions[3] = victoryBehaviourString;
 			
+			if(canShowSettings[4]){
+				fill(0);
+				tradeLimitDown.alpha = 255;
+				tradeLimitUp.alpha = 255;
+			}else{
+				fill(200);
+				tradeLimitDown.alpha = 50;
+				tradeLimitUp.alpha = 50;
+			}
+			
 			String tradeLimitString= "";
 			if(tradeLimit == 0.5f){
 				tradeLimitString = "trade is limited to the minimum";
@@ -6049,6 +6251,16 @@ public class PolSys extends PApplet {
 			}
 			text(tradeLimitString, leftColX, thirdRowY);
 			assumptions[4] = tradeLimitString;
+			
+			if(canShowSettings[5]){
+				fill(0);
+				allianceTrustUp.alpha = 255;
+				allianceTrustDown.alpha = 255;
+			}else{
+				fill(200);
+				allianceTrustUp.alpha = 50;
+				allianceTrustDown.alpha = 50;
+			}
 			
 			String allianceTrustString = "";
 			if(allianceTrust == 0.5f){
@@ -6072,6 +6284,16 @@ public class PolSys extends PApplet {
 			text(allianceModString, leftColX, firstRowY);
 			assumptions[0] = allianceModString;
 			
+			if(canShowSettings[1]){
+				fill(0);
+				tradeModifierUp.alpha = 255;
+				tradeModifierDown.alpha = 255;
+			}else{
+				fill(200);
+				tradeModifierUp.alpha = 50;
+				tradeModifierDown.alpha = 50;
+			}
+			
 			String tradeModString = "";
 			if(tradeModifier == 0.5f){
 				tradeModString = "le commerce est naturel";
@@ -6083,6 +6305,16 @@ public class PolSys extends PApplet {
 			text(tradeModString, leftColX, secondRowY);
 			assumptions[1] = tradeModString;
 			
+			if(canShowSettings[2]){
+				fill(0);
+				warModifierUp.alpha = 255;
+				warModifierDown.alpha = 255;
+			}else{
+				fill(200);
+				warModifierUp.alpha = 50;
+				warModifierDown.alpha = 50;
+			}
+			
 			String warModString = "";
 			if(warModifier == 0.5f){
 				warModString = "la guerre ne devrait pas \u00EAtre";//you need to have a certain amount of resources to fight and win
@@ -6093,6 +6325,16 @@ public class PolSys extends PApplet {
 			}
 			text(warModString, rightColX, secondRowY);
 			assumptions[2] = warModString;
+			
+			if(canShowSettings[6]){
+				fill(0);
+				nationGoalButtonLeft.alpha = 255;
+				nationGoalButtonRight.alpha = 255;
+			}else{
+				fill(200);
+				nationGoalButtonLeft.alpha = 50;
+				nationGoalButtonRight.alpha = 50;
+			}
 			
 			String nationGoalString = "";
 			if(nationGoal == 0.0f){
@@ -6108,6 +6350,16 @@ public class PolSys extends PApplet {
 			text(nationGoalString, width*0.5f, buttonGoalHeight-bufferGoalHeight);
 			assumptions[6] = nationGoalString;
 			
+			if(canShowSettings[3]){
+				fill(0);
+				victoryBehaviourDown.alpha = 255;
+				victoryBehaviourUp.alpha = 255;
+			}else{
+				fill(200);
+				victoryBehaviourDown.alpha = 50;
+				victoryBehaviourUp.alpha = 50;
+			}
+			
 			String victoryBehaviourString = "";
 			if(victoryBehaviour == 1.5f){
 				victoryBehaviourString = "toute victoire m\u00E8ne \u00E0 la paix";
@@ -6119,6 +6371,16 @@ public class PolSys extends PApplet {
 			text(victoryBehaviourString, rightColX, firstRowY);
 			assumptions[3] = victoryBehaviourString;
 			
+			if(canShowSettings[4]){
+				fill(0);
+				tradeLimitDown.alpha = 255;
+				tradeLimitUp.alpha = 255;
+			}else{
+				fill(200);
+				tradeLimitDown.alpha = 50;
+				tradeLimitUp.alpha = 50;
+			}
+			
 			String tradeLimitString= "";
 			if(tradeLimit == 0.5f){
 				tradeLimitString = "tout commerce sera limit\u00E9";
@@ -6129,6 +6391,16 @@ public class PolSys extends PApplet {
 			}
 			text(tradeLimitString, leftColX, thirdRowY);
 			assumptions[4] = tradeLimitString;
+			
+			if(canShowSettings[5]){
+				fill(0);
+				allianceTrustUp.alpha = 255;
+				allianceTrustDown.alpha = 255;
+			}else{
+				fill(200);
+				allianceTrustUp.alpha = 50;
+				allianceTrustDown.alpha = 50;
+			}
 			
 			String allianceTrustString = "";
 			if(allianceTrust == 0.5f){
@@ -6522,7 +6794,6 @@ public class PolSys extends PApplet {
 			rect(rectBorderX+2*i, rectBorderY+2*i, rectBorderW-4*i, rectBorderHTemp-4*i);
 		}
 		
-		canStart = false;
 		interactions = 0;
 		
 		if(language == "english"){
@@ -6829,7 +7100,7 @@ public class PolSys extends PApplet {
 		}
 	}
 		
-	public void mousePressed() {
+	public void mouseClicked() {
 		//scale(scaleW, scaleH);
 		translate(translateBufferX, translateBufferY);
 		
@@ -6926,7 +7197,6 @@ public class PolSys extends PApplet {
 			}
 		}
 		if (startGame1) {
-		
 			if(mouseX > showLegendPos.x - legendW && mouseX < showLegendPos.x + legendW && mouseY > showLegendPos.y -legendH && mouseY < showLegendPos.y + legendH){
 				canShowLegend = !canShowLegend;
 				clickSound(1);
@@ -6949,6 +7219,7 @@ public class PolSys extends PApplet {
 			}
 			
 			if (stayCloseUpButton.onClick()) {
+				interactions++;
 				clickSound(1);
 				if(formingStableRelationships < 1.5f){
 					formingStableRelationships += 0.5f;
@@ -6963,6 +7234,7 @@ public class PolSys extends PApplet {
 			}
 			
 			if (stayCloseDownButton.onClick()) {
+				interactions++;
 				clickSound(1);
 				if(formingStableRelationships > 0.5f){
 					formingStableRelationships -= 0.5f;
@@ -6976,6 +7248,7 @@ public class PolSys extends PApplet {
 			}
 			
 			if (meetingOthersUpButton.onClick()) {
+				interactions++;
 				clickSound(1);
 				if(meetingOthers < 1.5f){
 					meetingOthers += 0.5f;
@@ -6985,6 +7258,7 @@ public class PolSys extends PApplet {
 			}
 			
 			if (meetingOthersDownButton.onClick()) {
+				interactions++;
 				clickSound(1);
 				if(meetingOthers > 0.5f){
 					meetingOthers -= 0.5f;
@@ -6994,6 +7268,7 @@ public class PolSys extends PApplet {
 			}
 			
 			if (rememberDeadUpButton.onClick()) {
+				interactions++;
 				clickSound(1);
 				if(rememberDead < 1.5f){
 					rememberDead += 0.5f;
@@ -7003,6 +7278,7 @@ public class PolSys extends PApplet {
 			}
 			
 			if (rememberDeadDownButton.onClick()) {
+				interactions++;
 				clickSound(1);
 				if(rememberDead > 0.5f){
 					rememberDead -= 0.5f;
@@ -7012,6 +7288,7 @@ public class PolSys extends PApplet {
 			}
 
 			if (connectionsUpButton.onClick()){
+				interactions++;
 				clickSound(1);
 				hasClicked = true;
 				if(connec < maxConnec){
@@ -7025,6 +7302,7 @@ public class PolSys extends PApplet {
 				}
 			}
 			if (connectionsDownButton.onClick()){
+				interactions++;
 				clickSound(1);
 				hasClicked = true;
 				if(connec > minConnec){
@@ -7039,6 +7317,7 @@ public class PolSys extends PApplet {
 			}
 
 			if (violenceUpButton.onClick()) {
+				interactions++;
 				clickSound(1);
 				hasClicked = true;
 				if(violence < 1.0f){
@@ -7048,6 +7327,7 @@ public class PolSys extends PApplet {
 				}
 			}
 			if (violenceDownButton.onClick()) {
+				interactions++;
 				clickSound(1);
 				hasClicked = true;
 				if(violence > 0.0f){
@@ -7058,6 +7338,7 @@ public class PolSys extends PApplet {
 			}
 			
 			if(resourceUpButton.onClick()){
+				interactions++;
 				clickSound(1);
 				hasClicked = true;
 				canShowResources = true;
@@ -7069,6 +7350,7 @@ public class PolSys extends PApplet {
 			}
 			
 			if(resourceDownButton.onClick()){
+				interactions++;
 				clickSound(1);
 				hasClicked = true;
 				canShowResources = true;
@@ -7079,18 +7361,20 @@ public class PolSys extends PApplet {
 				}
 			}
 
-			if (canStart && startButton.onClick()) { // when you click start, a bunch of things happen
+			if (canShowSettings[7] && startButton.onClick()) { // when you click start, a bunch of things happen
 				fading = true;
 				clickSound(2);
 			}
 
 			if (pursuitRightButton.onClick()){
 				clickSound(1);
+				interactions++;
 				goalInt++;
 			}
 			
 			if(pursuitLeftButton.onClick()){
 				clickSound(1);
+				interactions++;
 				goalInt--;
 			}
 				
@@ -7117,12 +7401,13 @@ public class PolSys extends PApplet {
 				clickSound(1);
 			}
 			
-			if(canStart && startButton2.onClick()){
+			if(canShowSettings[7] && startButton2.onClick()){
 				fading = true;
 				clickSound(2);
 			}
 			
 			if(powerForceUpButton.onClick()){
+				interactions++;
 				hasClicked = true;
 				clickSound(1);
 				if(powerForce < 7.0f){
@@ -7132,6 +7417,7 @@ public class PolSys extends PApplet {
 				}
 			}
 			if(powerForceDownButton.onClick()){
+				interactions++;
 				hasClicked = true;
 				clickSound(1);
 				if(powerForce > 1.0f){
@@ -7142,6 +7428,7 @@ public class PolSys extends PApplet {
 			}
 			
 			if(friendshipForceUpButton.onClick()){
+				interactions++;
 				hasClicked = true;
 				clickSound(1);
 				if(friendshipForce < 7.0f){
@@ -7151,6 +7438,7 @@ public class PolSys extends PApplet {
 				}
 			}
 			if(friendshipForceDownButton.onClick()){
+				interactions++;
 				hasClicked = true;
 				clickSound(1);
 				if(friendshipForce > 1.0f){
@@ -7161,6 +7449,7 @@ public class PolSys extends PApplet {
 			}
 			
 			if(loveForceUpButton.onClick()){
+				interactions++;
 				hasClicked = true;
 				clickSound(1);
 				if(loveForce < 60.0f){
@@ -7170,6 +7459,7 @@ public class PolSys extends PApplet {
 				}
 			}
 			if(loveForceDownButton.onClick()){
+				interactions++;
 				hasClicked = true;
 				clickSound(1);
 				if(loveForce > 40.0f){
@@ -7180,6 +7470,7 @@ public class PolSys extends PApplet {
 			}
 			
 			if(ageMajorityUpButton.onClick()){
+				interactions++;
 				clickSound(1);
 				if(ageModifier < 0.30f){
 					ageModifier += 0.05f;
@@ -7188,6 +7479,7 @@ public class PolSys extends PApplet {
 				}
 			}
 			if(ageMajorityDownButton.onClick()){
+				interactions++;
 				clickSound(1);
 				if(ageModifier > 0.20f){
 					ageModifier -= 0.05f;
@@ -7197,6 +7489,7 @@ public class PolSys extends PApplet {
 			}
 			
 			if(numberOfChildrenUpButton.onClick()){
+				interactions++;
 				clickSound(1);
 				if(numberOfChildren < 5.0f){
 					numberOfChildren += 1.0f;
@@ -7205,6 +7498,7 @@ public class PolSys extends PApplet {
 				}
 			}
 			if(numberOfChildrenDownButton.onClick()){
+				interactions++;
 				clickSound(1);
 				if(fishes.size() > numberOfChildren && fishes.size() > 8){
 					fishes.remove(fishes.get(fishes.size()-1));
@@ -7218,6 +7512,7 @@ public class PolSys extends PApplet {
 			}
 			
 			if(independenceOfChildrenUpButton.onClick()){
+				interactions++;
 				clickSound(1);
 				if(independenceOfChildren < 2.0f){
 					independenceOfChildren += 1.0f;
@@ -7226,6 +7521,7 @@ public class PolSys extends PApplet {
 				}
 			}
 			if(independenceOfChildrenDownButton.onClick()){
+				interactions++;
 				clickSound(1);
 				if(independenceOfChildren > 0.0f){
 					independenceOfChildren -= 1.0f;
@@ -7235,6 +7531,7 @@ public class PolSys extends PApplet {
 			}
 			
 			if(cultureButtonRight.onClick()){
+				interactions++;
 				clickSound(1);
 				if(cultureOrigin == 1){
 					cultureOrigin = 2;
@@ -7250,6 +7547,7 @@ public class PolSys extends PApplet {
 			}
 			
 			if(cultureButtonLeft.onClick()){
+				interactions++;
 				clickSound(1);
 				if(cultureOrigin == 1){
 					cultureOrigin = 0;
@@ -7288,6 +7586,7 @@ public class PolSys extends PApplet {
 			}
 			
 			if(allianceModifierUp.onClick()){
+				interactions++;
 				clickSound(1);
 				if(allianceModifier < 1.5f){
 					allianceModifier += 0.5;
@@ -7297,6 +7596,7 @@ public class PolSys extends PApplet {
 			}
 			
 			if(allianceModifierDown.onClick()){
+				interactions++;
 				clickSound(1);
 				if(allianceModifier > 0.5f){
 					allianceModifier -= 0.5f;
@@ -7306,6 +7606,7 @@ public class PolSys extends PApplet {
 			}
 			
 			if(tradeModifierUp.onClick()){
+				interactions++;
 				clickSound(1);
 				if(tradeModifier < 1.5f){
 					tradeModifier += 0.5;
@@ -7315,6 +7616,7 @@ public class PolSys extends PApplet {
 			}
 			
 			if(tradeModifierDown.onClick()){
+				interactions++;
 				clickSound(1);
 				if(tradeModifier > 0.5f){
 					tradeModifier -= 0.5f;
@@ -7324,6 +7626,7 @@ public class PolSys extends PApplet {
 			}
 			
 			if(warModifierUp.onClick()){
+				interactions++;
 				clickSound(1);
 				if(warModifier < 1.5f){
 					warModifier += 0.5;
@@ -7333,6 +7636,7 @@ public class PolSys extends PApplet {
 			}
 			
 			if(warModifierDown.onClick()){
+				interactions++;
 				clickSound(1);
 				if(warModifier > 0.5f){
 					warModifier -= 0.5f;
@@ -7343,6 +7647,7 @@ public class PolSys extends PApplet {
 			
 			
 			if(victoryBehaviourUp.onClick()){
+				interactions++;
 				clickSound(1);
 				if(victoryBehaviour < 1.5f){
 					victoryBehaviour += 0.5f;
@@ -7352,6 +7657,7 @@ public class PolSys extends PApplet {
 			}
 			
 			if(victoryBehaviourDown.onClick()){
+				interactions++;
 				clickSound(1);
 				if(victoryBehaviour > 0.5f){
 					victoryBehaviour -= 0.5f;
@@ -7361,6 +7667,7 @@ public class PolSys extends PApplet {
 			}
 			
 			if(tradeLimitUp.onClick()){
+				interactions++;
 				clickSound(1);
 				if(tradeLimit < 1.5f){
 					tradeLimit += 0.5f;
@@ -7370,6 +7677,7 @@ public class PolSys extends PApplet {
 			}
 			
 			if(tradeLimitDown.onClick()){
+				interactions++;
 				clickSound(1);
 				if(tradeLimit > 0.5f){
 					tradeLimit -= 0.5f;
@@ -7379,6 +7687,7 @@ public class PolSys extends PApplet {
 			}
 			
 			if(allianceTrustUp.onClick()){
+				interactions++;
 				clickSound(1);
 				if(allianceTrust < 1.5f){
 					allianceTrust += 0.5f;
@@ -7388,6 +7697,7 @@ public class PolSys extends PApplet {
 			}
 			
 			if(allianceTrustDown.onClick()){
+				interactions++;
 				clickSound(1);
 				if(allianceTrust > 0.5f){
 					allianceTrust -= 0.5f;
@@ -7397,6 +7707,7 @@ public class PolSys extends PApplet {
 			}
 			
 			if(nationGoalButtonRight.onClick()){
+				interactions++;
 				clickSound(1);
 				if(nationGoal < 2){
 					nationGoal++;
@@ -7406,6 +7717,7 @@ public class PolSys extends PApplet {
 			}
 			
 			if(nationGoalButtonLeft.onClick()){
+				interactions++;
 				clickSound(1);
 				if(nationGoal > 0){
 					nationGoal--;
@@ -7414,7 +7726,7 @@ public class PolSys extends PApplet {
 				}
 			}
 
-			if(canStart && startButton3.onClick()){
+			if(canShowSettings[7] && startButton3.onClick()){
 				clickSound(2);
 				fading = true;
 			}

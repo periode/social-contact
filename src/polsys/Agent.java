@@ -338,7 +338,7 @@ public class Agent extends ProcessingObject {
 		    ageMajorityModifier = 0.175f;
 		    ageMajority = p.millis() + lifeSpan*ageMajorityModifier;
 		    ageSettle = ageMajority*1.5f; //being settled happens after you've reached majority.
-		    isOfAge = false;//TODO reset to false
+		    isOfAge = false;
 		    isSettled = true;
 		    
 		    isAlive =  true;
@@ -411,7 +411,7 @@ public class Agent extends ProcessingObject {
 			loveThreshold = 0.15f;
 			loveIntensity = 2.0f;
 			loveModifier = 50.0f;
-			reproduceSpanLove = p.random(6.5f, 7.9f) * 1000.0f; //in seconds
+			reproduceSpanLove = p.random(3.5f, 5.9f) * 1000.0f; //in seconds
 			loveSeparationThreshold = 7.5f;
 			mate = null;
 			siblings = new ArrayList<Agent>();
@@ -838,7 +838,7 @@ public class Agent extends ProcessingObject {
 				  if(!isOppressed){
 					  p.noFill();
 				  }else{
-					 p.fill(PApplet.map(rad, 10, 40, 100, 250));
+					 p.fill(PApplet.map(rad, 5, 40, 150, 255));
 				  }
 				  float angleHeading = this.velocity.heading2D() + PApplet.PI/2;
 				  p.pushMatrix();
@@ -1048,7 +1048,7 @@ public class Agent extends ProcessingObject {
 					  tIsSterile = true;
 				  }
 				  
-				  if(currentConnectionsFriendship.size() == 0 && !tNoFriends){ //combo
+				  if(currentConnectionsFriendship.size() == 0 && !tNoFriends){
 					  String thought = PolSys.tsNoFriends[(int)p.random(PolSys.tsNoFriends.length)];
 					  if(!thoughts.contains(thought)) thoughts.add(thought);
 					  tNoFriends = true;
@@ -1106,7 +1106,7 @@ public class Agent extends ProcessingObject {
 				  }
 			  }			  
 			  
-			  index = (int) PApplet.map(r, 0, 1, thoughts.size()*0.5f, thoughts.size());
+			  index = (int) PApplet.map(r, 0, 1, thoughts.size()*0.75f, thoughts.size());
 			  
 			  String thoughtDisplayed = null;
 			  if(thoughts.size() != 0){
@@ -1155,6 +1155,8 @@ public class Agent extends ProcessingObject {
 				  if(a.isAlive && a.isSettled){
 					  float diff = this.culture[1] - a.culture[1];
 					  float d = PApplet.abs(PApplet.dist(this.pos.x, this.pos.y, a.pos.x, a.pos.y));
+					  
+					  isOppressed = false;
 					  
 					  if(diff > 0){//if this one is the most powerful, exert power
 						  PVector force = new PVector(p.random(-1.0f, 1.0f), 1); //create a new force pointing down;

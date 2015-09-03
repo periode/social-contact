@@ -93,10 +93,10 @@ public class ConnectionLove extends ProcessingObject {
 	    p.ellipse(pos.x, pos.y, rad, rad);
 	    p.fill(c, alpha);
 	    p.ellipse(pos.x, pos.y, rad*0.5f, rad*0.5f);
-	    p.stroke(c, alpha);
-	    for(int i = -(int)(3*0.5f); i < 3; i++){
-			  p.line(a1.pos.x-i*7.5f, a1.pos.y, a2.pos.x+i*7.5f, a2.pos.y);
-		  }
+	    p.stroke(c, 80);
+	    p.strokeWeight(1);
+	    p.line(a1.pos.x-a1.rad*0.25f, a1.pos.y, a2.pos.x+a2.rad*0.25f, a2.pos.y);
+	    p.line(a1.pos.x+a1.rad*0.25f, a1.pos.y, a2.pos.x-a2.rad*0.25f, a2.pos.y);
 	    p.stroke(0);
 	  }
 	  
