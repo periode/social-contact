@@ -44,9 +44,9 @@ public class Cluster extends ProcessingObject {
 		 for(int i = 0; i < a.currentConnections.size(); i++){
 			 Connection c = a.currentConnections.get(i);
 			 if(c.a1 == a){
-				 c.a2.connec++;
+				 c.a2.connections++;
 			 }else{
-				 c.a1.connec++;
+				 c.a1.connections++;
 			 }
 		  }
 	  }
@@ -60,9 +60,9 @@ public class Cluster extends ProcessingObject {
 		  for(int i = 0; i < a.currentConnections.size(); i++){
 			  Connection c = a.currentConnections.get(i);
 			  if(c.a1 == a){
-				  c.a2.connec++;
+				  c.a2.connections++;
 			  }else{
-				  c.a1.connec++;
+				  c.a1.connections++;
 			  }
 		  }
 	  }

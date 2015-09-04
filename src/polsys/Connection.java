@@ -92,14 +92,14 @@ public class Connection extends ProcessingObject {
 
 	  void destroyConnection() {
 	        
-	        if(PApplet.dist(a1.pos.x, a1.pos.y, a2.pos.x, a2.pos.y) > a1.distance + 10){ //the +10 is here so that whenever agents are just separating, it doesn't ping
+	        if(PApplet.dist(a1.pos.x, a1.pos.y, a2.pos.x, a2.pos.y) > a1.distance*1.1f){ //the +10 is here so that whenever agents are just separating, it doesn't ping
 	        	
 	        	this.a1.currentConnections.remove(this);
 	        	this.a1.cluster.agentsInside.remove(a2);
-	        	this.a1.connec++;
+	        	//this.a1.connec++;
 	        	this.a2.currentConnections.remove(this);
 	        	this.a2.cluster.agentsInside.remove(a1);
-	        	this.a2.connec++;
+	        	//this.a2.connec++;
 	        	PolSys.connections.remove(this);
 	        	
 	        }
@@ -124,12 +124,12 @@ public class Connection extends ProcessingObject {
 	        if (c != this && this.a1 == c.a1 && this.a2 == c.a2) { //if it's twice the same connection
 	        	
 	        	PolSys.connections.remove(c);
-	        	this.a1.connec++;
+	        	//this.a1.connections++;
 	          
 	        }else if (c != this && this.a2 == c.a1 && this.a1 == c.a2) {
 	        	
 	        	PolSys.connections.remove(c);
-	        	this.a1.connec++;
+	        	//this.a1.connections++;
 	          
 	        }
 	      }

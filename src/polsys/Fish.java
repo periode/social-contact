@@ -33,6 +33,8 @@ public class Fish {
 	float theta;
 	float lerpAmt;
 	
+	String greet;
+	
 	// 2
 	int sides;
 	float pulseRatio;
@@ -92,6 +94,8 @@ public class Fish {
 	    
 	    lerpAmt = 0.0f;
 	    theta = 0.0f;
+	    
+		greet = PolSys.greetings[(int)p.random(PolSys.greetings.length)];
 	}
 	
 	void update(){
@@ -209,7 +213,7 @@ public class Fish {
 			p.textFont(PolSys.thoughtFont);
 			p.textSize(PolSys.thoughtFontSize);
 			p.fill(0);
-			p.text("hello", pos.x + rad*0.75f, pos.y - rad*0.75f);
+			p.text(greet, pos.x + rad*0.75f, pos.y - rad*0.75f);
 		}
 		
 		if(PolSys.startGame1){

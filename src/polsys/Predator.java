@@ -223,7 +223,7 @@ public class Predator extends ProcessingObject {
 								  Connection c = PolSys.connections.get(j);
 	             			
 								  if (c.a1 == PolSys.agents[i]){
-									  c.a2.connec++; //because one agent is dead, the other gets his connection back
+									  c.a2.connections++; //because one agent is dead, the other gets his connection back
 		             			
 									  c.a2.isConnectedToDead = true; //it has also been scarred for life
 		             			
@@ -232,7 +232,7 @@ public class Predator extends ProcessingObject {
 									  c.a2.currentConnections.remove(c);
 									  PolSys.connections.remove(c);
 								  }else{		             			
-									  c.a1.connec++;
+									  c.a1.connections++;
 									  c.a1.isConnectedToDead = true;
 									  c.a1.cluster.buryAgent(PolSys.agents[i]);
 
@@ -279,7 +279,7 @@ public class Predator extends ProcessingObject {
 							  colPred = p.color(150, 150, 0);
 	              
 						  }else{
-							  if(PolSys.agents[i].connec == PolSys.agents[i].connecMax) {
+							  if(PolSys.agents[i].connections == PolSys.agents[i].connecMax) {
 								  PolSys.agents[i].velocity.mult(-1);
 								  this.velocity.mult(-1);
 							  } else {

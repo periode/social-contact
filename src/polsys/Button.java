@@ -213,7 +213,7 @@ public class Button extends ProcessingObject {
 	    		if(PolSys.language == "english"){
 	    			p.text("predators", 0, 0);
 	    		}else{
-	    			p.text("predators", 0, 0);
+	    			p.text("pr\u00E9dateurs", 0, 0);
 	    		}
 	    	}
 	    	if(PolSys.startGame2){
