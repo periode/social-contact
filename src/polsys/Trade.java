@@ -98,6 +98,7 @@ public class Trade {
 	void display(){
 		update();
 		p.stroke(col, alpha);
+		p.noFill();
 		p.strokeWeight(2);
 		p.rectMode(PApplet.CENTER);
 		for(int i = 0; i < vesselsNum; i++){

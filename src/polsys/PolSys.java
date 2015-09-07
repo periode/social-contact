@@ -197,7 +197,7 @@ public class PolSys extends PApplet {
 
 	static int interactions;
 	int interactionsThreshold;
-	
+
 	boolean mouseHovering;
 
 	/* ---------------- Legend/help variables ---------------- */
@@ -395,12 +395,12 @@ public class PolSys extends PApplet {
 
 	/* ---------------- Variables for InGame1 ---------------- */
 	boolean selGenPred;
-	boolean selStopAgent;
+	boolean selEraseGrave;
 	boolean selIsolate;
 	boolean selFinalCluster;
 	boolean showGenPredInfo;
 	boolean showIsolateInfo;
-	boolean showAgentStop;
+	boolean showEraseGrave;
 	boolean showSelFinalClusterInfo;
 
 	float interactionAlpha;
@@ -471,14 +471,22 @@ public class PolSys extends PApplet {
 	boolean drawCulture;
 
 	int citizenFishNum;
+	PVector fishNationPos;
+	PVector fishNationPosOrigin;
 	PVector[] citizenFishPos;
 	float[] citizenFishRad;
 	int[] citizenFishWeight;
 
 	int citizenFishNum2;
+	PVector fishNationPos2;
+	PVector fishNationPos2Origin;
 	PVector[] citizenFishPos2;
 	float[] citizenFishRad2;
 	int[] citizenFishWeight2;
+	
+	float victoryLerpVal;
+	float victoryLerpInc;
+	float victoryLerpMax;
 
 	int fishHullCol1;
 	int fishHullCol2;
@@ -927,7 +935,7 @@ public class PolSys extends PApplet {
 	static boolean isPaused;
 
 	public void setup() {
-		//randomSeed(5);// FOR DEBUG
+		randomSeed(2046);// FOR DEBUG
 		//size(1600, 900);
 		//size(displayWidth, displayHeight);
 
@@ -968,7 +976,7 @@ public class PolSys extends PApplet {
 		loadText(language);
 
 		greetings = loadStrings("data/text/greetings.txt");
-		
+
 		englishButton = new Button(width*0.95f, height*0.95f, width*0.05f, 7, this);
 		frenchButton = new Button(width*0.05f, height*0.95f, width*0.05f, 8, this);
 
@@ -1291,11 +1299,11 @@ public class PolSys extends PApplet {
 
 		selGenPred = false;
 		selIsolate = false;
-		selStopAgent = false;
+		selEraseGrave = false;
 		selFinalCluster = false;
 		showGenPredInfo = false;
 		showIsolateInfo = false;
-		showAgentStop = false;
+		showEraseGrave = false;
 		showSelFinalClusterInfo = false;
 
 		interactionAlpha = 0;
@@ -1433,28 +1441,36 @@ public class PolSys extends PApplet {
 
 		// fish - 3
 		citizenFishNum = (int)random(15, 30);
+		fishNationPos = new PVector(fishTankPos.x*1.075f, fishTankPos.y*1.2f);
+		fishNationPosOrigin = fishNationPos;
 		citizenFishPos = new PVector[citizenFishNum];
 		citizenFishRad = new float[citizenFishNum];
 		citizenFishWeight = new int[citizenFishNum];
 		for(int i = 0; i < citizenFishNum; i++) {
-			citizenFishPos[i] = new PVector(random(fishTankPos.x*1.05f, fishTankPos.x*1.1f), random(fishTankPos.y*1.1f, fishTankPos.y*1.3f));
-			citizenFishPos[i].x = constrain(citizenFishPos[i].x, fishTankPos.x - fishTankSize*0.5f,  fishTankPos.x + fishTankSize*0.5f);
-			citizenFishPos[i].y = constrain(citizenFishPos[i].y, fishTankPos.y - fishTankSize*0.5f,  fishTankPos.y + fishTankSize*0.5f);
-			citizenFishWeight[i] = (int)random(1, 4);
+			citizenFishPos[i] = new PVector(random(-fishTankSize*0.1f, fishTankSize*0.1f), random(-fishTankSize*0.1f, fishTankSize*0.1f));
+			citizenFishPos[i].x = constrain(citizenFishPos[i].x, -fishTankSize*0.5f,  fishTankSize*0.5f);
+			citizenFishPos[i].y = constrain(citizenFishPos[i].y, -fishTankSize*0.5f,  fishTankSize*0.5f);
+			citizenFishWeight[i] = (int)random(1, 3);
 			citizenFishRad[i] = random(5, 10);
 		}
 
 		citizenFishNum2 = (int)random(15, 30);
+		fishNationPos2 = new PVector(fishTankPos.x*0.925f, fishTankPos.y*0.8f);
+		fishNationPos2Origin = fishNationPos2;
 		citizenFishPos2 = new PVector[citizenFishNum2];
 		citizenFishRad2 = new float[citizenFishNum2];
 		citizenFishWeight2 = new int[citizenFishNum2];
 		for(int i = 0; i < citizenFishNum2; i++) {
-			citizenFishPos2[i] = new PVector(random(fishTankPos.x*0.9f, fishTankPos.x*0.95f), random(fishTankPos.y*0.7f, fishTankPos.y*0.9f));
-			citizenFishPos2[i].x = constrain(citizenFishPos2[i].x, fishTankPos.x - fishTankSize*0.5f,  fishTankPos.x + fishTankSize*0.5f);
-			citizenFishPos2[i].y = constrain(citizenFishPos2[i].y, fishTankPos.y - fishTankSize*0.5f,  fishTankPos.y + fishTankSize*0.5f);
-			citizenFishWeight2[i] = (int)random(1, 4);
+			citizenFishPos2[i] = new PVector(random(-fishTankSize*0.1f, fishTankSize*0.1f), random(-fishTankSize*0.1f, fishTankSize*0.1f));
+			citizenFishPos2[i].x = constrain(citizenFishPos2[i].x, -fishTankSize*0.5f,  fishTankSize*0.5f);
+			citizenFishPos2[i].y = constrain(citizenFishPos2[i].y, -fishTankSize*0.5f,  fishTankSize*0.5f);
+			citizenFishWeight2[i] = (int)random(1, 3);
 			citizenFishRad2[i] = random(5, 10);
 		}
+		
+		victoryLerpVal = 0;
+		victoryLerpInc = 0.01f;
+		victoryLerpMax = 0;
 
 		fishHullCol1 = 0;
 		fishHullCol2 = 0;
@@ -1691,8 +1707,8 @@ public class PolSys extends PApplet {
 		tradeModifier = 1.0f;
 		warModifier = 1.0f;
 		nationGoal = 0;
-		victoryBehaviour = 1.0f;
-		tradeLimit = 1; //(use as constrain() per frame?)
+		victoryBehaviour = 1.5f;
+		tradeLimit = 1.0f;
 		allianceTrust = 1.0f;
 		cultureExternal = 1.0f;
 
@@ -1780,7 +1796,7 @@ public class PolSys extends PApplet {
 
 		interactions = 0;
 		interactionsThreshold = 10;
-		
+
 		mouseHovering = true;
 	}
 
@@ -2020,7 +2036,7 @@ public class PolSys extends PApplet {
 		rhythm();
 		selPulse = (cos(millis()*0.005f)+1)*50;
 		textFont(mainFont);
-
+		
 		if(fading){
 
 			if(rectBorderHTemp < rectBorderHMenu && alphaFade > 200) rectBorderHTemp += 0.75f;
@@ -2197,7 +2213,7 @@ public class PolSys extends PApplet {
 		rect(width, 0, -rectBorderX, height);
 
 		debug();
-		
+
 		strokeWeight(1);
 		stroke(0);
 		noFill();
@@ -2211,9 +2227,9 @@ public class PolSys extends PApplet {
 			point(0, 0);
 		}
 
-//		rotate(PI*0.25f);
-//		rectMode(CENTER);
-//		rect(0, 0, 10, 10);
+		//		rotate(PI*0.25f);
+		//		rectMode(CENTER);
+		//		rect(0, 0, 10, 10);
 		ellipse(0, 0, 6, 6);
 		popMatrix();
 
@@ -2937,14 +2953,14 @@ public class PolSys extends PApplet {
 				text(currentStatement[i], width*0.5f, height*0.4f+(i*height*0.05f), width*0.45f, height*0.3f);
 			}
 			fill(100, beginAlpha);
-			text("space", width*0.5f, height*0.95f);
+			text("space to start", width*0.5f, height*0.95f);
 		}else{
 			fill(100, statementAlpha);
 			for(int i = 0; i < currentStatementFR.length; i++){
 				text(currentStatementFR[i], width*0.5f, height*0.4f+(i*height*0.05f), width*0.45f, height*0.3f);
 			}
 			fill(100, beginAlpha);
-			text("espace", width*0.5f, height*0.95f);
+			text("espace pour commencer", width*0.5f, height*0.95f);
 		}
 
 		if(!initiate){
@@ -3106,45 +3122,63 @@ public class PolSys extends PApplet {
 				line(deadFishPos.x, deadFishPos.y, fishes.get(0).pos.x, fishes.get(0).pos.y);
 			}
 
-			if(meetingOthers == 1.0f){
-				//TODO how to represent meeting others? just a hull
+
+			float[][] points = new float[fishes.size()-1][2];
+			for(int i = 0; i < fishes.size()-1; i++){
+				points[i][0] = fishes.get(i).pos.x;
+				points[i][1] = fishes.get(i).pos.y;
 			}
+			Hull trustOthersHull = new Hull(points);
+
+			MPolygon fishesRegion = trustOthersHull.getRegion();
+			if(meetingOthers == 0.5f){
+				stroke(0, 10);
+			}else if(meetingOthers == 1.0f){
+				stroke(0, 100);
+			}else{
+				stroke(0, 200);
+			}
+			strokeWeight(2);
+			fishesRegion.draw(this);
+			noFill();
 
 			if(formingStableRelationships == 0.5f){
 				for(int i = 0; i < fishes.size(); i++){
 					Fish f = fishes.get(i);
-					f.maxSpeed = 0.5f;
-					f.mov = new PVector(random(-1f, 1f), random(-1f, 1f));
+					f.maxSpeed = 3.0f;
+					f.mov = new PVector(0, 0);
 				}
 			}else if(formingStableRelationships == 1.0f){
 				for(int i = 0; i < fishes.size(); i++){
 					Fish f = fishes.get(i);
 					f.maxSpeed = 1.0f;
-					f.mov = new PVector(random(-2f, 2f), random(-2f, 2f));
+					f.mov = new PVector(0, 0);
 				}
 			}else{
 				for(int i = 0; i < fishes.size(); i++){
 					Fish f = fishes.get(i);
-					f.maxSpeed = 3.0f;
-					f.mov = new PVector(random(-4f, 4f), random(-4f, 4f));
+					f.maxSpeed = 0.5f;
+					f.mov = new PVector(0, 0);
 				}
 			}
 
 			if(violence == 0.5f){
+				fishes.get(0).color = color(50);
+				fishes.get(1).color = color(50);
 				fishes.get(2).color = color(200, 0, 0);
 				fishes.get(3).color = color(200, 0, 0);
 				fishes.get(4).color = color(50);
 			}else if(violence == 1.0f){
-				fishes.get(1).color = color(50);
-				fishes.get(2).color = color(200, 0, 0);
-				fishes.get(3).color = color(200, 0, 0);
-				fishes.get(4).color = color(200, 0, 0);
+				for(Fish f : fishes){
+					f.color = color(200, 0, 0);
+				}
 			}else{
+				fishes.get(0).color = color(200, 0, 0);
 				fishes.get(1).color = color(50);
 				fishes.get(2).color = color(50);
 				fishes.get(3).color = color(50);
 				fishes.get(4).color = color(50);
-			}			
+			}
 		}
 
 		if(startGame2){
@@ -3263,18 +3297,16 @@ public class PolSys extends PApplet {
 			tradeButton.display();
 			stroke(0, 50);
 			line(fishTankPos.x-fishTankSize*0.5f, fishTankPos.y+fishTankSize*0.5f, fishTankPos.x+fishTankSize*0.5f, fishTankPos.y-fishTankSize*0.5f);
+
+			pushMatrix();
+			translate(fishNationPos.x,fishNationPos.y);
 			for(int i = 0; i < citizenFishNum; i++){
 				stroke(0, fishHullCol1*0.5f, fishHullCol1, 200);
 				noFill();
 				strokeWeight(citizenFishWeight[i]);
 				ellipse(citizenFishPos[i].x, citizenFishPos[i].y, citizenFishRad[i], citizenFishRad[i]);
-				if(citizenFishPos[i].x > fishTankPos.x) citizenFishPos[i].x += (cos(millis()*0.00001f))*0.01f;
-				if(citizenFishPos[i].x < fishTankPos.x) citizenFishPos[i].x -= (cos(millis()*0.00001f))*0.01f;
-				if(citizenFishPos[i].y < fishTankPos.y) citizenFishPos[i].y += (cos(millis()*0.00001f))*0.01f;
-				if(citizenFishPos[i].y > fishTankPos.y) citizenFishPos[i].y -= (cos(millis()*0.00001f))*0.01f;
-				citizenFishPos[i].x = constrain(citizenFishPos[i].x, fishTankPos.x - fishTankSize*0.5f,  fishTankPos.x + fishTankSize*0.5f);
-				citizenFishPos[i].y = constrain(citizenFishPos[i].y, fishTankPos.y - fishTankSize*0.5f,  fishTankPos.y + fishTankSize*0.5f);
 			}
+			
 
 			float[][] points = new float[(int)citizenFishNum][2];
 			for(int i = 0; i < citizenFishNum; i++){
@@ -3289,20 +3321,17 @@ public class PolSys extends PApplet {
 			stroke(0, fishHullCol1*0.5f, fishHullCol1, 100);
 			strokeWeight(1);
 			nationBorders.draw(this);
+			popMatrix();
 
-
+			pushMatrix();
+			translate(fishNationPos2.x,fishNationPos2.y);
 			for(int i = 0; i < citizenFishNum2; i++){
 				stroke(fishHullCol2, fishHullCol2*0.5f, 0, 200);
 				noFill();
 				strokeWeight(citizenFishWeight2[i]);
 				ellipse(citizenFishPos2[i].x, citizenFishPos2[i].y, citizenFishRad2[i], citizenFishRad2[i]);
-				if(citizenFishPos2[i].x > fishTankPos.x) citizenFishPos2[i].x += (cos(millis()*0.00001f))*0.01f;
-				if(citizenFishPos2[i].x < fishTankPos.x) citizenFishPos2[i].x -= (cos(millis()*0.00001f))*0.01f;
-				if(citizenFishPos2[i].y < fishTankPos.y) citizenFishPos2[i].y += (cos(millis()*0.00001f))*0.01f;
-				if(citizenFishPos2[i].y > fishTankPos.y) citizenFishPos2[i].y -= (cos(millis()*0.00001f))*0.01f;
-				citizenFishPos2[i].x = constrain(citizenFishPos2[i].x, fishTankPos.x - fishTankSize*0.5f,  fishTankPos.x + fishTankSize*0.5f);
-				citizenFishPos2[i].y = constrain(citizenFishPos2[i].y, fishTankPos.y - fishTankSize*0.5f,  fishTankPos.y + fishTankSize*0.5f);
 			}
+			
 
 			float[][] points2 = new float[(int)citizenFishNum2][2];
 			for(int i = 0; i < citizenFishNum2; i++){
@@ -3317,6 +3346,7 @@ public class PolSys extends PApplet {
 			stroke(fishHullCol2, fishHullCol2*0.5f, 0, 100);
 			strokeWeight(1);
 			nationBorders2.draw(this);
+			popMatrix();
 
 			if(tradeLimitUp.onClick() || tradeLimitUp.onClick() || tradeModifierUp.onClick() || tradeModifierDown.onClick()){
 				canShowWar = false;
@@ -3395,25 +3425,21 @@ public class PolSys extends PApplet {
 				}
 			}
 
-			if(canShowRuin){
-				for(int i = 0; i < citizenFishNum2; i++){
-					if(citizenFishPos2[i].x > fishTankPos.x*0.9f && citizenFishPos2[i].x < fishTankPos.x){
-						citizenFishPos2[i].x += 0.05f;
-					}
-					if(citizenFishPos2[i].y > fishTankPos.y*0.9f && citizenFishPos2[i].y < fishTankPos.y){
-						citizenFishPos2[i].y += 0.05f;
-					}
-				}
-
-				for(int i = 0; i < citizenFishNum; i++){
-					if(citizenFishPos[i].x > fishTankPos.x*1.05f && citizenFishPos[i].x < fishTankPos.x*1.1f){
-						citizenFishPos[i].x -= 0.05f;
-					}
-					if(citizenFishPos[i].y > fishTankPos.y*1.05f && citizenFishPos[i].y < fishTankPos.y*1.1f){
-						citizenFishPos[i].y -= 0.05f;
-					}
-				}
+			PVector center = new PVector(fishTankPos.x, fishTankPos.y);
+			if(victoryBehaviour == 0.5f){
+				victoryLerpMax = 0.5f;
+			}else if (victoryBehaviour == 1.0f){
+				victoryLerpMax = 0.25f;
+			}else{//peace
+//				fishNationPos = PVector.lerp(fishNationPosOrigin, center, 0f);
+//				fishNationPos2 = PVector.lerp(fishNationPos2Origin, center, 0f);
+				victoryLerpMax = 0.0f;
 			}
+			fishNationPos = PVector.lerp(fishNationPosOrigin, center, victoryLerpVal);
+			fishNationPos2 = PVector.lerp(fishNationPos2Origin, center, victoryLerpVal);
+			if(victoryLerpVal < victoryLerpMax) victoryLerpVal += victoryLerpInc;
+
+			println("lerpVal: "+victoryLerpVal);
 
 			if(canShowCulture){
 				fishHullCol1 = 50 + 50*nationGoal;
@@ -3428,7 +3454,7 @@ public class PolSys extends PApplet {
 	void startGame(){
 		intro = false;
 		seasons = null;
-		if(!fading) //cursor(CROSS);
+		//if(!fading) cursor(CROSS);
 		rectMode(CORNER);
 		rectCol = 245+(noise(noiseVal))*10; 
 		fill(rectCol);
@@ -3865,8 +3891,8 @@ public class PolSys extends PApplet {
 			if (!p.isAlive) {
 				stroke(colorPredator);
 				stroke(10);
-				line(p.pos.x-2, p.pos.y+2, p.pos.x+2, p.pos.y-2);
-				line(p.pos.x-2, p.pos.y-2, p.pos.x+2, p.pos.y+2);
+				line(p.pos.x-p.size*0.25f, p.pos.y+p.size*0.25f, p.pos.x+p.size*0.25f, p.pos.y-p.size*0.25f);
+				line(p.pos.x-p.size*0.25f, p.pos.y-p.size*0.25f, p.pos.x+p.size*0.25f, p.pos.y+p.size*0.25f);
 			}
 		}
 
@@ -3910,12 +3936,12 @@ public class PolSys extends PApplet {
 		}
 		fill(0, interactionAlpha);
 
-		if (selStopAgent) fill(0, interactionAlpha+50+selPulse);
+		if (selEraseGrave) fill(0, interactionAlpha+50+selPulse);
 
 		if(language == "english"){
-			text("immobilize an agent", width*0.6667f, choiceY);
+			text("erase a grave", width*0.6667f, choiceY);
 		}else{
-			text("immobiliser un individu", width*0.6667f, choiceY);	
+			text("effacer une tombe", width*0.6667f, choiceY);	
 		}
 		fill(0, interactionAlpha);
 
@@ -3944,7 +3970,7 @@ public class PolSys extends PApplet {
 			if (agents[i].isAlive && agents[i].arrived){
 				agents[i].display();
 				agents[i].debug();
-			}else if(!agents[i].isAlive && agents[i].arrived){
+			}else if(!agents[i].isAlive && agents[i].arrived && agents[i].graveAlpha > 0){
 				strokeWeight(1);
 				noFill();
 				agents[i].deathVisuals();
@@ -3954,6 +3980,7 @@ public class PolSys extends PApplet {
 				float inc = agents[i].rad*0.2f;
 				line(agents[i].pos.x-inc, agents[i].pos.y, agents[i].pos.x+inc, agents[i].pos.y);
 				line(agents[i].pos.x, agents[i].pos.y-inc, agents[i].pos.x, agents[i].pos.y+inc*2.0f);
+				if(!agents[i].hasGrave) agents[i].graveAlpha -= 15.0f;
 			}
 		}
 
@@ -3990,16 +4017,16 @@ public class PolSys extends PApplet {
 			}
 		}
 
-		if(showAgentStop){
+		if(showEraseGrave){
 			strokeWeight(1);
 			stroke(0);
 			fill(255, 150);
 			rect(rectBorderX+1, rectBorderY+(rectBorderH*0.97f), rectBorderW-2, rectBorderH*0.03f-1);
 			fill(0, 200);
 			if(language == "english"){
-				text("click on an individuals to prevent him from moving, forever.", width*0.6667f, rectBorderY+(rectBorderH*0.99f));
+				text("click on a grave to remove it from our world.", width*0.6667f, rectBorderY+(rectBorderH*0.99f));
 			}else{
-				text("cliquez sur un individu pour l'immobiliser \u00E0 jamais.", width*0.6667f, rectBorderY+(rectBorderH*0.99f));
+				text("cliquez sur une tombe pour l'\u00F4ter de notre monde.", width*0.6667f, rectBorderY+(rectBorderH*0.99f));
 			}
 		}
 
@@ -4110,7 +4137,7 @@ public class PolSys extends PApplet {
 		String friendship_debug = "friendship: "+friendshipForce;
 		String love_debug = "love: "+loveForce;
 		text("frame rate: "+frameRate, width*0.025f, height*0.025f);
-		text("victory 6: "+victoryBehaviour, width*0.025f, height*0.045f);
+		text("victory: "+victoryBehaviour, width*0.025f, height*0.045f);
 		//text(power_debug, width*0.025f, height*0.065f);
 		//text("love: "+connectionsLove.size(), width*0.025f, height*0.085f);
 	}
@@ -4783,7 +4810,7 @@ public class PolSys extends PApplet {
 					n.hullWeight = 2;
 				}
 			}
-			
+
 			statementHMax = thoughtFontSize*6.0f;
 
 			if(hoveredNation != null && nationHovering){
@@ -4985,6 +5012,7 @@ public class PolSys extends PApplet {
 			nation.culturalRequirementWar *= warModifier;
 			nation.goal = nationGoal;
 			nation.victoryBehaviour = victoryBehaviour;
+			nation.wealthStopWar = 25.0f*victoryBehaviour;
 			nation.tradeLimit = tradeLimit;
 			nation.allianceTrust = allianceTrust;
 			/*
@@ -5050,6 +5078,7 @@ public class PolSys extends PApplet {
 			n.culturalRequirementWar *= warModifier;
 			n.goal = nationGoal;
 			n.victoryBehaviour = victoryBehaviour;
+			n.wealthStopWar = 25.0f*victoryBehaviour;
 			n.tradeLimit = tradeLimit;
 			n.allianceTrust = allianceTrust;
 			/*
@@ -5069,7 +5098,7 @@ public class PolSys extends PApplet {
 	void generatePredators() {
 		if(predators.size() == 0){
 			for (int i = 0; i < numberOfPredators; i++) {
-				predators.add(new Predator(random(width), random(height-height/20), 10, -2, 2, random(80, 105) * 1000, random(4, 6) * 10, this));
+				predators.add(new Predator(random(width), random(height-height/20), 5, -2, 2, random(80, 105) * 1000, random(4, 6) * 10, this));
 			}
 		}
 	}
@@ -5114,7 +5143,6 @@ public class PolSys extends PApplet {
 
 	void startGame2() {
 		seasons = null;
-		if(!fading) cursor(CROSS);
 		rectProceedAlpha = 0.0f;
 		rectMode(CORNER);
 		rectCol = 245+(noise(noiseVal))*10; 
@@ -5172,7 +5200,17 @@ public class PolSys extends PApplet {
 		fill(0);
 		textFont(textFont);
 		textSize(textFontSize);
-		//textAlign(LEFT);
+
+		if(canShowSettings[0]){
+			fill(0);
+			powerForceUpButton.alpha = 255;
+			powerForceDownButton.alpha = 255;
+		}else{
+			fill(200);
+			powerForceUpButton.alpha = 50;
+			powerForceDownButton.alpha = 50;
+		}
+		
 		powerForceDownButton.display();
 		powerForceDownButton.onClick();
 
@@ -6119,7 +6157,6 @@ public class PolSys extends PApplet {
 	}
 
 	void startGame3() {
-		if(!fading) cursor(CROSS);
 		seasons = null;
 		rectProceedAlpha = 0.0f;
 		rectMode(CORNER);
@@ -6184,6 +6221,17 @@ public class PolSys extends PApplet {
 		String allianceModString = "";
 
 		if(language == "english"){
+			
+			if(canShowSettings[0]){
+				fill(0);
+				allianceModifierDown.alpha = 255;
+				allianceModifierUp.alpha = 255;
+			}else{
+				fill(200);
+				allianceModifierDown.alpha = 50;
+				allianceModifierUp.alpha = 50;
+			}
+
 
 
 			if(allianceModifier == 0.5f){
@@ -6564,6 +6612,7 @@ public class PolSys extends PApplet {
 			Nation o = others.get(i);
 			o.display();
 			o.update();
+			o.debug();
 		}
 
 		for(int i = 0; i < trades.size(); i++){
@@ -6847,7 +6896,7 @@ public class PolSys extends PApplet {
 		for(int i = 1; i < 5; i++){
 			rect(rectBorderX+2*i, rectBorderY+2*i, rectBorderW-4*i, rectBorderHTemp-4*i);
 		}
-		
+
 		wars.clear();
 		trades.clear();
 
@@ -7719,6 +7768,7 @@ public class PolSys extends PApplet {
 				}else{
 					victoryBehaviour = 0.5f;
 				}
+				victoryLerpVal = 0;
 			}
 
 			if(victoryBehaviourDown.onClick()){
@@ -7729,6 +7779,7 @@ public class PolSys extends PApplet {
 				}else{
 					victoryBehaviour = 1.5f;
 				}
+				victoryLerpVal = 0;
 			}
 
 			if(tradeLimitUp.onClick()){
@@ -7804,48 +7855,48 @@ public class PolSys extends PApplet {
 			if(mouseY < height - height/40 + bufferY && mouseY > choiceY - bufferY){ //if you're at the bottom of the screen
 				if(mouseX > rectBorderX  && mouseX < width*0.17f){ //first interaction generate predators
 					selGenPred = true;
-					selStopAgent = false;
+					selEraseGrave = false;
 					selIsolate = false;
 					selFinalCluster = false;
 					showGenPredInfo = true;
 					showIsolateInfo = false;
-					showAgentStop = false;
+					showEraseGrave = false;
 					showSelFinalClusterInfo = false;
 					clickSound(1);
 				}
 
 				if(mouseX > width*0.17f - bufferX  && mouseX < width*0.5f){ //second interaction stop agent
 					selGenPred = false;
-					selStopAgent = false;
+					selEraseGrave = false;
 					selIsolate = true;
 					selFinalCluster = false;
 					showGenPredInfo = false;
 					showIsolateInfo = true;
-					showAgentStop = false;
+					showEraseGrave = false;
 					showSelFinalClusterInfo = false;
 					clickSound(1);
 				}
 
 				if(mouseX > width*0.5f  && mouseX < width*0.82f){ //third interaction remove connections
 					selGenPred = false;
-					selStopAgent = true;
+					selEraseGrave = true;
 					selIsolate = false;
 					selFinalCluster = false;
 					showGenPredInfo = false;
 					showIsolateInfo = false;
-					showAgentStop = true;
+					showEraseGrave = true;
 					showSelFinalClusterInfo = false;
 					clickSound(1);
 				}
 
 				if(mouseX > width*0.82f  && mouseX < width-rectBorderX){ //select cluster
 					selGenPred = false;
-					selStopAgent = false;
+					selEraseGrave = false;
 					selIsolate = false;
 					selFinalCluster = true;
 					showGenPredInfo = false;
 					showIsolateInfo = false;
-					showAgentStop = false;
+					showEraseGrave = false;
 					showSelFinalClusterInfo = true;
 					clickSound(1);
 				}
@@ -7861,25 +7912,36 @@ public class PolSys extends PApplet {
 
 				if (mouseX < agents[i].pos.x + rad && mouseX > agents[i].pos.x - rad && mouseY < agents[i].pos.y + rad && mouseY > agents[i].pos.y - rad) {
 
-					if (selStopAgent) { //stopping agent
-						agents[i].isStopped = true;
-						stopAgent--;
+					if (selEraseGrave && !agents[i].isAlive) { //removing the grave of the agent
+						agents[i].hasGrave = false;
+						for(int j = 0; j < connections.size(); j++){
+							Connection c = connections.get(j);
+							if(c.a1 == agents[i] || c.a2 == agents[i]){
+								c.a1.currentConnections.remove(c);
+								c.a1.cluster.agentsInside.remove(c.a2);
+								c.a1.connections++;
+								c.a2.currentConnections.remove(c);
+								c.a2.cluster.agentsInside.remove(c.a1);
+								c.a2.connections++;
+								connections.remove(c);
+							}
+						}
 						clickSound(3);
 					}
 
 					if (selIsolate) { //removing connections IS NOW ISOLATE AGENT
 						clickSound(3);
-//						for(int k = 0; k < connections.size(); k++){
-//							Connection c = connections.get(k);
-//
-//							if(c.canRemove){
-//								println("removing connection");
-//								connections.remove(c);
-//								c.a1.currentConnections.remove(c);
-//								c.a2.currentConnections.remove(c);
-//								removeConnec--;
-//							}
-//						}
+						//						for(int k = 0; k < connections.size(); k++){
+						//							Connection c = connections.get(k);
+						//
+						//							if(c.canRemove){
+						//								println("removing connection");
+						//								connections.remove(c);
+						//								c.a1.currentConnections.remove(c);
+						//								c.a2.currentConnections.remove(c);
+						//								removeConnec--;
+						//							}
+						//						}
 						agents[i].connecMax--;
 					}
 
@@ -8349,7 +8411,7 @@ public class PolSys extends PApplet {
 		}
 
 		if(inGame3){
-			if(key == ' '){
+			if(key == ' ' && selectedNation != null){
 				fading = true;
 			}
 		}

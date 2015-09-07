@@ -266,6 +266,7 @@ public class Agent extends ProcessingObject {
 	boolean isSelected2;	
 
 	boolean isOppressed;
+	boolean hasGrave;
 
 	Agent() {}
 
@@ -511,6 +512,8 @@ public class Agent extends ProcessingObject {
 		hasForcedDiff = false;
 
 		isSelected2 = false;
+		
+		hasGrave = true;
 	}
 
 	void update(){
@@ -747,7 +750,7 @@ public class Agent extends ProcessingObject {
 		//p.text("protected: "+hasProtected, pos.x+rad, pos.y+rad);
 		//p.text("time in Love: "+this.timeInLove, pos.x+rad, pos.y+rad);
 		//p.text("children"+childrenHad, pos.x, pos.y+rad);
-		//p.text("generation "+generation, pos.x, pos.y+rad);
+		p.text("grave "+hasGrave, pos.x, pos.y+rad);
 	}
 
 	void display() {
@@ -1484,7 +1487,7 @@ public class Agent extends ProcessingObject {
 				}
 
 				if (!foundConnection) { //if you haven't found a connection between the two agents, ...
-					if (this.isAlive && (PolSys.agents[i].isAlive || PolSys.rememberDead > 1.0f)) { // ...and if the two agents still have connections left
+					if (this.isAlive && (PolSys.agents[i].isAlive || PolSys.rememberDead > 1.0f) && this.hasGrave && PolSys.agents[i].hasGrave) { // ...and if the two agents still have connections left
 
 						// ------------------------------------------- Create a new connection
 						Connection c = new Connection(this, PolSys.agents[i], distance, p);

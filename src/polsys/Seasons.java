@@ -49,18 +49,10 @@ public class Seasons extends ProcessingObject {
 	
 	Envelope eSeason;
 	
-	String[] fall = {
-		      "leaves are falling", "trees turn gold", "rain covers the land", "fall is here"
-		    };
-	String[] winter = {
-	      "crystals are pouring from the sky", "everything turned white", "snow crackles under their feet", "the death of winter"
-		};
-	String[] spring = {
-	      "blooms appear", "leaves cover branches", "flowers return", "spring has come"
-	    };
-	String[] summer = {
-	      "the earth is burning", "a symphony of crickets", "the sun heats all", "summer will not last forever"
-		};
+	String[] fall;
+	String[] winter;
+	String[] spring;
+	String[] summer;
 	    
 	int fallCol;
 	int winterCol;
@@ -106,13 +98,25 @@ public class Seasons extends ProcessingObject {
 		numberOfCycles = 0;
 		timer = 6000.0f; //how long seasons last
 		startTime = p.millis();
-		r = (int)(p.random(fall.length));
+		
 		fallCol = p.color(242, 138, 0);
 		winterCol = p.color(175);
 		springCol = p.color(124, 67, 80);
 		summerCol = p.color(198, 96, 92);
 	
 		seasonsAlpha = 0;
+		
+		String l = "en";
+		if(PolSys.language != "english") l = "fr";
+		
+		fall = p.loadStrings("data/text/"+l+"/fall.txt");
+		winter = p.loadStrings("data/text/"+l+"/winter.txt");
+		spring = p.loadStrings("data/text/"+l+"/spring.txt");
+		summer = p.loadStrings("data/text/"+l+"/summer.txt");
+		
+		p.println("fall:"+fall);
+		
+		r = (int)(p.random(fall.length));
 	
 		currentFillColor = p.color(202, 108, 0, 50);
 	

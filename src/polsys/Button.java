@@ -310,7 +310,7 @@ public class Button extends ProcessingObject {
 	}
 
 	boolean onClick() {
-	    if (p.mouseX > this.pos.x-size*1.5f && p.mouseX < this.pos.x+size*1.5f && p.mouseY > this.pos.y-size*1.5f && p.mouseY < this.pos.y +size*1.5f) {
+	    if (p.mouseX > this.pos.x-size*1.5f && p.mouseX < this.pos.x+size*1.5f && p.mouseY > this.pos.y-size*1.1f && p.mouseY < this.pos.y +size*1.1f) {
 	    	//if(p.mousePressed && !PolSys.statement && !PolSys.intro) PolSys.interactions++;
 	    	return true;
 	    } else {

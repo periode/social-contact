@@ -219,10 +219,10 @@ public class Fish {
 		if(PolSys.startGame1){
 			connec = PApplet.constrain(connec, minConnec, maxConnec);
 			for(int i = 0; i < connec; i++){
-				p.stroke(0, 100);
-				p.strokeWeight(2);
+				p.stroke(0, 200);
+				p.strokeWeight(1);
 				p.noFill();
-				p.ellipse(pos.x, pos.y, (i+2)*2, (i+2)*2);
+				p.ellipse(pos.x, pos.y, (i+1)*4, (i+1)*4);
 			}
 			
 			p.stroke(color);
@@ -250,7 +250,8 @@ public class Fish {
 				  p.vertex(x, y);
 			  }
 			  p.endShape(PApplet.CLOSE);
-			  rad += (PApplet.cos(xPulse))*0.25f;
+			  if(PolSys.splash) rad += (PApplet.cos(xPulse))*0.25f;
+			  if(PolSys.startGame2) rad += (PApplet.cos(xPulse))*0.1f;
 			  xPulse += pulseRatio;
 			  p.popMatrix();
 		}
