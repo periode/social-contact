@@ -1714,7 +1714,7 @@ public class PolSys extends PApplet {
 		finalTimerFull = 0;
 		finalTimerSmall = 0;
 
-		//	ac.start();
+		ac.start();
 
 
 		alphaFade = 0;
@@ -2557,16 +2557,87 @@ public class PolSys extends PApplet {
 			
 		}else{
 			//draw nations
+			fill(0, legendTextAlpha);
 			text("nations have a culture, represented by their color,\nand a weath, represented by their thickness", 0, height*0.1f);
 			
+			strokeWeight(3);
+			pushMatrix();
+			translate(-60, height*0.125f);
+			for(int i = 0; i < citizenFishNum; i++){
+				stroke(0, fishHullCol1*0.5f, fishHullCol1, legendTextAlpha);
+				noFill();
+				strokeWeight(citizenFishWeight[i]);
+				ellipse(citizenFishPos[i].x, citizenFishPos[i].y, citizenFishRad[i], citizenFishRad[i]);
+				//citizenFishModel[i] = new PVector(modelX(citizenFishPos[i].x, citizenFishPos[i].y, 0), modelY(citizenFishPos[i].x, citizenFishPos[i].y, 0));
+			}
+
+			float[][] points = new float[(int)citizenFishNum][2];
+			for(int i = 0; i < citizenFishNum; i++){
+				points[i][0] = citizenFishPos[i].x;
+				points[i][1] = citizenFishPos[i].y;
+			}
+			Hull cultureEnvelopeHull = new Hull(points);
+
+			MPolygon nationBorders = cultureEnvelopeHull.getRegion();
+
+			strokeWeight(1);
+			nationBorders.draw(this);
+			popMatrix();
+			
 			//draw war
+			fill(0, legendTextAlpha);
 			text("nations can fight each other\nand the wealthiest will win", 0, height*0.3f);
 			
+			strokeWeight(2);
+			stroke(255-random(100), 0, 0, legendTextAlpha);
+			for(int i = 0; i < 7; i++){
+				line(10, height*0.39f, -15+random(-1, 1), height*0.375f+random(-35, 35));
+				line(-40, height*0.36f, -15+random(-1, 1), height*0.375f+random(-35, 35));	
+			}
+			
 			//draw alliances
+			fill(0, legendTextAlpha);
 			text("nations of a similar culture can form alliances", 0, height*0.5f);
 			
+			strokeWeight(2);
+			pushMatrix();
+			translate(-40, height*0.55f);
+
+			int numAlliances = min(citizenFishNum, citizenFishNum2);
+			strokeWeight(1+1*allianceModifier);
+			stroke(0, 150, 0, legendTextAlpha);
+			for(int i = 0; i < numAlliances; i++){
+				line(citizenFishPos[i].x*0.5f, citizenFishPos[i].y*0.5f, citizenFishPos[i].x, citizenFishPos[i].y);
+			}
+			
+			popMatrix();
+			
 			//draw trade
-			text("everyone can fall in love", 0, height*0.7f);
+			fill(0, legendTextAlpha);
+			text("nations close enough can exchange wealth,\none will gain from it and one will lose from it.", 0, height*0.7f);
+			
+			pushMatrix();
+			translate(0, height*0.76f);
+			strokeWeight(2);
+			rectMode(PApplet.CENTER);
+			for(int i = 0; i < fishVesselsNum; i++){
+				stroke(0, 50, 200, legendTextAlpha);
+				noFill();
+				rect(-60+(i*30), 0, 15, 5);
+//				fishVesselsPos[i] = PVector.lerp(new PVector(fishTankPos.x*0.9f, fishTankPos.y*0.9f), new PVector(fishTankPos.x*1.1f, fishTankPos.y*1.2f), fishVesselsLerp[i]);
+//				PVector dir = PVector.sub(new PVector(fishTankPos.x*0.9f, fishTankPos.y*0.9f), new PVector(fishTankPos.x*1.1f, fishTankPos.y*1.2f));
+//				float theta = dir.heading2D();
+//				pushMatrix();
+//				translate(fishVesselsPos[i].x, fishVesselsPos[i].y);
+//				rotate(theta);
+//				stroke(0, 50, 200);
+//				fill(0, 20, 150, 150);
+//				rect(0, 0, fishVesselsSize*tradeModifier, 5*tradeLimit);
+//				popMatrix();
+//				fishVesselsLerp[i] += fishLerpAmount;
+//				if(fishVesselsLerp[i] > 1) fishVesselsLerp[i] = 0;
+			}
+			popMatrix();
 			
 		}
 		popMatrix(); //finish the translation on the x axis
@@ -4116,9 +4187,9 @@ public class PolSys extends PApplet {
 			fill(0, 200);
 			textAlign(LEFT);
 			if(language == "english"){
-				text("click anywhere on the screen to make a predator appear.", rectBorderX*2.0f, rectBorderY+(rectBorderH*0.99f));
+				text("click anywhere on the screen to make a predator appear.", rectBorderX*2.0f+showLegendButtonW*4.0f, rectBorderY+(rectBorderH*0.99f));
 			}else{
-				text("cliquez pour faire appara\u00EEtre un pr\u00E9dateur.", rectBorderX*2.0f, rectBorderY+(rectBorderH*0.99f));
+				text("cliquez pour faire appara\u00EEtre un pr\u00E9dateur.", rectBorderX*2.0f+showLegendButtonW*4.0f, rectBorderY+(rectBorderH*0.99f));
 			}
 		}
 
@@ -4263,10 +4334,10 @@ public class PolSys extends PApplet {
 		String power_debug = "power: "+powerForce;
 		String friendship_debug = "friendship: "+friendshipForce;
 		String love_debug = "love: "+loveForce;
-		text("frame rate: "+frameRate, width*0.025f, height*0.025f);
+		//text("frame rate: "+frameRate, width*0.025f, height*0.025f);
 		//text("victory: "+victoryBehaviour, width*0.025f, height*0.045f);
 		//text(power_debug, width*0.025f, height*0.065f);
-		//text("love: "+connectionsLove.size(), width*0.025f, height*0.085f);
+		text("love: "+wars.size(), width*0.025f, height*0.085f);
 	}
 
 	void drawVoronoi(int stage){
@@ -5904,9 +5975,9 @@ public class PolSys extends PApplet {
 			fill(0, 200);
 			textAlign(LEFT);
 			if(language == "english"){
-				text("click on an individual subjected to unjust amounts of power.", rectBorderX*2.0f, rectBorderY+(rectBorderH*0.99f));
+				text("click on an individual subjected to unjust amounts of power.", rectBorderX*2.0f+showLegendButtonW*4.0f, rectBorderY+(rectBorderH*0.99f));
 			}else{
-				text("cliquez sur un individu soumis injustement.", rectBorderX*2.0f, rectBorderY+(rectBorderH*0.99f));
+				text("cliquez sur un individu soumis injustement.", rectBorderX*2.0f+showLegendButtonW*4.0f, rectBorderY+(rectBorderH*0.99f));
 			}
 		}
 		textAlign(CENTER);
@@ -6842,9 +6913,9 @@ public class PolSys extends PApplet {
 			fill(0, 200);
 			textAlign(LEFT);
 			if(language == "english"){
-				text("click on a nation to increase their wealth.", rectBorderX*2.0f, rectBorderY+(rectBorderH*0.99f));
+				text("click on a nation to increase their wealth.", rectBorderX*2.0f+showLegendButtonW*4.0f, rectBorderY+(rectBorderH*0.99f));
 			}else{
-				text("cliquez sur une nation pour l'enrichir.", rectBorderX*2.0f, rectBorderY+(rectBorderH*0.99f));
+				text("cliquez sur une nation pour l'enrichir.", rectBorderX*2.0f+showLegendButtonW*4.0f, rectBorderY+(rectBorderH*0.99f));
 			}
 		}
 

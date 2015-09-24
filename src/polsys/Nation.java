@@ -332,14 +332,14 @@ public class Nation {
 		p.textSize(16);
 		p.textAlign(PApplet.CENTER);
 		p.fill(0);
-		p.text("culture: "+culturalHomogeneity, pos.x, pos.y-10);
-		p.text("wealth: "+totalWealth, pos.x, pos.y+10);
+		//p.text("culture: "+culturalHomogeneity, pos.x, pos.y-10);
+		//p.text("wealth: "+totalWealth, pos.x, pos.y+10);
 		//p.text("pos: "+citizenPos[0], pos.x, pos.y+10);
 		//p.text("nationalSpending: "+nationalSpending, pos.x, pos.y+20);
 		//p.text("war: "+atWar, pos.x, pos.y + 20);
 		//p.text("statem: "+possibleStatements.size(), pos.x, pos.y - 20);
-		p.text("enemies: "+enemies.size(), pos.x+20, pos.y+30);
-		p.text("lerpVal: "+moveLerpVal, pos.x+20, pos.y+50);
+		//p.text("enemies: "+enemies.size(), pos.x+20, pos.y+30);
+		//p.text("lerpVal: "+moveLerpVal, pos.x+20, pos.y+50);
 	}
 
 	void wander(){

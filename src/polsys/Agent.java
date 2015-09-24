@@ -1472,7 +1472,7 @@ public class Agent extends ProcessingObject {
 		if (connections > connecMax) connections = connecMax;
 
 		for (int i = 0; i < PolSys.agents.length; i++) {
-			if(this.companions.contains(PolSys.agents[i]) || PolSys.agents[i].companions.contains(this) || PolSys.agents[i] == this) return;
+			if((this.companions.contains(PolSys.agents[i]) && PolSys.agents[i].companions.contains(this)) || PolSys.agents[i] == this) return;
 			
 			if (PApplet.dist(this.pos.x, this.pos.y, PolSys.agents[i].pos.x, PolSys.agents[i].pos.y) < this.distance && this.connections > 0 && PolSys.agents[i].connections > 0 && this.arrived && PolSys.agents[i].arrived) { //you are within the distance, and still have open connections left
 

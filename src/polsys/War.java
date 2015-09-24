@@ -50,7 +50,7 @@ public class War {
 		alphaMax = 150;
 		alphaInc = 1.0f;
 		col = PolSys.colorWar;
-		lineNum = 7; //TODO make this proportional to the wealth of belligerants
+		lineNum = 7;
 		halfway = new PVector((n1.pos.x+n2.pos.x)*0.5f, (n1.pos.y+n2.pos.y)*0.5f);
 		
 	    numHarmonics = PApplet.max(1, 5/(PolSys.wars.size()+1));
@@ -72,7 +72,7 @@ public class War {
 	    	g[i].addInput(wp[i]);
 	    	gWar.addInput(g[i]);
 	    	e[i].addSegment(p.random(0.05f, 0.1f), 500.0f);
-	    	//e[i].addSegment(0.0f, 1000.0f, new KillTrigger(g[i]));
+	    	e[i].addSegment(0.0f, 750.0f, new KillTrigger(g[i]));
 	    }
 	    
 	    PolSys.ac.out.addInput(gWar);

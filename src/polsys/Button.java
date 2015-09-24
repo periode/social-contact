@@ -341,7 +341,7 @@ public class Button extends ProcessingObject {
 			w = size*4.0f-2;
 			h = size*0.5f;
 			
-    		p.fill(255, 100);
+    		p.fill(255, 250);
 	    	p.strokeWeight(sw);
     		p.rect(0, 0, w, h);
     		p.fill(0);
