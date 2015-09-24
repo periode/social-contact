@@ -198,16 +198,19 @@ public class PolSys extends PApplet {
 	static int interactions;
 	int interactionsThreshold;
 
-	boolean mouseHovering;
+	static boolean mouseHovering;
+	float mouseThetaVal;
+	float mouseThetaInc;
 
 	/* ---------------- Legend/help variables ---------------- */
 	static boolean[] canShowSettings;
 
 	boolean canShowLegend;
 
+	float showLegendButtonW;
 	PVector showLegendPos;
-	float legendW;
-	float legendH;
+	float legendTextW;
+	float legendTextH;
 	float legendLerpVal;
 	float legendLerpInc;
 
@@ -217,6 +220,7 @@ public class PolSys extends PApplet {
 	float legendTextAlpha;
 	float legendTextAlphaInc;
 	PVector legendTextPos;
+	PVector legendRectPos;
 
 	String legendTextContent;
 	String legendTextContent1;
@@ -1014,7 +1018,7 @@ public class PolSys extends PApplet {
 		finalScreen = false;
 
 		mainFont = loadFont("data/fonts/Ashbury-Medium-60.vlw");
-		subtitleFont = loadFont("data/fonts/Ashbury-Light-24.vlw");
+		subtitleFont = loadFont("data/fonts/Ashbury-Light-16.vlw");
 		loadingFont = loadFont("data/fonts/Ashbury-Light-34.vlw");
 		headerFont = loadFont("data/fonts/EdwardPro-Normal-36.vlw");
 		if(width > 1500){
@@ -1026,9 +1030,9 @@ public class PolSys extends PApplet {
 		seasonsFont = loadFont("data/fonts/Ashbury-Light-100.vlw");
 
 		mainFontSize = 60;
-		subtitleFontSize = 24;
+		subtitleFontSize = 12;
 		loadingFontSize = 34;
-		headerFontSize = 36;
+		headerFontSize = 24;
 		if(width > 1500){
 			textFontSize = 24;
 		}else{
@@ -1102,92 +1106,28 @@ public class PolSys extends PApplet {
 		}
 		canShowSettings[0] = true;
 
+		//--------------------------------------------- LEGEND
 		canShowLegend = false;
-
-		showLegendPos = new PVector(width*0.05f, height*0.9f);
-		legendW = width*0.125f;
-		legendH = height*0.0375f;
+		
+		showLegendButtonW = width*0.05f;
+		showLegendPos = new PVector(rectBorderX+showLegendButtonW*2.0f, height-(rectBorderY+showLegendButtonW*0.7f-1));
+		showLegendButton = new Button(showLegendPos.x, showLegendPos.y, showLegendButtonW, 14, this);
+		legendTextW = width*0.2f-2;
+		legendTextH = rectBorderH;
+		legendTextAlpha = 0;
+		legendTextAlphaInc = 15f;
+		legendTextPos = new PVector(width*0.5f, height*0.1f);
+		legendRectPos = new PVector(rectBorderX+showLegendButtonW*2.0f, height*0.5f-(rectBorderY*2.75f));
+		
 		legendLerpVal = 0;
 		legendLerpInc = 0.001f;
 
 		legendBackgroundPos = new PVector(width*0.5f, height*2);
 		legendBackgroundAlpha = 0;
-		legendBackgroundAlphaInc = 7.5f;
-		legendTextAlpha = 0;
-		legendTextAlphaInc = 10f;
-		legendTextPos = new PVector(width*0.5f, height*0.1f);
+		legendBackgroundAlphaInc = 25.0f;
 
-		legendTextContent = "";
-		legendTextContent1 = "Social Contact is an interactive triptych of political philosophy\n"
-				+ "\n"
-				+ "-\n"
-				+ "\n"
-				+ "our understanding of how we live together is conditioned by what we assume about people.\n"
-				+ "\n"
-				+ "Social Contact allows you to simulate the consequences of these assumptions."
-				+ "\n"
-				+ "choose those you agree with the most."
-				+ "\n"
-				+ "they will dictate the behaviors of abstracted agents, represented as circles.\n"
-				+ "\n"
-				+ "--\n"
-				+ "\n"
-				+ "this first part of the tryptich is dedicated to how agents first form bonds, or connections.\n"
-				+ "\n"
-				+ "these connections are represented by solid lines, between two different agents.\n"
-				+ "\n"
-				+ "the world contains both resources and predators.\n"
-				+ "\n"
-				+ "---\n"
-				+ "\n"
-				+ "to proceed to the next part of the triptych, select an agent to hear the story of how it lived in the world you constructed.";
-
-		legendTextContent2 = "this second part of the triptych represent the evolution of a closed community.\n"
-				+ "\n"
-				+ "-\n"
-				+ "\n"
-				+ "love is represented by red lines.\n"
-				+ "\n"
-				+ "friendship is represented by green lines\n"
-				+ "\n"
-				+ "power is represented by black lines\n"
-				+ "power is a one-way relation from an oppressor to an oppressee.\n"
-				+ "\n"
-				+ "--\n"
-				+ "\n"
-				+ "the culture of individuals is represented by\n"
-				+ "the number of sides a circle has\n"
-				+ "its radius,\n"
-				+ "the size of the stroke,\n"
-				+ "the sound it emits.";
-
-		legendTextContent3 = "this last part of the triptych simulates the interactions of different, self-contained communities.\n"
-				+ "\n"
-				+ "-\n"
-				+ "\n"
-				+ "they can form alliances, go to war and trade."
-				+ "\n"
-				+ "--\n"
-				+ "\n"
-				+ "the color of a nation-state represents its culture.\n"
-				+ "\n"
-				+ "the size of a nation state represents its population.\n"
-				+ "\n"
-				+ "the stroke of a nation-state represents its wealth.\n";
-
-		legendTextContent1FR = "";
-		legendTextContent2FR = "";
-		legendTextContent3FR = "";
-
-		legendButtonText = "";
-
-		showLegendAlpha = 100;
-		showLegendSW = 1;
-
-		showLegendButton = new Button(showLegendPos.x, showLegendPos.y, legendW, 2, this);
-
+		// ---------------------------------------- ASSUMPTIONS
 		canShowAssumptions = false;
-
 		showAssumptionsButtonW = width*0.05f;
 		showAssumptionsButtonPos = new PVector(rectBorderX+showAssumptionsButtonW*2.0f, rectBorderY+showAssumptionsButtonW*0.25f+1);
 		showAssumptions = new Button(showAssumptionsButtonPos.x, showAssumptionsButtonPos.y, showAssumptionsButtonW, 2, this);
@@ -1447,7 +1387,7 @@ public class PolSys extends PApplet {
 		citizenFishRad = new float[citizenFishNum];
 		citizenFishWeight = new int[citizenFishNum];
 		for(int i = 0; i < citizenFishNum; i++) {
-			citizenFishPos[i] = new PVector(random(-fishTankSize*0.1f, fishTankSize*0.1f), random(-fishTankSize*0.1f, fishTankSize*0.1f));
+			citizenFishPos[i] = new PVector(random(fishTankSize*0.1f, fishTankSize*0.3f), random(fishTankSize*0.1f, fishTankSize*0.3f));
 			citizenFishPos[i].x = constrain(citizenFishPos[i].x, -fishTankSize*0.5f,  fishTankSize*0.5f);
 			citizenFishPos[i].y = constrain(citizenFishPos[i].y, -fishTankSize*0.5f,  fishTankSize*0.5f);
 			citizenFishWeight[i] = (int)random(1, 3);
@@ -1461,7 +1401,7 @@ public class PolSys extends PApplet {
 		citizenFishRad2 = new float[citizenFishNum2];
 		citizenFishWeight2 = new int[citizenFishNum2];
 		for(int i = 0; i < citizenFishNum2; i++) {
-			citizenFishPos2[i] = new PVector(random(-fishTankSize*0.1f, fishTankSize*0.1f), random(-fishTankSize*0.1f, fishTankSize*0.1f));
+			citizenFishPos2[i] = new PVector(random(-fishTankSize*0.3f, -fishTankSize*0.1f), random(-fishTankSize*0.3f, -fishTankSize*0.1f));
 			citizenFishPos2[i].x = constrain(citizenFishPos2[i].x, -fishTankSize*0.5f,  fishTankSize*0.5f);
 			citizenFishPos2[i].y = constrain(citizenFishPos2[i].y, -fishTankSize*0.5f,  fishTankSize*0.5f);
 			citizenFishWeight2[i] = (int)random(1, 3);
@@ -1797,7 +1737,9 @@ public class PolSys extends PApplet {
 		interactions = 0;
 		interactionsThreshold = 10;
 
-		mouseHovering = true;
+		mouseHovering = false;
+		mouseThetaVal = 0;
+		mouseThetaInc = 0.05f;
 	}
 
 	void makeSameCluster(Agent a){ 
@@ -2029,6 +1971,7 @@ public class PolSys extends PApplet {
 
 	public void draw() {
 		mouse = new PVector(mouseX, mouseY);
+		mouseHovering = false;
 		//scale(scaleW, scaleH);
 		//translate(translateBufferX, translateBufferY);
 		//frame.setSize(1440, 900);
@@ -2209,27 +2152,31 @@ public class PolSys extends PApplet {
 		noStroke();
 		fill(255);
 		rect(0, 0, width, rectBorderY);
-		rect(0, 0, rectBorderX, height);
+		rect(0, 0, rectBorderX+1, height);
 		rect(width, 0, -rectBorderX, height);
 
 		debug();
 
+		
+		//mouse
 		strokeWeight(1);
 		stroke(0);
 		noFill();
 		pushMatrix();
 		translate(mouseX, mouseY);
+		rotate(mouseThetaVal);
 		if(mouseHovering){
-			line(-5, 0, 0-3, 0);
-			line(5, 0, 0+3, 0);
+			line(-4, 0, 0-3, 0);
+			line(4, 0, 0+3, 0);
+			line(0, -4, 0, 0-3);
+			line(0, 4, 0, 0+3);
+			ellipse(0, 0, 10, 10);
 			fill(255);
+			mouseThetaVal += mouseThetaInc;
 		}else{
 			point(0, 0);
+			mouseThetaVal = 0;
 		}
-
-		//		rotate(PI*0.25f);
-		//		rectMode(CENTER);
-		//		rect(0, 0, 10, 10);
 		ellipse(0, 0, 6, 6);
 		popMatrix();
 
@@ -2423,46 +2370,210 @@ public class PolSys extends PApplet {
 		rect(rectBorderX, rectBorderY, rectBorderW, rectBorderH);
 	}
 
-	public void showLegend(){
-		//		rectMode(CORNER);
-		//		noStroke();
-		//		
-		//		if(canShowLegend){
-		//			legendButtonText = "dismiss";
-		//
-		//			if(legendBackgroundAlpha < 255) legendBackgroundAlpha += legendBackgroundAlphaInc;
-		//			if(legendTextAlpha < 255 && legendBackgroundAlpha > 250) legendTextAlpha += legendTextAlphaInc;
-		//		}else{
-		//			legendButtonText = "about";
-		//			if(legendBackgroundAlpha > 0 && legendTextAlpha < 10) legendBackgroundAlpha -= legendBackgroundAlphaInc;
-		//			if(legendTextAlpha > 0) legendTextAlpha -= legendTextAlphaInc*2;
-		//		}
-		//		
-		//		strokeWeight(1);
-		//		fill(255, legendBackgroundAlpha);
-		//		rect(rectBorderX, rectBorderY, rectBorderW, rectBorderHMenu);
-		//	
-		//		fill(0, legendTextAlpha);
-		//		textAlign(CENTER);
-		//		text(legendTextContent, legendTextPos.x, legendTextPos.y);
-		//		legendW = textWidth(legendButtonText)*1.25f;
-		//		rectMode(CENTER);
-		//		stroke(0, showLegendAlpha+150);
-		//		strokeWeight(1);
-		//		fill(255, 200);
-		//		rect(showLegendPos.x, showLegendPos.y*0.995f, legendW, legendH);
-		//		fill(0, showLegendAlpha);
-		//		textFont(textFont);
-		//		textSize(textFontSize);
-		//		text(legendButtonText, showLegendPos.x, showLegendPos.y+5);
-		//		
-		//		if(mouseX > showLegendPos.x - legendW*0.5f && mouseX < showLegendPos.x + legendW*0.5f && mouseY > showLegendPos.y - legendH*0.5f && mouseY < showLegendPos.y + legendH*0.5f){
-		//			showLegendAlpha = 150;
-		//			showLegendSW = 2;
-		//		}else{
-		//			showLegendAlpha = 100;
-		//			showLegendSW = 1;
-		//		}
+	public void showLegend(int stage){
+		rectMode(CENTER);
+		if(canShowLegend){
+			if(legendBackgroundAlpha < 200) legendBackgroundAlpha += legendBackgroundAlphaInc;
+			if(legendTextAlpha < 240 && legendBackgroundAlpha > 150) legendTextAlpha += legendTextAlphaInc;
+		}else{
+			if(legendBackgroundAlpha > 0 && legendTextAlpha < 10) legendBackgroundAlpha -= legendBackgroundAlphaInc;
+			if(legendTextAlpha > 0) legendTextAlpha -= legendTextAlphaInc;
+		}
+
+		strokeWeight(1);
+		fill(255, legendBackgroundAlpha);
+		stroke(0, legendBackgroundAlpha);
+		rect(legendRectPos.x, legendRectPos.y, legendTextW, legendTextH-2);
+
+		textFont(thoughtFont);
+		textSize(thoughtFontSize);
+		textAlign(CENTER);
+		fill(0, legendTextAlpha);
+		
+		//here goes all the funky drawing oh yeah bae
+		pushMatrix();
+		translate(legendRectPos.x, 0);
+		if(stage == 1){
+			//draw agents
+			stroke(0, legendTextAlpha);
+			noFill();
+			text("agents living in your world\nare represented as circles", 0, height*0.1f);
+			for(int i = 0; i < 4; i++){
+				ellipse(0, height*0.15f, (i+1)*5, (i+1)*5);
+			}
+			ellipse(0, height*0.15f, rad, rad);
+			
+			//draw connections
+			text("agents form connections\nwith those who are close", 0, height*0.3f);
+			for(int i = 0; i < 3; i++){
+				ellipse(-20, height*0.35f, (i+1)*5, (i+1)*5);
+			}
+			ellipse(-20, height*0.35f, rad, rad);
+			
+			for(int i = 0; i < 3; i++){
+				ellipse(20, height*0.38f, (i+1)*5, (i+1)*5);
+			}
+			ellipse(20, height*0.38f, rad, rad);
+			
+			line(-20, height*0.35f, 20, height*0.38f); //connection
+			
+			//draw predators
+			text("predators roam around, famished,\nbut can be tamed", 0, height*0.5f);
+			pushMatrix();
+			translate(0, height*0.55f);
+			rotate(QUARTER_PI);
+			rect(0, 0, 10, 20);
+			popMatrix();
+			
+			//draw resources
+			text("resources attract agents, who deplete them", 0, height*0.7f);
+			int angleIncrement = (int)(360/fishResourceSides);
+
+			beginShape();
+			fill(colorResources, legendTextAlpha*0.5f);
+			stroke(colorResources, legendTextAlpha);
+			int index = 0;
+			for(float angle = 0; angle < 360; angle += angleIncrement){
+				float x = 0 + PApplet.sin(radians(angle))*(fishResourceRad+fishResourceSidesVar[index]);
+				float y = height*0.77f + PApplet.cos(radians(angle))*(fishResourceRad+fishResourceSidesVar[index]);
+				vertex(x, y);
+				if(index < fishResourceSidesVar.length-1) index++;
+			}
+			endShape(PApplet.CLOSE);
+			
+		}else if(stage == 2){
+			noFill();
+			//--------------------------------draw agents
+			text("agents develop a culture, represented by\ntheir shape, size, thickness and sound", 0, height*0.1f);
+			float angleInc = 360/(8);
+			strokeWeight(2);
+			beginShape();
+			for(int i = 0; i < 360; i += angleInc){
+				float x = cos(radians(i))*(rad*0.5f);
+				float y = height*0.15f+sin(radians(i))*(rad*0.5f);
+				vertex(x, y);
+			}
+			endShape(PApplet.CLOSE);
+			
+			//--------------------------------draw friendship
+			text("agents of a similar culture can become friends", 0, height*0.3f);
+			strokeWeight(1);
+			beginShape();
+			for(int i = 0; i < 360; i += angleInc){
+				float x = -20+cos(radians(i))*(rad*0.5f);
+				float y = height*0.33f+sin(radians(i))*(rad*0.5f);
+				vertex(x, y);
+			}
+			endShape(PApplet.CLOSE);
+			
+			float angleInc2 = 360/6;
+			strokeWeight(1);
+			beginShape();
+			for(int i = 0; i < 360; i += angleInc2){
+				float x = 20+cos(radians(i))*(rad*0.5f);
+				float y = height*0.39f+sin(radians(i))*(rad*0.5f);
+				vertex(x, y);
+			}
+			endShape(PApplet.CLOSE);
+			
+			stroke(1);
+			stroke(colorFriendship, legendTextAlpha);
+			for(int i = -(int)(1.5f); i < 3; i++){
+				  line(-20-i*5f, height*0.33f, 20+i*5f, height*0.39f);
+			}  
+			
+			
+			//--------------------------------draw power
+			text("agents of a different culture create oppression", 0, height*0.5f);
+			strokeWeight(3);
+			stroke(0, legendTextAlpha);
+			beginShape();
+			for(int i = 0; i < 360; i += angleInc){
+				float x = -30+cos(radians(i))*(rad*0.5f);
+				float y = height*0.53f+sin(radians(i))*(rad*0.5f);
+				vertex(x, y);
+			}
+			endShape(PApplet.CLOSE);
+			
+			strokeWeight(1);
+			fill(0, legendTextAlpha*0.2f);
+			beginShape();
+			for(int i = 0; i < 360; i += angleInc2){
+				float x = 30+cos(radians(i))*(rad*0.5f);
+				float y = height*0.56f+sin(radians(i))*(rad*0.5f);
+				vertex(x, y);
+			}
+			endShape(PApplet.CLOSE);
+			
+
+			float size = dist(-30, height*0.53f, 30, height*0.56f);
+			pushMatrix();
+			translate(0, height*0.545f);
+			rotate(PVector.angleBetween(new PVector(-30, height*0.53f), new PVector(30, height*0.56f))+PI*1.1f);
+			beginShape();
+	 	    float radIncS = 0.15f;
+	 	    float radIncI = 0.075f;
+	 	    vertex(size*0.25f, rad*radIncS);
+	 	    vertex(size*0.2f, 0);
+	 	    vertex(size*0.25f, -rad*radIncS);
+	 	    
+	 	    vertex(-size*0.4f, -rad*radIncI);
+	 	    vertex(-size*0.45f, 0);
+	 	    vertex(-size*0.4f, rad*radIncI);
+	 	    endShape(PApplet.CLOSE);
+	 	    popMatrix();
+			noFill();
+	 	    
+			//--------------------------------draw love
+			text("everyone can fall in love", 0, height*0.7f);
+			strokeWeight(2);
+			stroke(0, legendTextAlpha);
+			beginShape();
+			for(int i = 0; i < 360; i += angleInc){
+				float x = -15+cos(radians(i))*(rad*0.5f);
+				float y = height*0.75f+sin(radians(i))*(rad*0.5f);
+				vertex(x, y);
+			}
+			endShape(PApplet.CLOSE);
+			
+			strokeWeight(1);
+			beginShape();
+			for(int i = 0; i < 360; i += angleInc2){
+				float x = 15+cos(radians(i))*(rad*0.5f);
+				float y = height*0.76f+sin(radians(i))*(rad*0.5f);
+				vertex(x, y);
+			}
+			endShape(PApplet.CLOSE);
+			
+			PVector pos = new PVector(0, height*0.755f);
+			
+			noStroke();
+		    fill(colorLove, legendTextAlpha*0.3f);
+		    ellipse(pos.x, pos.y, rad*2, rad*2);
+		    fill(colorLove, legendTextAlpha*0.3f);
+		    ellipse(pos.x, pos.y, rad, rad);
+		    strokeWeight(1);
+		    stroke(0);
+			
+		}else{
+			//draw nations
+			text("nations have a culture, represented by their color,\nand a weath, represented by their thickness", 0, height*0.1f);
+			
+			//draw war
+			text("nations can fight each other\nand the wealthiest will win", 0, height*0.3f);
+			
+			//draw alliances
+			text("nations of a similar culture can form alliances", 0, height*0.5f);
+			
+			//draw trade
+			text("everyone can fall in love", 0, height*0.7f);
+			
+		}
+		popMatrix(); //finish the translation on the x axis
+		
+		textFont(textFont);
+		textSize(textFontSize);
+		textAlign(CENTER);
 	}
 
 	public void finalScreen(){
@@ -3028,6 +3139,9 @@ public class PolSys extends PApplet {
 			predatorButton.display();
 			resourceButton.display();
 			connectionsButton.display();
+			predatorButton.onClick();
+			resourceButton.onClick();
+			connectionsButton.onClick();
 			for(int i = 0; i < fishes.size(); i++){
 				Fish f = fishes.get(i);
 				f.update();
@@ -3185,6 +3299,9 @@ public class PolSys extends PApplet {
 			friendshipButton.display();
 			loveButton.display();
 			powerButton.display();
+			friendshipButton.onClick();
+			loveButton.onClick();
+			powerButton.onClick();
 			for(int i = 0; i < fishes.size(); i++){
 				Fish f = fishes.get(i);
 				f.maxSpeed = 1.0f;
@@ -3295,18 +3412,24 @@ public class PolSys extends PApplet {
 			alliancesButton.display();
 			warButton.display();
 			tradeButton.display();
+			alliancesButton.onClick();
+			warButton.onClick();
+			tradeButton.onClick();
 			stroke(0, 50);
 			line(fishTankPos.x-fishTankSize*0.5f, fishTankPos.y+fishTankSize*0.5f, fishTankPos.x+fishTankSize*0.5f, fishTankPos.y-fishTankSize*0.5f);
 
+			PVector[] citizenFishModel = new PVector[citizenFishNum];
+			PVector[] citizenFishModel2 = new PVector[citizenFishNum2];
+			
 			pushMatrix();
-			translate(fishNationPos.x,fishNationPos.y);
+			translate(fishTankPos.x,fishTankPos.y);
 			for(int i = 0; i < citizenFishNum; i++){
 				stroke(0, fishHullCol1*0.5f, fishHullCol1, 200);
 				noFill();
 				strokeWeight(citizenFishWeight[i]);
 				ellipse(citizenFishPos[i].x, citizenFishPos[i].y, citizenFishRad[i], citizenFishRad[i]);
+				citizenFishModel[i] = new PVector(modelX(citizenFishPos[i].x, citizenFishPos[i].y, 0), modelY(citizenFishPos[i].x, citizenFishPos[i].y, 0));
 			}
-			
 
 			float[][] points = new float[(int)citizenFishNum][2];
 			for(int i = 0; i < citizenFishNum; i++){
@@ -3321,15 +3444,13 @@ public class PolSys extends PApplet {
 			stroke(0, fishHullCol1*0.5f, fishHullCol1, 100);
 			strokeWeight(1);
 			nationBorders.draw(this);
-			popMatrix();
 
-			pushMatrix();
-			translate(fishNationPos2.x,fishNationPos2.y);
 			for(int i = 0; i < citizenFishNum2; i++){
 				stroke(fishHullCol2, fishHullCol2*0.5f, 0, 200);
 				noFill();
 				strokeWeight(citizenFishWeight2[i]);
 				ellipse(citizenFishPos2[i].x, citizenFishPos2[i].y, citizenFishRad2[i], citizenFishRad2[i]);
+				citizenFishModel2[i] = new PVector(modelX(citizenFishPos2[i].x, citizenFishPos2[i].y, 0), modelY(citizenFishPos2[i].x, citizenFishPos2[i].y, 0));
 			}
 			
 
@@ -3417,12 +3538,15 @@ public class PolSys extends PApplet {
 			}
 
 			if(canShowAlliances){
+				pushMatrix();
+				translate(fishTankPos.x, fishTankPos.y);
 				int numAlliances = min(citizenFishNum, citizenFishNum2);
 				strokeWeight(1+1*allianceModifier);
 				stroke(0, 150, 0, 20+80*allianceTrust);
 				for(int i = 0; i < numAlliances; i++){
 					line(citizenFishPos[i].x, citizenFishPos[i].y, citizenFishPos2[i].x, citizenFishPos2[i].y);
 				}
+				popMatrix();
 			}
 
 			PVector center = new PVector(fishTankPos.x, fishTankPos.y);
@@ -3430,9 +3554,7 @@ public class PolSys extends PApplet {
 				victoryLerpMax = 0.5f;
 			}else if (victoryBehaviour == 1.0f){
 				victoryLerpMax = 0.25f;
-			}else{//peace
-//				fishNationPos = PVector.lerp(fishNationPosOrigin, center, 0f);
-//				fishNationPos2 = PVector.lerp(fishNationPos2Origin, center, 0f);
+			}else{
 				victoryLerpMax = 0.0f;
 			}
 			fishNationPos = PVector.lerp(fishNationPosOrigin, center, victoryLerpVal);
@@ -3840,8 +3962,6 @@ public class PolSys extends PApplet {
 				}
 			}
 		}
-
-		showLegend();
 	}
 
 	void inGame(){
@@ -4044,13 +4164,20 @@ public class PolSys extends PApplet {
 			}
 		}
 
-		showAssumptions();
 		textFont(textFont);
 		textSize(textFontSize);
+		
 		resetButton.display();
 		resetButton.onClick();
+		
 		showAssumptions.display();
 		showAssumptions.onClick();
+		
+		showLegendButton.display();
+		showLegendButton.onClick();
+		
+		showAssumptions();
+		showLegend(1);
 
 		death(1);
 
@@ -4119,8 +4246,8 @@ public class PolSys extends PApplet {
 
 	void debug(){
 		textAlign(LEFT);
-		textFont(textFont);
-		textSize(textFontSize);
+		textFont(thoughtFont);
+		textSize(thoughtFontSize);
 		fill(0, 200);
 		if(inGame1){
 			String agents_debug = "agents: "+agents.length;
@@ -4137,7 +4264,7 @@ public class PolSys extends PApplet {
 		String friendship_debug = "friendship: "+friendshipForce;
 		String love_debug = "love: "+loveForce;
 		text("frame rate: "+frameRate, width*0.025f, height*0.025f);
-		text("victory: "+victoryBehaviour, width*0.025f, height*0.045f);
+		//text("victory: "+victoryBehaviour, width*0.025f, height*0.045f);
 		//text(power_debug, width*0.025f, height*0.065f);
 		//text("love: "+connectionsLove.size(), width*0.025f, height*0.085f);
 	}
@@ -4332,11 +4459,10 @@ public class PolSys extends PApplet {
 			}
 
 			if(selectedAgent.isTamer){
-				endGame1_text = endGame1_text+isTamer[isTamRND]+" ";
+				endGame1_text = endGame1_text+isTamer[isTamRND]+"\n\n";
 			}else{
-				endGame1_text = endGame1_text+isTamerX[isTamRNDX]+" ";
+				endGame1_text = endGame1_text+isTamerX[isTamRNDX]+"\n\n";
 			}
-
 
 			if(selectedAgent.isConnectedToDead){
 				endGame1_text = endGame1_text+coToDead[coTDRND]+" ";
@@ -5565,8 +5691,6 @@ public class PolSys extends PApplet {
 		textSize(textFontSize);
 		startButton2.display();
 		startButton2.onClick();
-
-		showLegend();
 	}
 
 	void inGame2() {
@@ -5827,13 +5951,20 @@ public class PolSys extends PApplet {
 
 		death(2);
 
-		showAssumptions();
 		textFont(textFont);
 		textSize(textFontSize);
+		
 		resetButton.display();
 		resetButton.onClick();
+		
 		showAssumptions.display();
 		showAssumptions.onClick();
+		
+		showLegendButton.display();
+		showLegendButton.onClick();
+		
+		showAssumptions();
+		showLegend(2);
 
 		noStroke();
 		fill(255, rectFadeAlpha);
@@ -6576,8 +6707,6 @@ public class PolSys extends PApplet {
 				}
 			}
 		}
-
-		showLegend();
 	}
 
 	void inGame3() {
@@ -6782,14 +6911,21 @@ public class PolSys extends PApplet {
 
 		death(3);
 
-		showAssumptions();
 		textFont(textFont);
 		textSize(textFontSize);
+		
 		resetButton.display();
 		resetButton.onClick();
+		
 		showAssumptions.display();
 		showAssumptions.onClick();
-
+		
+		showLegendButton.display();
+		showLegendButton.onClick();
+		
+		showAssumptions();
+		showLegend(3);
+		
 		noStroke();
 		fill(255, rectFadeAlpha);
 
@@ -7229,16 +7365,25 @@ public class PolSys extends PApplet {
 				statementPage = 0;
 				statementLerpVal = 0;
 				statementTargetPos = statementPage0.pos;
+				statementPage0.alpha = 250;
+				statementPage1.alpha = 150;
+				statementPage2.alpha = 150;
 			}else if(statementPage1.onClick()){
 				clickSound(1);
 				statementPage = 1;
 				statementLerpVal = 0;
 				statementTargetPos = statementPage1.pos;
+				statementPage0.alpha = 150;
+				statementPage1.alpha = 250;
+				statementPage2.alpha = 150;
 			}else if(statementPage2.onClick()){
 				clickSound(1);
 				statementPage = 2;
 				statementLerpVal = 0;
 				statementTargetPos = statementPage2.pos;
+				statementPage0.alpha = 150;
+				statementPage1.alpha = 150;
+				statementPage2.alpha = 250;
 			}
 
 			if(englishButton.onClick()){
@@ -7311,12 +7456,6 @@ public class PolSys extends PApplet {
 			}
 		}
 		if (startGame1) {
-			if(mouseX > showLegendPos.x - legendW && mouseX < showLegendPos.x + legendW && mouseY > showLegendPos.y -legendH && mouseY < showLegendPos.y + legendH){
-				canShowLegend = !canShowLegend;
-				clickSound(1);
-			}
-
-
 			if(connectionsButton.onClick()){
 				clickSound(1);
 				drawFishConnec = !drawFishConnec;
@@ -7495,11 +7634,6 @@ public class PolSys extends PApplet {
 		}
 
 		if(startGame2){
-			if(mouseX > showLegendPos.x  - legendW && mouseX < showLegendPos.x + legendW && mouseY > showLegendPos.y - legendH && mouseY < showLegendPos.y + legendH){
-				canShowLegend = !canShowLegend;
-				clickSound(1);
-			}
-
 			if(powerButton.onClick()){
 				drawFishPower = !drawFishPower;
 				clickSound(1);
@@ -7677,13 +7811,6 @@ public class PolSys extends PApplet {
 		}
 
 		if(startGame3){
-			hasClicked = true;
-
-			if(mouseX > showLegendPos.x - legendW && mouseX < showLegendPos.x + legendW && mouseY > showLegendPos.y - legendH && mouseY < showLegendPos.y + legendH){
-				canShowLegend = !canShowLegend;
-				clickSound(1);
-			}
-
 			if(alliancesButton.onClick()){
 				canShowAlliances = !canShowAlliances;
 				clickSound(1);
@@ -7853,6 +7980,7 @@ public class PolSys extends PApplet {
 			float bufferX = 70;
 			float bufferY = 40;
 			if(mouseY < height - height/40 + bufferY && mouseY > choiceY - bufferY){ //if you're at the bottom of the screen
+				mouseHovering = true;
 				if(mouseX > rectBorderX  && mouseX < width*0.17f){ //first interaction generate predators
 					selGenPred = true;
 					selEraseGrave = false;
@@ -7970,6 +8098,11 @@ public class PolSys extends PApplet {
 				clickSound(1);
 				canShowAssumptions = !canShowAssumptions;
 			}
+			
+			if(showLegendButton.onClick()){
+				clickSound(1);
+				canShowLegend = !canShowLegend;
+			}
 		}
 
 		if (inGame2 && !fading) {
@@ -7977,6 +8110,7 @@ public class PolSys extends PApplet {
 			float bufferX = 70;
 			float bufferY = 20;
 			if(mouseY < height - height/40 + bufferY && mouseY > choiceY - bufferY){ //if you're at the bottom of the screen
+				mouseHovering = true;
 				if(mouseX > rectBorderX  && mouseX < width*0.12f){ //first interaction generate predators
 					selRevolt = true;
 					selOppression = false;
@@ -8169,6 +8303,11 @@ public class PolSys extends PApplet {
 				clickSound(1);
 				canShowAssumptions = !canShowAssumptions;
 			}
+			
+			if(showLegendButton.onClick()){
+				clickSound(1);
+				canShowLegend = !canShowLegend;
+			}
 		}
 
 		if(inGame3 && !fading){
@@ -8176,6 +8315,7 @@ public class PolSys extends PApplet {
 			float bufferX = 70;
 			float bufferY = 20;
 			if(mouseY < height - height/40 + bufferY && mouseY > choiceY - bufferY){ //if you're at the bottom of the screen
+				mouseHovering = true;
 				if(mouseX > rectBorderX  && mouseX < width*0.12f){ //first interaction 
 					selWealthInc = true;
 					selWealthDec = false;
@@ -8297,6 +8437,11 @@ public class PolSys extends PApplet {
 			if(showAssumptions.onClick()){
 				clickSound(1);
 				canShowAssumptions = !canShowAssumptions;
+			}
+			
+			if(showLegendButton.onClick()){
+				clickSound(1);
+				canShowLegend = !canShowLegend;
 			}
 		}
 	}

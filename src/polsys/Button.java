@@ -31,6 +31,9 @@ public class Button extends ProcessingObject {
 	float startRectSizeInc;
 	
 	String language;
+	
+	float w;
+	float h;
 
 	Button() {
 	}
@@ -56,12 +59,15 @@ public class Button extends ProcessingObject {
 	    startRectSize = size;
 	    startRectAlphaInc = 12.5f;
 	    startRectSizeInc = 7.0f;
+	    
+	    w = size;
+	    h = size;
 	}
 
 	void display() {
 		this.language = PolSys.language;
 		p.rectMode(PConstants.CENTER);
-		p.stroke(70, alpha);
+		p.stroke(50, alpha);
 		p.pushMatrix();
 		p.translate(pos.x, pos.y);
 		sinVal += sinInc;
@@ -95,6 +101,10 @@ public class Button extends ProcessingObject {
 	    } else if (type == 2) {//start
 			p.textAlign(PConstants.CENTER);
 			if(PolSys.startGame1 || PolSys.startGame2 || PolSys.startGame3){
+				
+				w = size*3.0f;
+				h = size*1.0f;
+				
 		    	if(PolSys.canShowSettings[7]){
 					p.stroke(70, startRectAlpha);
 					p.noFill();
@@ -102,7 +112,7 @@ public class Button extends ProcessingObject {
 			    	p.strokeWeight(sw);
 			    	p.stroke(70, alpha);
 			    	p.fill(30);
-		    		p.rect(0, 0, size*3f, size*1f);
+		    		p.rect(0, 0, w, h);
 		    		p.fill(255);
 			    	if(language == "english"){
 			    		p.text("social\ncontact", 0, -5);
@@ -112,10 +122,13 @@ public class Button extends ProcessingObject {
 			    	startRectAlpha -= startRectAlphaInc;
 			    	startRectSize += startRectSizeInc;
 		    	}else{
+					w = size*3.0f;
+					h = size*1.0f;
+					
 		    		p.fill(150);
 			    	p.strokeWeight(1);
 			    	p.stroke(200, alpha);
-		    		p.rect(0, 0, size*3f, size*1f);
+		    		p.rect(0, 0, w, h);
 		    		p.fill(255);
 			    	if(language == "english"){
 			    		p.text("choose\nyour assumptions", 0, -5);
@@ -124,9 +137,12 @@ public class Button extends ProcessingObject {
 			    	}
 		    	}
 			}else{
+				w = size*4.0f-2;
+				h = size*0.5f;
+				
 	    		p.fill(255, 100);
 		    	p.strokeWeight(sw);
-	    		p.rect(0, 0, size*4.0f-2, size*0.5f);
+	    		p.rect(0, 0, w, h);
 	    		p.fill(0);
 		    	if(language == "english"){
 		    		p.text("your assumptions", 0, size*0.1f);
@@ -149,17 +165,20 @@ public class Button extends ProcessingObject {
 	    }else if(type == 5){
 	    	p.textFont(PolSys.thoughtFont);
 	    	p.textSize(PolSys.thoughtFontSize);
-	    	p.fill(c, 50);
+	    	p.fill(c, alpha);
 	    	p.strokeWeight(1);
 	    	p.rect(0, 0, size, size);
-	    	p.fill(150);
+	    	p.fill(0, alpha);
 	    	p.text("I", 0, size*0.25f);
 	    	p.noFill();
 	    }else if(type == 6){
+			w = size*2.0f;
+			h = size*0.5f;
+			
 	    	p.stroke(70, PolSys.assumptionsRectAlpha);
 			p.noFill();
 			p.strokeWeight(1);
-			p.rect(0, 0, size*2.0f, size*0.5f);
+			p.rect(0, 0, w, h);
     		p.fill(0, PolSys.assumptionsRectAlpha);
 	    	if(language == "english"){
 	    		p.text("reset", 0, PolSys.textFontSize*0.25f);
@@ -167,30 +186,36 @@ public class Button extends ProcessingObject {
 	    		p.text("recommencer", 0, PolSys.textFontSize*0.25f);
 	    	}
 	    }else if(type == 7){
+			w = size*1.5f;
+			h = size*0.5f;
+			
 	    	p.stroke(0, PolSys.beginAlpha);
 	    	p.textFont(PolSys.textFont);
 	    	p.textSize(PolSys.textFontSize);
 	    	p.noFill();
-	    	p.rect(0, 0, size*1.5f, size*0.5f);
+	    	p.rect(0, 0, w, h);
 	    	p.fill(100, PolSys.beginAlpha);
 	    	p.text("english", 0, PolSys.textFontSize*0.25f);
 	    	p.noFill();
 	    }else if(type == 8){
+	    	w = size*1.5f;
+			h = size*0.5f;
+			
 	    	p.stroke(0, PolSys.beginAlpha);
 	    	p.textFont(PolSys.textFont);
 	    	p.textSize(PolSys.textFontSize);
 	    	p.noFill();
-	    	p.rect(0, 0, size*1.5f, size*0.5f);
+	    	p.rect(0, 0, w, h);
 	    	p.fill(100, PolSys.beginAlpha);
 	    	p.text("fran\u00E7ais", 0, PolSys.textFontSize*0.25f);
 	    	p.noFill();
 	    }else if(type == 9){
 	    	p.textFont(PolSys.thoughtFont);
 	    	p.textSize(PolSys.thoughtFontSize);
-	    	p.fill(c, 50);
+	    	p.fill(c, alpha);
 	    	p.strokeWeight(1);
 	    	p.rect(0, 0, size, size);
-	    	p.fill(150);
+	    	p.fill(0, alpha);
 	    	p.text("II", 0, size*0.25f);
 	    	p.noFill();
 	    }else if(type == 10){
@@ -199,7 +224,7 @@ public class Button extends ProcessingObject {
 	    	p.fill(c, 50);
 	    	p.strokeWeight(1);
 	    	p.rect(0, 0, size, size);
-	    	p.fill(150);
+	    	p.fill(0, alpha);
 	    	p.text("III", 0, size*0.25f);
 	    	p.noFill();
 	    }else if(type == 11){//fish tank buttons
@@ -207,8 +232,11 @@ public class Button extends ProcessingObject {
 	    	p.textSize(PolSys.textFontSize);
 	    	p.noStroke();
 	    	if(PolSys.startGame1){
+	    		w = size*4.0f;
+	    		h = size;
+	    		
 	    		p.fill(PolSys.colorPredator, alpha+80);
-		    	p.rect(0, 0-size*0.25f, size*4, size);
+		    	p.rect(0, 0-size*0.25f, w, h);
 		    	p.fill(colorButtonFish);
 	    		if(PolSys.language == "english"){
 	    			p.text("predators", 0, 0);
@@ -217,8 +245,11 @@ public class Button extends ProcessingObject {
 	    		}
 	    	}
 	    	if(PolSys.startGame2){
+	    		w = size*4.0f;
+	    		h = size;
+	    		
 	    		p.fill(PolSys.colorFriendship, alpha);
-	    		p.rect(0, 0-size*0.25f, size*4, size);
+		    	p.rect(0, 0-size*0.25f, w, h);
 		    	p.fill(colorButtonFish);
 	    		if(language == "english"){
 	    			p.text("friendship", 0, 0);
@@ -227,8 +258,11 @@ public class Button extends ProcessingObject {
 	    		}
 	    	}
 	    	if(PolSys.startGame3){
+	    		w = size*4.0f;
+	    		h = size;
+	    		
 	    		p.fill(PolSys.colorAlliances, alpha);
-	    		p.rect(0, 0-size*0.25f, size*4, size);
+		    	p.rect(0, 0-size*0.25f, w, h);
 		    	p.fill(colorButtonFish);
 	    		p.text("alliances", 0, 0);
 	    	}
@@ -237,9 +271,13 @@ public class Button extends ProcessingObject {
 	    	p.textFont(PolSys.textFont);
 	    	p.textSize(PolSys.textFontSize);
 	    	p.noStroke();
+	    	
+    		w = size*4.0f;
+    		h = size;
+    		
 	    	if(PolSys.startGame1){
 	    		p.fill(PolSys.colorResources, alpha);
-	    		p.rect(0, 0-size*0.25f, size*4, size);
+		    	p.rect(0, 0-size*0.25f, w, h);
 		    	p.fill(colorButtonFish);
 	    		if(language == "english"){
 	    			p.text("resources", 0, 0);
@@ -249,7 +287,7 @@ public class Button extends ProcessingObject {
 	    	}
 	    	if(PolSys.startGame2){
 	    		p.fill(PolSys.colorLove, alpha);
-	    		p.rect(0, 0-size*0.25f, size*4, size);
+		    	p.rect(0, 0-size*0.25f, w, h);
 		    	p.fill(colorButtonFish);
 	    		if(language == "english"){
 	    			p.text("love", 0, 0);
@@ -259,7 +297,7 @@ public class Button extends ProcessingObject {
 	    	}
 	    	if(PolSys.startGame3){
 	    		p.fill(PolSys.colorWar, alpha);
-	    		p.rect(0, 0-size*0.25f, size*4, size);
+		    	p.rect(0, 0-size*0.25f, w, h);
 		    	p.fill(colorButtonFish);
 	    		if(language == "english"){
 	    			p.text("war", 0, 0);
@@ -272,9 +310,13 @@ public class Button extends ProcessingObject {
 	    	p.textFont(PolSys.textFont);
 	    	p.textSize(PolSys.textFontSize);
 	    	p.noStroke();
+	    	
+    		w = size*4.0f;
+    		h = size;
+    		
 	    	if(PolSys.startGame1){
 	    		p.fill(50, alpha);
-	    		p.rect(0, 0-size*0.25f, size*4, size);
+		    	p.rect(0, 0-size*0.25f, w, h);
 		    	p.fill(255);
 	    		if(language == "english"){
 	    			p.text("connections", 0, 0);
@@ -284,17 +326,30 @@ public class Button extends ProcessingObject {
 	    	}
 	    	if(PolSys.startGame2){
 	    		p.fill(PolSys.colorPower, alpha);
-	    		p.rect(0, 0-size*0.25f, size*4, size);
+		    	p.rect(0, 0-size*0.25f, w, h);
 		    	p.fill(colorButtonFish);
 	    		p.text("oppression", 0, 0);
 	    	}
 	    	if(PolSys.startGame3){
 	    		p.fill(PolSys.colorTrade, alpha);
-	    		p.rect(0, 0-size*0.25f, size*4, size);
+		    	p.rect(0, 0-size*0.25f, w, h);
 		    	p.fill(colorButtonFish);
 	    		p.text("commerce", 0, 0);
 	    	}
 	    	p.noFill();
+	    }else if(type == 14){
+			w = size*4.0f-2;
+			h = size*0.5f;
+			
+    		p.fill(255, 100);
+	    	p.strokeWeight(sw);
+    		p.rect(0, 0, w, h);
+    		p.fill(0);
+	    	if(language == "english"){
+	    		p.text("legend", 0, size*0.1f);
+	    	}else{
+	    		p.text("l\u00E9gende", 0, size*0.1f);
+	    	}
 	    }
 	    
 	    p.popMatrix();
@@ -310,8 +365,9 @@ public class Button extends ProcessingObject {
 	}
 
 	boolean onClick() {
-	    if (p.mouseX > this.pos.x-size*1.5f && p.mouseX < this.pos.x+size*1.5f && p.mouseY > this.pos.y-size*1.1f && p.mouseY < this.pos.y +size*1.1f) {
+	    if (p.mouseX > this.pos.x-w*0.5f && p.mouseX < this.pos.x+w*0.5f && p.mouseY > this.pos.y-h*0.5f && p.mouseY < this.pos.y +h*0.5f) {
 	    	//if(p.mousePressed && !PolSys.statement && !PolSys.intro) PolSys.interactions++;
+	    	PolSys.mouseHovering = true;
 	    	return true;
 	    } else {
 	    	return false;

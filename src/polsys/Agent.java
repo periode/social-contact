@@ -750,7 +750,7 @@ public class Agent extends ProcessingObject {
 		//p.text("protected: "+hasProtected, pos.x+rad, pos.y+rad);
 		//p.text("time in Love: "+this.timeInLove, pos.x+rad, pos.y+rad);
 		//p.text("children"+childrenHad, pos.x, pos.y+rad);
-		p.text("grave "+hasGrave, pos.x, pos.y+rad);
+		//p.text("grave "+hasGrave, pos.x, pos.y+rad);
 	}
 
 	void display() {
