@@ -365,7 +365,7 @@ public class Button extends ProcessingObject {
 	}
 
 	boolean onClick() {
-	    if (p.mouseX > this.pos.x-w*0.5f && p.mouseX < this.pos.x+w*0.5f && p.mouseY > this.pos.y-h*0.5f && p.mouseY < this.pos.y +h*0.5f) {
+	    if (p.mouseX > this.pos.x-w*0.75f && p.mouseX < this.pos.x+w*0.75f && p.mouseY > this.pos.y-h*0.75f && p.mouseY < this.pos.y +h*0.75f) {
 	    	//if(p.mousePressed && !PolSys.statement && !PolSys.intro) PolSys.interactions++;
 	    	PolSys.mouseHovering = true;
 	    	return true;
