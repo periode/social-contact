@@ -54,6 +54,10 @@ public class ConnectionPower extends ProcessingObject {
 	  float lerpVal;
 	  float lerpInc;
 	  
+	  String revealFunction;
+	  float textAlpha;
+	  float textAlphaInc;
+	  
 	  ConnectionPower() {
 	  }
 
@@ -106,6 +110,10 @@ public class ConnectionPower extends ProcessingObject {
 	    
 	    lerpVal = 0;
 	    lerpInc = 0.1f;
+	    
+	    revealFunction = "oppress(other);";
+	    textAlpha = 150.0f;
+	    textAlphaInc = 3.0f;
 	  }
 	  
 	  void update(){
@@ -198,6 +206,14 @@ public class ConnectionPower extends ProcessingObject {
 	    	p.line(a1.pos.x, a1.pos.y, a2.pos.x, a2.pos.y);
 	    }
 	    rectAlpha -= 1.0f;
+	    
+		p.fill(0, textAlpha*1.5f);
+		p.textFont(PolSys.thoughtFont);
+		p.textSize(PolSys.thoughtFontSize);
+		if(textAlpha > 0){
+			p.text(revealFunction, averagePos.x+10, averagePos.y);
+			textAlpha -= textAlphaInc;
+		}
 	    
 	  }
 

@@ -28,6 +28,10 @@ public class Connection extends ProcessingObject {
 
 	float lerpVal;
 	float lerpInc;
+	
+	String revealFunction;
+	float textAlpha;
+	float textAlphaInc;
 
 	Connection() {
 	}
@@ -52,6 +56,10 @@ public class Connection extends ProcessingObject {
 
 		lerpVal = 0;
 		lerpInc = 0.175f;
+		
+		revealFunction = "connect(you, me, 10)";
+		textAlpha = 150.0f;
+		textAlphaInc = 3.0f;
 	}
 
 	void display() {
@@ -87,6 +95,14 @@ public class Connection extends ProcessingObject {
 			lerpVal += lerpInc;
 		}else{
 			p.line(a1.pos.x, a1.pos.y, a2.pos.x, a2.pos.y);	
+		}
+		
+		p.fill(0, textAlpha);
+		p.textFont(PolSys.thoughtFont);
+		p.textSize(PolSys.thoughtFontSize);
+		if(textAlpha > 0){
+			p.text(revealFunction, averagePos.x+10, averagePos.y);
+			textAlpha -= textAlphaInc;
 		}
 	}
 

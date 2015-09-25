@@ -3631,9 +3631,7 @@ public class PolSys extends PApplet {
 			fishNationPos = PVector.lerp(fishNationPosOrigin, center, victoryLerpVal);
 			fishNationPos2 = PVector.lerp(fishNationPos2Origin, center, victoryLerpVal);
 			if(victoryLerpVal < victoryLerpMax) victoryLerpVal += victoryLerpInc;
-
-			println("lerpVal: "+victoryLerpVal);
-
+			
 			if(canShowCulture){
 				fishHullCol1 = 50 + 50*nationGoal;
 				fishHullCol2 = 50 + 50*nationGoal;
@@ -4337,7 +4335,7 @@ public class PolSys extends PApplet {
 		//text("frame rate: "+frameRate, width*0.025f, height*0.025f);
 		//text("victory: "+victoryBehaviour, width*0.025f, height*0.045f);
 		//text(power_debug, width*0.025f, height*0.065f);
-		text("love: "+wars.size(), width*0.025f, height*0.085f);
+		//text("love: "+wars.size(), width*0.025f, height*0.085f);
 	}
 
 	void drawVoronoi(int stage){
@@ -5838,7 +5836,7 @@ public class PolSys extends PApplet {
 				strokeWeight(1);
 				stroke(0, a.graveAlpha);
 				a.graveAlpha -= a.graveAlphaInc*(1.5f-rememberDead);
-				float inc = agents[i].rad*0.2f;
+				float inc = a.rad*0.2f;
 				line(a.pos.x-inc, a.pos.y, a.pos.x+inc, a.pos.y);
 				line(a.pos.x, a.pos.y-inc, a.pos.x, a.pos.y+inc*2.0f);
 			}
@@ -5860,7 +5858,7 @@ public class PolSys extends PApplet {
 		for(int i = 0; i < connectionsFriendship.size(); i++){
 			ConnectionFriendship cF = connectionsFriendship.get(i);
 			cF.display();
-		}	
+		}
 
 		fill(255);
 		rectMode(CORNER);
@@ -8518,7 +8516,6 @@ public class PolSys extends PApplet {
 	}
 
 	public void keyPressed() {
-		println((int)key);
 		if(key == 'p'){
 			isPaused = !isPaused;
 		}

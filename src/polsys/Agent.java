@@ -1128,22 +1128,20 @@ public class Agent extends ProcessingObject {
 	}
 
 	void boundaries() {
-
-
 		PVector desired = null;
 
-		if (pos.x < rad) {
+		if (pos.x < rad) { //hit the left edge
 			desired = new PVector(moveCoeff*4, velocity.y);
 		} 
-		else if (pos.x > p.width - rad) {
+		else if (pos.x > p.width - rad) {//hit the right edge
 			desired = new PVector(-moveCoeff*4, velocity.y);
 		} 
 
-		if (pos.y < rad) {
-			desired = new PVector(velocity.x, moveCoeff);
+		if (pos.y < rad) {//hit the top
+			desired = new PVector(velocity.x, moveCoeff*2);
 		} 
-		else if (pos.y > p.height-rad-(p.height/19)) {
-			desired = new PVector(velocity.x, -moveCoeff);
+		else if (pos.y > PolSys.rectBorderH-rad) {
+			desired = new PVector(velocity.x, -moveCoeff*2);
 		} 
 
 		if (desired != null) {
