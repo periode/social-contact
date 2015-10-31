@@ -39,6 +39,8 @@ import beads.WavePlayer;
 import beads.Envelope;
 import processing.core.PApplet;
 import processing.core.PFont;
+import processing.core.PGraphics;
+import processing.core.PImage;
 import processing.core.PVector;
 import sun.security.tools.keytool.Resources_pt_BR;
 
@@ -193,10 +195,9 @@ public class PolSys extends PApplet {
 	float rectFadeAlpha;
 	float rectFadeAlphaInc;
 	float rectFadeBufferMax;
-	float rectFadeBuffer;
+	static float rectFadeBuffer;
 
 	static int interactions;
-	int interactionsThreshold;
 
 	static boolean mouseHovering;
 	float mouseThetaVal;
@@ -560,7 +561,20 @@ public class PolSys extends PApplet {
 	int genPred;
 	int stopAgent;
 	int removeConnec;
+	/* ---------------- Variables for Background1 ---------------- */
+	PGraphics[] background1;
+	
+	PVector[] fieldPos;
+	int fieldCols;
+	int fieldRows;
 
+	float fieldStepY;
+	float fieldStepX;
+
+	float fieldNoiseVal;
+	float fieldCosVal;
+	float noiseCoeff;
+	
 	/* ---------------- Variables for EndGame1 ---------------- */
 	PVector portraitPos;
 	float portraitRad;
@@ -764,6 +778,15 @@ public class PolSys extends PApplet {
 	int cultureOrigin;
 
 	PVector[] finalStructurePos;
+	
+	float startTimeFriendship;
+	float timerFriendship;
+	
+	float startTimeLove;
+	float timerLove;
+	
+	float startTimePower;
+	float timerPower;
 
 	/* ---------------- Variables for EndGame2 ---------------- */
 	String endGame2_text;
@@ -1145,7 +1168,7 @@ public class PolSys extends PApplet {
 		assumptionsTextAlpha = 0;
 		assumptionsTextAlphaInc = 15.0f;
 
-		resetButtonPos = new PVector(assumptionsTextPos.x, height*0.9f);
+		resetButtonPos = new PVector(assumptionsTextPos.x, height*0.875f);
 		resetButtonSize = showAssumptionsButtonW;
 		resetButton = new Button(resetButtonPos.x, resetButtonPos.y, resetButtonSize, 6, this);	
 		resetStage = 1;
@@ -1236,6 +1259,54 @@ public class PolSys extends PApplet {
 		genPred = 4;
 		stopAgent = 4;
 		removeConnec = 9;
+		
+		/* ---------------- background graphics -------------- */
+		background1 = new PGraphics[10];
+		
+		fieldCols = 120;
+		fieldRows = 120;
+		
+		fieldStepX = width/fieldCols;
+		fieldStepY = height/fieldRows;
+		
+		fieldPos = new PVector[fieldCols * fieldRows];
+		
+		int index = 0;
+		for (int y = 0; y < fieldCols; y++) {
+		    for (int x = 0; x < fieldRows; x++) {
+		    	fieldPos[index] = new PVector(fieldStepX+x*fieldStepX, fieldStepY+y*fieldStepY);
+		      index++;
+		    }
+		 }
+
+		for (int j = 0; j < background1.length; j++) {
+			background1[j] = createGraphics(width, height);
+		}
+
+		fieldNoiseVal = random(10);
+		noiseCoeff = 40;
+
+		for (int k = 0; k < background1.length; k++) {
+			background1[k].beginDraw();
+			background1[k].strokeWeight(1);
+			background1[k].stroke(0, 20);
+			index = 0;
+			for (int y = 0; y < fieldCols; y++) {
+				for (int x = 0; x < fieldRows; x++) {
+					float noiseVal = noise(x*0.1f, y*0.1f, fieldNoiseVal)*10;
+					background1[k].pushMatrix();
+					background1[k].translate(fieldPos[index].x, fieldPos[y].x);
+					background1[k].rotate(radians(10*noiseVal-45));
+					background1[k].line(0, 0, 5+noiseVal, 5+noiseVal);
+					background1[k].popMatrix();
+					index++;
+				}
+			}
+			fieldNoiseVal += 0.1f;
+			background1[k].endDraw();
+		}
+		
+		fieldCosVal = 0;
 
 		selGenPred = false;
 		selIsolate = false;
@@ -1574,6 +1645,10 @@ public class PolSys extends PApplet {
 		oppressionMultiplier = 20.0f;
 
 		cultureOrigin = 0;
+		
+		timerFriendship = 7500;
+		timerLove = 10000;
+		timerPower = 10000;
 
 		bezierNum = (int)(fishTankSize/20);;
 		startPointBezierFish = new PVector[bezierNum];
@@ -1716,7 +1791,6 @@ public class PolSys extends PApplet {
 
 		ac.start();
 
-
 		alphaFade = 0;
 		loadingTextAlpha = 0;
 		loadingTextVal = -PI*0.5f;
@@ -1735,7 +1809,6 @@ public class PolSys extends PApplet {
 		rectFadeBuffer = 0; 
 
 		interactions = 0;
-		interactionsThreshold = 10;
 
 		mouseHovering = false;
 		mouseThetaVal = 0;
@@ -1874,37 +1947,37 @@ public class PolSys extends PApplet {
 
 		//------------------------------------- MOUSE OVER CONNECTION TO REMOVE
 
-		for(int k = 0; k < connections.size(); k++){
-			Connection c = connections.get(k);
-			Agent start;
-			Agent end;
-			if(c.a1.pos.x > c.a2.pos.x){
-				start = c.a1;
-				end = c.a2;
-			}else{
-				start = c.a2;
-				end = c.a1;
-			}
-
-			PVector a = PVector.sub(mouse, start.pos);
-			PVector b = PVector.sub(end.pos, start.pos);
-
-			b.normalize();
-			b.mult(a.dot(b));
-			PVector normalPoint = PVector.add(start.pos, b);
-
-
-			float distance = PVector.dist(mouse, normalPoint);
-
-			if(distance < 20 && dist(mouseX, mouseY, c.a1.pos.x, c.a1.pos.y) > c.a1.rad*1.1f && dist(mouseX, mouseY, c.a2.pos.x, c.a2.pos.y) > c.a2.rad*1.1f && mouseX < start.pos.x && mouseX > end.pos.x){
-				fill(0, 75);
-				c.canRemove = true;
-			}else{
-				c.canRemove = false;
-			}
-		}
-
-		removeConnec = max(removeConnec, 0);
+//		for(int k = 0; k < connections.size(); k++){
+//			Connection c = connections.get(k);
+//			Agent start;
+//			Agent end;
+//			if(c.a1.pos.x > c.a2.pos.x){
+//				start = c.a1;
+//				end = c.a2;
+//			}else{
+//				start = c.a2;
+//				end = c.a1;
+//			}
+//
+//			PVector a = PVector.sub(mouse, start.pos);
+//			PVector b = PVector.sub(end.pos, start.pos);
+//
+//			b.normalize();
+//			b.mult(a.dot(b));
+//			PVector normalPoint = PVector.add(start.pos, b);
+//
+//
+//			float distance = PVector.dist(mouse, normalPoint);
+//
+//			if(distance < 20 && dist(mouseX, mouseY, c.a1.pos.x, c.a1.pos.y) > c.a1.rad*1.1f && dist(mouseX, mouseY, c.a2.pos.x, c.a2.pos.y) > c.a2.rad*1.1f && mouseX < start.pos.x && mouseX > end.pos.x){
+//				fill(0, 75);
+//				c.canRemove = true;
+//			}else{
+//				c.canRemove = false;
+//			}
+//		}
+//
+//		removeConnec = max(removeConnec, 0);
 	}
 
 	void update2(){
@@ -1917,21 +1990,31 @@ public class PolSys extends PApplet {
 			if(a.isAlive){
 				a.update();
 
-				a.connectLove();
-				a.exertLove();
+				if(millis() - startTimeLove > timerLove){
+					a.connectLove();
+					a.exertLove();
+				}
 
-				if(rectFadeAlpha < 10){
+				if(millis() - startTimeFriendship > timerFriendship){
 					a.connectFriendship();
 					a.exertFriendship();
 				}
 
-				if(a.isSettled){
+				if(a.isSettled && millis() - startTimePower > timerPower){
 					a.connectPower();
 					a.exertPower();
 					//a.reproduce(); --this happens now on ConnectionLove
 				}
 			}
+			
+			isHovering = false;
+			if(PApplet.dist(mouseX, mouseY, a.pos.x, a.pos.y) < a.rad){
+				isHovering = true;
+				break;
+			}
 		}
+		
+
 
 		for(int i = 0; i < connectionsFriendship.size(); i++){
 			ConnectionFriendship cF = connectionsFriendship.get(i);
@@ -1944,7 +2027,6 @@ public class PolSys extends PApplet {
 			ConnectionLove cL = connectionsLove.get(i);
 
 			if(cL.a1.canReproduce){
-				//println(cL.a1+" can reproduce "+cL.a1.canReproduce+" @"+frameCount);
 				cL.a1.reproduce(cL.a2, cL);
 			}
 
@@ -1976,7 +2058,7 @@ public class PolSys extends PApplet {
 		//translate(translateBufferX, translateBufferY);
 		//frame.setSize(1440, 900);
 		background(250);
-		rhythm();
+		if(frameRate > 10) rhythm();
 		selPulse = (cos(millis()*0.005f)+1)*50;
 		textFont(mainFont);
 		
@@ -2000,7 +2082,11 @@ public class PolSys extends PApplet {
 			loadingTextAlpha = (sin(loadingTextVal)+1)*200.0f;
 
 			if(alphaFade > 1000){
-				if(inGame1){
+				if(splash){
+					splash = false;
+					statement = true;
+					fading = false;
+				}else if(inGame1){
 					inGame1 = false;
 					endGame1 = true;
 					fading = false;
@@ -2144,7 +2230,7 @@ public class PolSys extends PApplet {
 		textSize(loadingFontSize);
 		textAlign(CENTER);
 		text(loadingText, width*0.5f, height*0.4f);
-
+		
 		stroke(0, loadingTextAlpha*1.75f);
 		line(rectBorderX, height*0.75f, loadingPos, height*0.75f);
 
@@ -2155,36 +2241,37 @@ public class PolSys extends PApplet {
 		rect(0, 0, rectBorderX+1, height);
 		rect(width, 0, -rectBorderX, height);
 
-		debug();
+		//debug();
 
 		
 		//mouse
-		strokeWeight(1);
-		stroke(0);
-		noFill();
-		pushMatrix();
-		translate(mouseX, mouseY);
-		rotate(mouseThetaVal);
-		if(mouseHovering){
-			line(-4, 0, 0-3, 0);
-			line(4, 0, 0+3, 0);
-			line(0, -4, 0, 0-3);
-			line(0, 4, 0, 0+3);
-			ellipse(0, 0, 10, 10);
-			fill(255);
-			mouseThetaVal += mouseThetaInc;
-		}else{
-			point(0, 0);
-			mouseThetaVal = 0;
-		}
-		ellipse(0, 0, 6, 6);
-		popMatrix();
-
 		noCursor();
+		if(!fading && !intro){
+			strokeWeight(1);
+			stroke(0);
+			noFill();
+			pushMatrix();
+			translate(mouseX, mouseY);
+			rotate(mouseThetaVal);
+			if(mouseHovering){
+				line(-4, 0, 0-3, 0);
+				line(4, 0, 0+3, 0);
+				line(0, -4, 0, 0-3);
+				line(0, 4, 0, 0+3);
+				ellipse(0, 0, 10, 10);
+				fill(255);
+				mouseThetaVal += mouseThetaInc;
+			}else{
+				point(0, 0);
+				mouseThetaVal = 0;
+			}
+			ellipse(0, 0, 6, 6);
+			popMatrix();	
+		}
 	}
 
 	public void emailScreen(){
-		loadingText = "transmission...";
+		loadingText = "transmission";
 
 		fill(0);
 		textAlign(CENTER);
@@ -2277,7 +2364,7 @@ public class PolSys extends PApplet {
 	}
 
 	public void strataModulation(){
-		float inc = 0.12f;
+		float inc = 0.15f;
 		for(int i = 0; i < community.size(); i++){
 			Agent a = community.get(i);
 			if(a.pos.y < strata1Anchor1.y){ //----------------top
@@ -2525,8 +2612,10 @@ public class PolSys extends PApplet {
 			noFill();
 	 	    
 			//--------------------------------draw love
+			fill(0, legendTextAlpha);
 			text("everyone can fall in love", 0, height*0.7f);
 			strokeWeight(2);
+			noFill();
 			stroke(0, legendTextAlpha);
 			beginShape();
 			for(int i = 0; i < 360; i += angleInc){
@@ -2661,16 +2750,20 @@ public class PolSys extends PApplet {
 		textSize(thoughtFontSize);
 		if(language == "english"){
 			text("done", width*0.5f, height*0.5f);
+			
+			text("for more details, visit socialcontact.cc", width*0.5f, height*0.8f);
 		}else{
 			text("fin", width*0.5f, height*0.5f);
+			
+			text("socialcontact.cc", width*0.5f, height*0.8f);
 		}
 
 		if(millis() > finalTimerSmall){
-			finalAlphaSmall += 0.05f;
+			finalAlphaSmall += 0.01f;
 		}
 
 		if(millis() > finalTimerFull){
-			finalAlphaFull += 10.0f;
+			finalAlphaFull += 5.0f;
 		}
 
 		fill(255, finalAlphaFull);
@@ -2678,9 +2771,7 @@ public class PolSys extends PApplet {
 		rect(3, 3, width - 6, height - 6);
 
 		if(finalAlphaFull > 1000){
-			emailScreen = false;
-			finalScreen = false;
-			splash = true;
+			setup();
 		}
 	}
 
@@ -3129,21 +3220,23 @@ public class PolSys extends PApplet {
 		textSize(textFontSize);
 		textFont(textFont);
 
+		
 		if(language == "english"){
 			fill(100, statementAlpha);
 			for(int i = 0; i < currentStatement.length; i++){
 				text(currentStatement[i], width*0.5f, height*0.4f+(i*height*0.05f), width*0.45f, height*0.3f);
 			}
 			fill(100, beginAlpha);
-			text("space to start", width*0.5f, height*0.95f);
+			if(interactions > 1) text("space to start", width*0.5f, height*0.95f);
 		}else{
 			fill(100, statementAlpha);
 			for(int i = 0; i < currentStatementFR.length; i++){
 				text(currentStatementFR[i], width*0.5f, height*0.4f+(i*height*0.05f), width*0.45f, height*0.3f);
 			}
 			fill(100, beginAlpha);
-			text("espace pour commencer", width*0.5f, height*0.95f);
+			if(interactions > 1) text("espace pour commencer", width*0.5f, height*0.95f);
 		}
+		
 
 		if(!initiate){
 			statementAlpha = (sin(map(statementLerpVal, 0, 1, PI, TWO_PI))*255)+255;
@@ -3213,6 +3306,7 @@ public class PolSys extends PApplet {
 			predatorButton.onClick();
 			resourceButton.onClick();
 			connectionsButton.onClick();
+			strokeWeight(1);
 			for(int i = 0; i < fishes.size(); i++){
 				Fish f = fishes.get(i);
 				f.update();
@@ -3318,10 +3412,13 @@ public class PolSys extends PApplet {
 			MPolygon fishesRegion = trustOthersHull.getRegion();
 			if(meetingOthers == 0.5f){
 				stroke(0, 10);
+				fill(0, 5);
 			}else if(meetingOthers == 1.0f){
 				stroke(0, 100);
+				fill(0, 10);
 			}else{
 				stroke(0, 200);
+				fill(0, 20);
 			}
 			strokeWeight(2);
 			fishesRegion.draw(this);
@@ -3652,6 +3749,9 @@ public class PolSys extends PApplet {
 		noiseVal+= 0.4f;
 		strokeWeight(1);
 		stroke(0);
+		for(int i = 1; i < 3; i++){
+			rect(rectBorderX+2*i, rectBorderY+2*i, rectBorderW-4*i, rectBorderHTemp-4*i);
+		}
 
 		rectBorderHTemp = rectBorderHMenu;
 
@@ -3664,7 +3764,7 @@ public class PolSys extends PApplet {
 		}
 
 		for(int i = 0; i < canShowSettings.length; i++){
-			if(interactions > i * 3) canShowSettings[i] = true;
+			if(interactions > i * 2) canShowSettings[i] = true;
 		}
 
 
@@ -3789,11 +3889,11 @@ public class PolSys extends PApplet {
 			assumptions[2] = "the dead should be " + rememberDeadString;
 		}else{
 			if(rememberDead == 0.5f){
-				rememberDeadString = "etre oubli\u00E9s";
+				rememberDeadString = "\u00EAtre oubli\u00E9s";
 			}else if(rememberDead == 1.0f){
-				rememberDeadString = "etre honor\u00E9s";
+				rememberDeadString = "\u00EAtre honor\u00E9s";
 			}else{
-				rememberDeadString = "etre ch\u00E9ris";
+				rememberDeadString = "\u00EAtre ch\u00E9ris";
 			}
 			text("les morts doivent\n" + rememberDeadString, leftColX, thirdRowY);
 			assumptions[2] = "les morts doivent " + rememberDeadString;
@@ -4039,6 +4139,8 @@ public class PolSys extends PApplet {
 		textFont(textFont);
 		textAlign(LEFT);
 		noStroke();
+		
+		
 		fill(bgColBox, 50);
 		bgColBox = lerpColor(bgColBox, newBgColBox, bgColBoxLerpSpeed);
 		bgColBoxLerpSpeed = map((millis()-Seasons.startTime), 0, Seasons.timer, 0, 1);
@@ -4079,9 +4181,16 @@ public class PolSys extends PApplet {
 			}
 			if (!p.isAlive) {
 				stroke(colorPredator);
-				stroke(10);
-				line(p.pos.x-p.size*0.25f, p.pos.y+p.size*0.25f, p.pos.x+p.size*0.25f, p.pos.y-p.size*0.25f);
-				line(p.pos.x-p.size*0.25f, p.pos.y-p.size*0.25f, p.pos.x+p.size*0.25f, p.pos.y+p.size*0.25f);
+				stroke(10, 150);
+				pushMatrix();
+				translate(p.pos.x, p.pos.y);
+				rotate(p.theta);
+				noFill();
+				rectMode(CENTER);
+				rect(0, 0, p.size*0.75f, p.size*1.5f);
+				line(-p.size*0.2f, p.size*0.3f, p.size*0.2f, -p.size*0.3f);
+				line(-p.size*0.2f, -p.size*0.3f, p.size*0.2f, p.size*0.3f);
+				popMatrix();
 			}
 		}
 
@@ -4108,7 +4217,7 @@ public class PolSys extends PApplet {
 
 		textAlign(LEFT);
 		if(language == "english"){
-			text("introduce predators", rectBorderX, choiceY);
+			text("you could introduce predators", rectBorderX, choiceY);
 		}else{
 			text("introduire des pr\u00E9dateurs", rectBorderX, choiceY);	
 		}
@@ -4119,7 +4228,7 @@ public class PolSys extends PApplet {
 		if (selIsolate) fill(0, interactionAlpha+50+selPulse);
 
 		if(language == "english"){
-			text("isolate an agent", width*0.3334f, choiceY);
+			text("you could isolate an agent", width*0.3334f, choiceY);
 		}else{
 			text("isoler un individu", width*0.3334f, choiceY);	
 		}
@@ -4128,7 +4237,7 @@ public class PolSys extends PApplet {
 		if (selEraseGrave) fill(0, interactionAlpha+50+selPulse);
 
 		if(language == "english"){
-			text("erase a grave", width*0.6667f, choiceY);
+			text("you could erase a grave", width*0.6667f, choiceY);
 		}else{
 			text("effacer une tombe", width*0.6667f, choiceY);	
 		}
@@ -4158,7 +4267,7 @@ public class PolSys extends PApplet {
 		for (int i = 0; i < agents.length; i++) {
 			if (agents[i].isAlive && agents[i].arrived){
 				agents[i].display();
-				agents[i].debug();
+				//agents[i].debug();
 			}else if(!agents[i].isAlive && agents[i].arrived && agents[i].graveAlpha > 0){
 				strokeWeight(1);
 				noFill();
@@ -4236,8 +4345,7 @@ public class PolSys extends PApplet {
 		textFont(textFont);
 		textSize(textFontSize);
 		
-		resetButton.display();
-		resetButton.onClick();
+
 		
 		showAssumptions.display();
 		showAssumptions.onClick();
@@ -4247,6 +4355,9 @@ public class PolSys extends PApplet {
 		
 		showAssumptions();
 		showLegend(1);
+		
+		resetButton.display();
+		resetButton.onClick();
 
 		death(1);
 
@@ -4298,6 +4409,7 @@ public class PolSys extends PApplet {
 			if(fading) rectFadeAlpha += 10.0f;
 		}
 
+		//MIDDLE WHITE RECTANGLE - PROCEED
 		fill(255, rectProceedAlpha);
 		stroke(0, rectProceedAlpha);
 		rectMode(CENTER);
@@ -4318,23 +4430,9 @@ public class PolSys extends PApplet {
 		textFont(thoughtFont);
 		textSize(thoughtFontSize);
 		fill(0, 200);
-		if(inGame1){
-			String agents_debug = "agents: "+agents.length;
-		}else{
-			String agents_debug = "not the correct phase";
-		}
-		String nations_debug = "nations: " + others.size();
-		String allDead_debug = "all agents dead: "+allAgentsDead;
-		String resources_debug = "resources 3: "+resources3.size();
-		String stayClose_debug = "stayClose: "+formingStableRelationships;
-		String meetingOthers_debug = "meetingOthers: "+meetingOthers;
-		String rememberDead_debug = "rememberDead: "+rememberDead;
-		String power_debug = "power: "+powerForce;
-		String friendship_debug = "friendship: "+friendshipForce;
-		String love_debug = "love: "+loveForce;
-		//text("frame rate: "+frameRate, width*0.025f, height*0.025f);
-		//text("victory: "+victoryBehaviour, width*0.025f, height*0.045f);
-		//text(power_debug, width*0.025f, height*0.065f);
+		text("frame rate: "+frameRate, width*0.025f, height*0.025f);
+		text("wars: "+wars.size(), width*0.025f, height*0.045f);
+		text("war modifier :"+warModifier, width*0.025f, height*0.065f);
 		//text("love: "+wars.size(), width*0.025f, height*0.085f);
 	}
 
@@ -4522,16 +4620,12 @@ public class PolSys extends PApplet {
 			}
 
 			if(selectedAgent.connecMax > 3){
-				endGame1_text = endGame1_text+connecMax[coMaxRND]+" ";
+				endGame1_text = endGame1_text+connecMax[coMaxRND]+"\n\n";
 			}else{
-				endGame1_text = endGame1_text+connecMaxX[coMaxRNDX]+" ";
+				endGame1_text = endGame1_text+connecMaxX[coMaxRNDX]+"\n\n";
 			}
-
-			if(selectedAgent.isTamer){
-				endGame1_text = endGame1_text+isTamer[isTamRND]+"\n\n";
-			}else{
-				endGame1_text = endGame1_text+isTamerX[isTamRNDX]+"\n\n";
-			}
+			
+			//line break
 
 			if(selectedAgent.isConnectedToDead){
 				endGame1_text = endGame1_text+coToDead[coTDRND]+" ";
@@ -4539,23 +4633,33 @@ public class PolSys extends PApplet {
 				endGame1_text = endGame1_text+coToDeadX[coTDRNDX]+" ";
 			}
 
-			if(selectedAgent.isKiller){
-				endGame1_text = endGame1_text+isKill[isKRND]+" ";
-			}else{
-				endGame1_text = endGame1_text+isKillX[isKRNDX]+" ";
-			}
-
 			if(selectedAgent.isConnectedToKiller){
 				endGame1_text = endGame1_text+coToKill[cTKRND]+" ";
 			}else{
 				endGame1_text = endGame1_text+coToKillX[cTKRNDX]+" ";
 			}
-
-			if(selectedAgent.isHunter){
-				endGame1_text = endGame1_text+isHun[isHRND]+"\n\n";
+			
+			if(selectedAgent.isKiller){
+				endGame1_text = endGame1_text+isKill[isKRND]+"\n\n";
 			}else{
-				endGame1_text = endGame1_text+isHunX[isHRNDX]+"\n\n";
+				endGame1_text = endGame1_text+isKillX[isKRNDX]+"\n\n";
 			}
+			
+			//line break
+
+//			if(selectedAgent.isHunter){
+//				endGame1_text = endGame1_text+isHun[isHRND]+" ";
+//			}else{
+//				endGame1_text = endGame1_text+isHunX[isHRNDX]+" ";
+//			}
+//			
+//			if(selectedAgent.isTamer){
+//				endGame1_text = endGame1_text+isTamer[isTamRND]+"\n\n";
+//			}else{
+//				endGame1_text = endGame1_text+isTamerX[isTamRNDX]+"\n\n";
+//			}
+//			
+			//line break
 
 			if(selectedAgent.maxTimeWithoutRelationship > 5000.0f){
 				endGame1_text = endGame1_text+timeAlone[taRND]+" ";
@@ -5088,7 +5192,7 @@ public class PolSys extends PApplet {
 				}
 			}
 
-			resources2.clear();
+			resources.clear();
 
 
 			for(int i = 0; i < community.size(); i++){ //this is where i modify the variables of the agents based on start2 decisions
@@ -5115,6 +5219,10 @@ public class PolSys extends PApplet {
 
 			agents = null;
 			totalClusters.clear();
+			
+			startTimeFriendship = millis();
+			startTimeLove = millis();
+			startTimePower = millis();
 
 		}else if(startGame2 && finalCluster == null){ //debug mode to startgame2
 			println("generating community from scratch");
@@ -5345,6 +5453,9 @@ public class PolSys extends PApplet {
 		noiseVal+= 0.4f;
 		strokeWeight(1);
 		stroke(0);
+		for(int i = 1; i < 4; i++){
+			rect(rectBorderX+2*i, rectBorderY+2*i, rectBorderW-4*i, rectBorderHTemp-4*i);
+		}
 
 		rectBorderHTemp = rectBorderHMenu;
 
@@ -5357,7 +5468,7 @@ public class PolSys extends PApplet {
 		}
 
 		for(int i = 0; i < canShowSettings.length; i++){
-			if(interactions > i * 3) canShowSettings[i] = true;
+			if(interactions > i * 2) canShowSettings[i] = true;
 		}
 
 
@@ -5840,7 +5951,7 @@ public class PolSys extends PApplet {
 				line(a.pos.x-inc, a.pos.y, a.pos.x+inc, a.pos.y);
 				line(a.pos.x, a.pos.y-inc, a.pos.x, a.pos.y+inc*2.0f);
 			}
-			a.debug();
+			//a.debug();
 		}
 
 		onHover(2);
@@ -5876,7 +5987,7 @@ public class PolSys extends PApplet {
 		fill(150);
 		if (selRevolt) fill(0, interactionAlpha+50+selPulse);
 		if(language == "english"){
-			text("induce revolts", rectBorderX, choiceY);
+			text("you could induce revolts", rectBorderX, choiceY);
 		}else{
 			text("inciter \u00E0 la r\u00E9volte", rectBorderX, choiceY);
 		}
@@ -5887,7 +5998,7 @@ public class PolSys extends PApplet {
 		if (selOppression) fill(0, interactionAlpha+50+selPulse);
 
 		if(language == "english"){
-			text("induce oppressions", width*0.25f, choiceY);
+			text("you could induce oppressions", width*0.25f, choiceY);
 		}else{
 			text("inciter \u00E0 l'oppression", width*0.25f, choiceY);
 		}
@@ -5896,7 +6007,7 @@ public class PolSys extends PApplet {
 		if (forceCulturalSim) fill(0, interactionAlpha+50+selPulse);
 
 		if(language == "english"){
-			text("force cultural similarities", width*0.5f, choiceY);
+			text("you could force cultural similarities", width*0.5f, choiceY);
 		}else{
 			text("forcer une similarit\u00E9 culturelle", width*0.5f, choiceY);
 		}
@@ -5904,7 +6015,7 @@ public class PolSys extends PApplet {
 
 		if (forceCulturalDiff) fill(0, interactionAlpha+50+selPulse);
 		if(language == "english"){
-			text("force cultural differences", width*0.75f, choiceY);
+			text("you could force cultural differences", width*0.75f, choiceY);
 		}else{
 			text("forcer une diff\u00E9rence culturelle", width*0.75f, choiceY);
 		}
@@ -5948,7 +6059,7 @@ public class PolSys extends PApplet {
 				if(rectProceedAlpha < 200) rectProceedAlpha += 10.0f;
 			}
 		}else{
-			fill(150);
+			fill(0, 180);
 			textFont(textFont);
 			textSize(textFontSize);
 			if(language == "english"){
@@ -6023,9 +6134,7 @@ public class PolSys extends PApplet {
 		textFont(textFont);
 		textSize(textFontSize);
 		
-		resetButton.display();
-		resetButton.onClick();
-		
+
 		showAssumptions.display();
 		showAssumptions.onClick();
 		
@@ -6034,56 +6143,60 @@ public class PolSys extends PApplet {
 		
 		showAssumptions();
 		showLegend(2);
+		
+		resetButton.display();
+		resetButton.onClick();
+		
 
 		noStroke();
 		fill(255, rectFadeAlpha);
-
-		if(rectFadeAlpha > 0 && selectedAgent2 == null){
-			Agent a = community.get(0);
-			rectMode(CORNER);
-			//removing all the "-2px" and "+1px" to account for the stokeWeight
-			rectFadeTopH = (a.pos.y + rectBorderY) - rectFadeBuffer*1.5f;
-			rectFadeTopW = rectBorderW-2;
-
-			rectFadeRightW = -(rectBorderW - a.pos.x) + rectFadeBuffer*1.5f;
-
-			rectFadeRightH = rectBorderH-2;
-
-			rectFadeLeftW = (a.pos.x + rectBorderX) - rectFadeBuffer*1.5f;
-			rectFadeLeftH = rectBorderH-2;
-
-			rectFadeBottomH = -(rectBorderH - a.pos.y) + rectFadeBuffer*1.5f;
-			rectFadeBottomW = rectBorderW-2;
-
-			rect(rectFadeTopPos.x+1, rectFadeTopPos.y, rectFadeTopW, rectFadeTopH);
-			rect(rectFadeRightPos.x, rectFadeRightPos.y, rectFadeRightW, rectFadeRightH);
-			rect(rectFadeLeftPos.x+1, rectFadeLeftPos.y, rectFadeLeftW, rectFadeLeftH);
-			rect(rectFadeBottomPos.x+1, rectFadeBottomPos.y, rectFadeBottomW, rectFadeBottomH);
-
-			rectFadeAlpha -= rectFadeAlphaInc*2.0f;
-			if(rectFadeBuffer < rectFadeBufferMax) rectFadeBuffer += 0.25f;
-
-			//conditions to quicken the reveal of the world
-			if(!a.isAlive || a.connections != a.connecMax) rectFadeAlphaInc += 0.5f;
-		}else if(selectedAgent2 != null){
-			rectMode(CORNER);
-			rectFadeTopH = (selectedAgent2.pos.y + rectBorderY) - rectFadeBuffer*1.25f;
-			rectFadeTopW = rectBorderW-2;
-			rectFadeRightW = -(rectBorderW - selectedAgent2.pos.x) + rectFadeBuffer*1.25f;
-			rectFadeRightH = rectBorderH-2;
-			rectFadeLeftW = (selectedAgent2.pos.x + rectBorderX) - rectFadeBuffer*1.25f;
-			rectFadeLeftH = rectBorderH-2;
-			rectFadeBottomH = -(rectBorderH - selectedAgent2.pos.y) + rectFadeBuffer*1.25f;
-			rectFadeBottomW = rectBorderW-2;
-
-			rect(rectFadeTopPos.x+1, rectFadeTopPos.y, rectFadeTopW, rectFadeTopH);
-			rect(rectFadeRightPos.x, rectFadeRightPos.y, rectFadeRightW, rectFadeRightH);
-			rect(rectFadeLeftPos.x+1, rectFadeLeftPos.y, rectFadeLeftW, rectFadeLeftH);
-			rect(rectFadeBottomPos.x+1, rectFadeBottomPos.y, rectFadeBottomW, rectFadeBottomH);
-
-			if(fading) rectFadeAlpha += 10.0f;
-		}
-
+//
+//		if(rectFadeAlpha > 0 && selectedAgent2 == null){
+//			Agent a = community.get(0);
+//			rectMode(CORNER);
+//			//removing all the "-2px" and "+1px" to account for the stokeWeight
+//			rectFadeTopH = (a.pos.y + rectBorderY) - rectFadeBuffer*1.5f;
+//			rectFadeTopW = rectBorderW-2;
+//
+//			rectFadeRightW = -(rectBorderW - a.pos.x) + rectFadeBuffer*1.5f;
+//
+//			rectFadeRightH = rectBorderH-2;
+//
+//			rectFadeLeftW = (a.pos.x + rectBorderX) - rectFadeBuffer*1.5f;
+//			rectFadeLeftH = rectBorderH-2;
+//
+//			rectFadeBottomH = -(rectBorderH - a.pos.y) + rectFadeBuffer*1.5f;
+//			rectFadeBottomW = rectBorderW-2;
+//
+//			rect(rectFadeTopPos.x+1, rectFadeTopPos.y, rectFadeTopW, rectFadeTopH);
+//			rect(rectFadeRightPos.x, rectFadeRightPos.y, rectFadeRightW, rectFadeRightH);
+//			rect(rectFadeLeftPos.x+1, rectFadeLeftPos.y, rectFadeLeftW, rectFadeLeftH);
+//			rect(rectFadeBottomPos.x+1, rectFadeBottomPos.y, rectFadeBottomW, rectFadeBottomH);
+//
+//			rectFadeAlpha -= rectFadeAlphaInc*2.0f;
+//			if(rectFadeBuffer < rectFadeBufferMax) rectFadeBuffer += 0.25f;
+//
+//			//conditions to quicken the reveal of the world
+//			if(!a.isAlive || a.connections != a.connecMax) rectFadeAlphaInc += 0.5f;
+//		}else if(selectedAgent2 != null){
+//			rectMode(CORNER);
+//			rectFadeTopH = (selectedAgent2.pos.y + rectBorderY) - rectFadeBuffer*1.25f;
+//			rectFadeTopW = rectBorderW-2;
+//			rectFadeRightW = -(rectBorderW - selectedAgent2.pos.x) + rectFadeBuffer*1.25f;
+//			rectFadeRightH = rectBorderH-2;
+//			rectFadeLeftW = (selectedAgent2.pos.x + rectBorderX) - rectFadeBuffer*1.25f;
+//			rectFadeLeftH = rectBorderH-2;
+//			rectFadeBottomH = -(rectBorderH - selectedAgent2.pos.y) + rectFadeBuffer*1.25f;
+//			rectFadeBottomW = rectBorderW-2;
+//
+//			rect(rectFadeTopPos.x+1, rectFadeTopPos.y, rectFadeTopW, rectFadeTopH);
+//			rect(rectFadeRightPos.x, rectFadeRightPos.y, rectFadeRightW, rectFadeRightH);
+//			rect(rectFadeLeftPos.x+1, rectFadeLeftPos.y, rectFadeLeftW, rectFadeLeftH);
+//			rect(rectFadeBottomPos.x+1, rectFadeBottomPos.y, rectFadeBottomW, rectFadeBottomH);
+//
+//			if(fading) rectFadeAlpha += 10.0f;
+//		}
+//
 		if(rectProceedAlpha > 2){
 			fill(255, rectProceedAlpha);
 			stroke(0, rectProceedAlpha);
@@ -6199,10 +6312,12 @@ public class PolSys extends PApplet {
 				}
 
 				if(selectedAgent2.generation < 2){
-					endGame2_text = endGame2_text + " " + generationText[indexGen1];
+					endGame2_text = endGame2_text + " " + generationText[indexGen1]+"\n\n";
 				}else{
-					endGame2_text = endGame2_text + " " + generationText[indexGen2];
-				}			
+					endGame2_text = endGame2_text + " " + generationText[indexGen2]+"\n\n";
+				}	
+				
+				//line break
 
 				float friendsThreshold = 0;
 				for(int i = 0; i < community.size(); i++){
@@ -6238,10 +6353,12 @@ public class PolSys extends PApplet {
 				powerFacedThreshold /= community.size();
 
 				if(selectedAgent2.powerReceivedTotal > powerFacedThreshold){
-					endGame2_text = endGame2_text + " " + oppressionReceivedText[pReceived1] + "\n";
+					endGame2_text = endGame2_text + " " + oppressionReceivedText[pReceived1] + "\n\n";
 				}else{
-					endGame2_text = endGame2_text + " " + oppressionReceivedText[pReceived2] + "\n";
+					endGame2_text = endGame2_text + " " + oppressionReceivedText[pReceived2] + "\n\n";
 				}
+				
+				//line break
 
 				//----- this relies on player input
 				if(selectedAgent2.hasRevolted){
@@ -6263,9 +6380,9 @@ public class PolSys extends PApplet {
 				}
 
 				if(selectedAgent2.hasForcedDiff){
-					endGame2_text = endGame2_text + " " + hasForcedDiffText[indexDiff1];
+					endGame2_text = endGame2_text + " " + hasForcedDiffText[indexDiff1] + "\n\n";
 				}else{
-					endGame2_text = endGame2_text + " " + hasForcedDiffText[indexDiff2];
+					endGame2_text = endGame2_text + " " + hasForcedDiffText[indexDiff2] + "\n\n";
 				}
 
 				if(culturalHomogeneity() < 50){
@@ -6365,6 +6482,9 @@ public class PolSys extends PApplet {
 		noiseVal+= 0.4f;
 		strokeWeight(1);
 		stroke(0);
+		for(int i = 1; i < 5; i++){
+			rect(rectBorderX+2*i, rectBorderY+2*i, rectBorderW-4*i, rectBorderHTemp-4*i);
+		}
 
 		rectBorderHTemp = rectBorderHMenu;
 
@@ -6377,7 +6497,7 @@ public class PolSys extends PApplet {
 		}
 
 		for(int i = 0; i < canShowSettings.length; i++){
-			if(interactions > i * 3) canShowSettings[i] = true;
+			if(interactions > i) canShowSettings[i] = true;
 		}
 
 		fill(15);
@@ -6789,7 +6909,16 @@ public class PolSys extends PApplet {
 		strokeWeight(1);
 		drawVoronoi(3);
 		seasons.cycle();
-		//seasons.populate(Seasons.numberOfSeasons);
+		
+		//drawing the graphics buffers;
+		for(int i = 0; i < background1.length; i++){
+			
+			tint(255, 10+55*cos(fieldCosVal+TWO_PI*0.1f*i));
+			image(background1[i], 0, 0);
+			if(frameCount % 10 ==0 && !fading){
+				fieldCosVal += 0.05f;
+			}
+		}
 
 		if(language == "english"){
 			loadingText = "fetching the story of their lives";	
@@ -6810,7 +6939,7 @@ public class PolSys extends PApplet {
 			Nation o = others.get(i);
 			o.display();
 			o.update();
-			o.debug();
+			//o.debug();
 		}
 
 		for(int i = 0; i < trades.size(); i++){
@@ -6846,7 +6975,7 @@ public class PolSys extends PApplet {
 
 		if (selWealthInc) fill(0, interactionAlpha+50+selPulse);
 		if(language == "english"){
-			text("increase wealth", rectBorderX, choiceY);
+			text("you could increase wealth", rectBorderX, choiceY);
 		}else{
 			text("augmenter la richesse", rectBorderX, choiceY);
 		}
@@ -6857,7 +6986,7 @@ public class PolSys extends PApplet {
 		if (selWealthDec) fill(0, interactionAlpha+50+selPulse);
 
 		if(language == "english"){
-			text("decrease wealth", width*0.25f, choiceY);
+			text("you could decrease wealth", width*0.25f, choiceY);
 		}else{
 			text("diminuer la richesse", width*0.25f, choiceY);
 		}
@@ -6865,7 +6994,7 @@ public class PolSys extends PApplet {
 
 		if (selWarInduce) fill(0, interactionAlpha+50+selPulse);
 		if(language == "english"){
-			text("induce aggressivity", width*0.5f, choiceY);
+			text("you could induce aggressivity", width*0.5f, choiceY);
 		}else{
 			text("inciter \u00E0 la violence", width*0.5f, choiceY);
 		}
@@ -6873,7 +7002,7 @@ public class PolSys extends PApplet {
 
 		if (selAllianceBreak) fill(0, interactionAlpha+50+selPulse);
 		if(language == "english"){
-			text("break alliances", width*0.75f, choiceY);
+			text("you could break alliances", width*0.75f, choiceY);
 		}else{
 			text("rompre une alliance", width*0.75f, choiceY);
 		}
@@ -6924,11 +7053,11 @@ public class PolSys extends PApplet {
 			fill(255, 150);
 			rect(rectBorderX+1, rectBorderY+(rectBorderH*0.97f), rectBorderW, rectBorderH*0.03f);
 			fill(0, 200);
-			textAlign(CENTER);
+			textAlign(LEFT);
 			if(language == "english"){
-				text("click on a nation to decrease their wealth.", width*0.25f, rectBorderY+(rectBorderH*0.99f));
+				text("click on a nation to decrease their wealth.", rectBorderX*2.0f+showLegendButtonW*4.0f, rectBorderY+(rectBorderH*0.99f));
 			}else{
-				text("cliquez sur une nation pour l'appauvrir.", width*0.25f, rectBorderY+(rectBorderH*0.99f));
+				text("cliquez sur une nation pour l'appauvrir.", rectBorderX*2.0f+showLegendButtonW*4.0f, rectBorderY+(rectBorderH*0.99f));
 			}
 		}
 
@@ -6979,12 +7108,6 @@ public class PolSys extends PApplet {
 		fill(0);
 
 		death(3);
-
-		textFont(textFont);
-		textSize(textFontSize);
-		
-		resetButton.display();
-		resetButton.onClick();
 		
 		showAssumptions.display();
 		showAssumptions.onClick();
@@ -6995,52 +7118,55 @@ public class PolSys extends PApplet {
 		showAssumptions();
 		showLegend(3);
 		
+		resetButton.display();
+		resetButton.onClick();
+		
 		noStroke();
 		fill(255, rectFadeAlpha);
 
-		if(rectFadeAlpha > 0 && selectedNation == null){
-			rectMode(CORNER);
-			//removing all the "-2px" and "+1px" to account for the stokeWeight
-			rectFadeTopH = (nation.pos.y + rectBorderY) - rectFadeBuffer*2.5f;
-			rectFadeTopW = rectBorderW-2;
-
-			rectFadeRightW = -(rectBorderW - nation.pos.x) + rectFadeBuffer*2.5f;
-
-			rectFadeRightH = rectBorderH-2;
-
-			rectFadeLeftW = (nation.pos.x + rectBorderX) - rectFadeBuffer*2.5f;
-			rectFadeLeftH = rectBorderH-2;
-
-			rectFadeBottomH = -(rectBorderH - nation.pos.y) + rectFadeBuffer*2.5f;
-			rectFadeBottomW = rectBorderW-2;
-
-			rect(rectFadeTopPos.x+1, rectFadeTopPos.y, rectFadeTopW, rectFadeTopH);
-			rect(rectFadeRightPos.x, rectFadeRightPos.y, rectFadeRightW, rectFadeRightH);
-			rect(rectFadeLeftPos.x+1, rectFadeLeftPos.y, rectFadeLeftW, rectFadeLeftH);
-			rect(rectFadeBottomPos.x+1, rectFadeBottomPos.y, rectFadeBottomW, rectFadeBottomH);
-
-			rectFadeAlpha -= rectFadeAlphaInc*2.0f;
-			if(rectFadeBuffer < rectFadeBufferMax) rectFadeBuffer += 0.25f;
-
-		}else if(selectedNation != null){
-			rectMode(CORNER);
-			rectFadeTopH = (selectedNation.pos.y + rectBorderY) - rectFadeBuffer*2.0f;
-			rectFadeTopW = rectBorderW-2;
-			rectFadeRightW = -(rectBorderW - selectedNation.pos.x) + rectFadeBuffer*2.0f;
-			rectFadeRightH = rectBorderH-2;
-			rectFadeLeftW = (selectedNation.pos.x + rectBorderX) - rectFadeBuffer*2.0f;
-			rectFadeLeftH = rectBorderH-2;
-			rectFadeBottomH = -(rectBorderH - selectedNation.pos.y) + rectFadeBuffer*2.0f;
-			rectFadeBottomW = rectBorderW-2;
-
-			rect(rectFadeTopPos.x+1, rectFadeTopPos.y, rectFadeTopW, rectFadeTopH);
-			rect(rectFadeRightPos.x, rectFadeRightPos.y, rectFadeRightW, rectFadeRightH);
-			rect(rectFadeLeftPos.x+1, rectFadeLeftPos.y, rectFadeLeftW, rectFadeLeftH);
-			rect(rectFadeBottomPos.x+1, rectFadeBottomPos.y, rectFadeBottomW, rectFadeBottomH);
-
-			if(fading) rectFadeAlpha += 10.0f;
-		}
-
+//		if(rectFadeAlpha > 0 && selectedNation == null){
+//			rectMode(CORNER);
+//			//removing all the "-2px" and "+1px" to account for the stokeWeight
+//			rectFadeTopH = (nation.pos.y + rectBorderY) - rectFadeBuffer*2.5f;
+//			rectFadeTopW = rectBorderW-2;
+//
+//			rectFadeRightW = -(rectBorderW - nation.pos.x) + rectFadeBuffer*2.5f;
+//
+//			rectFadeRightH = rectBorderH-2;
+//
+//			rectFadeLeftW = (nation.pos.x + rectBorderX) - rectFadeBuffer*2.5f;
+//			rectFadeLeftH = rectBorderH-2;
+//
+//			rectFadeBottomH = -(rectBorderH - nation.pos.y) + rectFadeBuffer*2.5f;
+//			rectFadeBottomW = rectBorderW-2;
+//
+//			rect(rectFadeTopPos.x+1, rectFadeTopPos.y, rectFadeTopW, rectFadeTopH);
+//			rect(rectFadeRightPos.x, rectFadeRightPos.y, rectFadeRightW, rectFadeRightH);
+//			rect(rectFadeLeftPos.x+1, rectFadeLeftPos.y, rectFadeLeftW, rectFadeLeftH);
+//			rect(rectFadeBottomPos.x+1, rectFadeBottomPos.y, rectFadeBottomW, rectFadeBottomH);
+//
+//			rectFadeAlpha -= rectFadeAlphaInc*2.0f;
+//			if(rectFadeBuffer < rectFadeBufferMax) rectFadeBuffer += 0.25f;
+//
+//		}else if(selectedNation != null){
+//			rectMode(CORNER);
+//			rectFadeTopH = (selectedNation.pos.y + rectBorderY) - rectFadeBuffer*2.0f;
+//			rectFadeTopW = rectBorderW-2;
+//			rectFadeRightW = -(rectBorderW - selectedNation.pos.x) + rectFadeBuffer*2.0f;
+//			rectFadeRightH = rectBorderH-2;
+//			rectFadeLeftW = (selectedNation.pos.x + rectBorderX) - rectFadeBuffer*2.0f;
+//			rectFadeLeftH = rectBorderH-2;
+//			rectFadeBottomH = -(rectBorderH - selectedNation.pos.y) + rectFadeBuffer*2.0f;
+//			rectFadeBottomW = rectBorderW-2;
+//
+//			rect(rectFadeTopPos.x+1, rectFadeTopPos.y, rectFadeTopW, rectFadeTopH);
+//			rect(rectFadeRightPos.x, rectFadeRightPos.y, rectFadeRightW, rectFadeRightH);
+//			rect(rectFadeLeftPos.x+1, rectFadeLeftPos.y, rectFadeLeftW, rectFadeLeftH);
+//			rect(rectFadeBottomPos.x+1, rectFadeBottomPos.y, rectFadeBottomW, rectFadeBottomH);
+//
+//			if(fading) rectFadeAlpha += 10.0f;
+//		}
+//
 		fill(255, rectProceedAlpha);
 		stroke(0, rectProceedAlpha);
 		rectMode(CENTER);
@@ -7060,7 +7186,7 @@ public class PolSys extends PApplet {
 		if(rectBorderHTemp > rectBorderH && !canReset) rectBorderHTemp -= 1.0f;
 		if(interactionAlpha < 150 && !canReset) interactionAlpha += interactionAlphaInc;
 		hasClicked = false;
-		nation.update();
+		//nation.update();
 
 		for(int i = 0; i < others.size(); i++){
 			Nation o = others.get(i);
@@ -7088,6 +7214,15 @@ public class PolSys extends PApplet {
 					w.n2.currentWars.remove(w);
 					wars.remove(w);
 					w.gWar.setGain(0.0f);
+				}
+				
+				int totalWars = 0;
+				for(Nation n : others){
+					totalWars += n.currentWars.size();
+				}
+				if(totalWars == 0){
+					println("clearing wars");
+					wars.clear();
 				}
 			}
 		}
@@ -7184,7 +7319,7 @@ public class PolSys extends PApplet {
 				endGame3_text = endGame3_text+" "+st_war[indexWar0];
 			}
 
-			if(selectedNation.totalTradePartners > 3){
+			if(selectedNation.totalTradePartners > 1){
 				endGame3_text = endGame3_text+" "+st_tradePartners[indexPartners];
 			}else{
 				endGame3_text = endGame3_text+" "+st_tradePartners[indexPartners0];
@@ -7198,7 +7333,7 @@ public class PolSys extends PApplet {
 				endGame3_text = endGame3_text+" "+st_promiscuity[indexPromiscuity0];
 			}
 
-			if(selectedNation.totalAllies > 3){
+			if(selectedNation.totalAllies > 1){
 				endGame3_text = endGame3_text+" "+st_alliances[indexAlliances];
 				if(selectedNation.similarCulture()){
 					endGame3_text = endGame3_text+" "+st_similarCultureAllies[indexCultureAllies];
@@ -7207,9 +7342,9 @@ public class PolSys extends PApplet {
 				}
 
 				if(language == "english"){
-					endGame3_text = endGame3_text+"\n"+"\n"+"One cannot survive without friends.";
+					endGame3_text = endGame3_text+"\n"+"\n"+"One cannot survive without others.";
 				}else{
-					endGame3_text = endGame3_text+"\n"+"\n"+"On ne peut survivre sans le support des autres.";
+					endGame3_text = endGame3_text+"\n"+"\n"+"On ne peut survivre sans les autres.";
 				}
 			}else{
 				endGame3_text = endGame3_text+" "+st_alliances[indexAlliances0];
@@ -7424,8 +7559,8 @@ public class PolSys extends PApplet {
 		translate(translateBufferX, translateBufferY);
 
 		if(splash){
-			splash = false;
-			statement = true;
+			loadingText = "welcome";
+			fading = true;
 		}
 
 		if(statement){
@@ -7438,6 +7573,7 @@ public class PolSys extends PApplet {
 				statementPage1.alpha = 150;
 				statementPage2.alpha = 150;
 			}else if(statementPage1.onClick()){
+				interactions++;
 				clickSound(1);
 				statementPage = 1;
 				statementLerpVal = 0;
@@ -7446,6 +7582,7 @@ public class PolSys extends PApplet {
 				statementPage1.alpha = 250;
 				statementPage2.alpha = 150;
 			}else if(statementPage2.onClick()){
+				interactions++;
 				clickSound(1);
 				statementPage = 2;
 				statementLerpVal = 0;
@@ -7465,7 +7602,7 @@ public class PolSys extends PApplet {
 			}
 		}
 
-		if(resetButton.onClick() && canShowAssumptions){
+		if(canShowAssumptions && resetButton.onClick()){
 			canReset = true;
 
 			//fade sound
@@ -8104,7 +8241,7 @@ public class PolSys extends PApplet {
 				genPred--;
 				clickSound(3);
 			}
-
+			
 			for (int i = 0; i < agents.length; i++) {
 
 				if (mouseX < agents[i].pos.x + rad && mouseX > agents[i].pos.x - rad && mouseY < agents[i].pos.y + rad && mouseY > agents[i].pos.y - rad) {
@@ -8139,7 +8276,33 @@ public class PolSys extends PApplet {
 						//								removeConnec--;
 						//							}
 						//						}
-						agents[i].connecMax--;
+						for (int j = 0; j < PolSys.connections.size (); j++) {
+
+							Connection c = PolSys.connections.get(j);
+
+							if (c.a2 == agents[i] || c.a1 == agents[i]) { //if this is the connection between the two agents
+
+								// ------------------------------------------- Remove existing connection
+								PolSys.connections.remove(c);
+
+								if(c.a1.cluster != null){
+									c.a1.cluster.removeAgent(c.a2);
+								}
+								if(c.a2.cluster != null){
+									c.a2.cluster.removeAgent(c.a1);
+								}
+								
+								c.a1.currentConnections.remove(c);
+								c.a2.currentConnections.remove(c);
+
+								// --- Increase connection counter
+								c.a1.connections++;
+								c.a2.connections++;
+							}
+						}
+						
+						agents[i].connections = 0;
+						agents[i].connecMax = 0;
 					}
 
 					if (selFinalCluster && agents[i].cluster.agentsInside.size() > 1) { //selecting the final cluster
@@ -8160,6 +8323,15 @@ public class PolSys extends PApplet {
 						selectedAgent = null;
 						finalCluster = null;
 					}
+				}else if(mouseY < rectBorderH && !isHovering && (selGenPred || selEraseGrave || selIsolate)){
+					selGenPred = false;
+					selEraseGrave = false;
+					selIsolate = false;
+					selFinalCluster = false;
+					showGenPredInfo = false;
+					showIsolateInfo = false;
+					showEraseGrave = false;
+					showSelFinalClusterInfo = false;
 				}
 			}
 
@@ -8250,10 +8422,12 @@ public class PolSys extends PApplet {
 					clickSound(1);
 				}
 			}else{
+				boolean inRange = false;
 				for(int i = 0; i < community.size(); i++){
 					Agent a = community.get(i);
 					a.isSelected2 = false;
 					if(dist(mouseX, mouseY, a.pos.x, a.pos.y) < a.rad*0.9f && a.isAlive){
+						inRange = true;
 						if(!finalStructure) clickSound(3);
 						if(selRevolt){ // --------------------------------------select revolt!
 							//go through all the power relationships
@@ -8318,10 +8492,8 @@ public class PolSys extends PApplet {
 								if(averageCulture[k] >= a.culture[k]){ //if the average culture is above this agent's culture, then make this agent's culture = 0
 									a.culture[k] = 0.5f;
 								}
-
 								a.hasForcedDiff = true;
 							}
-							induceCulturalDiff--;
 						}
 
 						if(forceCulturalSim){ //--------------------------------------induce cultural sim
@@ -8346,7 +8518,6 @@ public class PolSys extends PApplet {
 							}
 
 							a.hasForcedSim = true;
-							induceCulturalSim--;
 						}
 
 						if(finalStructure){
@@ -8364,6 +8535,17 @@ public class PolSys extends PApplet {
 						}
 					}else if(selectedAgent2 != null && dist(mouseX, mouseY, selectedAgent2.pos.x, selectedAgent2.pos.y) > selectedAgent2.rad*1.1f && finalStructure){
 						selectedAgent2 = null;
+					}else if(mouseY < rectBorderH && !isHovering && (selRevolt || selOppression || forceCulturalDiff || forceCulturalSim)){
+						selRevolt = false;
+						selOppression = false;
+						forceCulturalDiff = false;
+						forceCulturalSim = false;
+						finalStructure = false;
+						showInduceRevoltInfo = false;
+						showInduceOppressionInfo = false;
+						showForceCultDiffInfo = false;
+						showForceCultSimInfo = false;
+						showFinalStructureInfo = false;
 					}
 				}
 			}
@@ -8500,6 +8682,17 @@ public class PolSys extends PApplet {
 						Nation nat = others.get(j);
 						nat.isSelected = false;
 					}
+				}else if(mouseY < rectBorderH && !isHovering && (selWealthInc || selWealthDec || selWarInduce || selAllianceBreak)){
+					selWealthInc = false;
+					selWealthDec = false;
+					selWarInduce = false;
+					selAllianceBreak = false;
+					selFinalProceed = false;
+					showWealthIncInfo = false;
+					showWealthDecInfo = false;
+					showWarInduceInfo = false;
+					showAllianceBreakInfo = false;
+					showFinalProceedInfo = false;
 				}
 			}
 
@@ -8520,11 +8713,12 @@ public class PolSys extends PApplet {
 			isPaused = !isPaused;
 		}
 
-		if(statement){
+		if(statement && interactions > 1){
 			if(key == ' '){
 				initiate = true;
 				loadText(language);
 				clickSound(2);
+				interactions = 0;
 			}
 
 			if(key == 'l'){
@@ -8533,7 +8727,7 @@ public class PolSys extends PApplet {
 		}
 
 		if(!emailScreen){
-			if(key == 'f'){
+			if(key == 's'){
 				saveFrame();
 			}else if(key =='e'){
 				language = "english";
